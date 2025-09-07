@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRegister } from '@/hooks'
+import { useAuth } from '@/hooks'
 import {
   Button,
   Card,
@@ -27,7 +27,7 @@ export default function RegisterForm({
   onSuccess,
   className,
 }: RegisterFormProps) {
-  const { register: registerUser, isLoading, error } = useRegister()
+  const { register: registerUser, isLoading, error } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     email: '',

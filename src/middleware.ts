@@ -8,39 +8,7 @@ function generateNonce(): string {
   return generateSecureToken(16)
 }
 
-// Protected routes that require authentication
-const protectedRoutes = ['/showcase', '/profile']
-
-// Auth routes that should redirect to showcase if already authenticated
-const authRoutes = ['/login', '/register', '/forgot-password']
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-
-  // Get auth token from cookies or headers
-  const token =
-    request.cookies.get(env.AUTH_TOKEN_KEY)?.value ||
-    request.headers.get('authorization')?.replace('Bearer ', '')
-
-  const isAuthenticated = !!token
-  const isProtectedRoute = protectedRoutes.some(route =>
-    pathname.startsWith(route)
-  )
-  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
-
-  // Redirect unauthenticated users from protected routes to login
-  if (isProtectedRoute && !isAuthenticated) {
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('redirect', pathname)
-    return NextResponse.redirect(loginUrl)
-  }
-
-  // Redirect authenticated users from auth routes to showcase
-  if (isAuthRoute && isAuthenticated) {
-    const showcaseUrl = new URL('/showcase', request.url)
-    return NextResponse.redirect(showcaseUrl)
-  }
-
+export function middleware(_request: NextRequest) {
   // Add security headers to all responses
   const response = NextResponse.next()
 

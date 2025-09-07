@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useLogout } from '@/hooks'
+import { useAuth } from '@/hooks'
 import { Button } from '@/components/ui'
 import {
   DropdownMenu,
@@ -19,7 +19,7 @@ interface UserDropdownProps {
 }
 
 export function UserDropdown({ user }: UserDropdownProps) {
-  const { logout, isLoading: isLoggingOut } = useLogout()
+  const { logout, isLoading: isLoggingOut } = useAuth()
 
   const handleLogout = async () => {
     try {

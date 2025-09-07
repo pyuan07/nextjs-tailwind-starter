@@ -22,10 +22,6 @@ interface AuthActions {
   updateProfile: (updates: UpdateUserRequest) => Promise<User>
   clearError: () => void
   refreshAuth: () => Promise<void>
-  refreshTokens: () => Promise<void>
-  setLoading: (loading: boolean) => void
-  setError: (error: string | null) => void
-  getTokenStatus: () => any // For debugging
 }
 
 type AuthStore = AuthState & AuthActions
@@ -38,14 +34,6 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
   error: null,
 
   // Actions
-  setLoading: (isLoading: boolean) => {
-    set({ isLoading })
-  },
-
-  setError: (error: string | null) => {
-    set({ error })
-  },
-
   clearError: () => {
     set({ error: null })
   },
@@ -171,24 +159,6 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
       set({ error: errorMessage, isLoading: false })
       throw err
     }
-  },
-
-  refreshTokens: async () => {
-    try {
-      set({ isLoading: true, error: null })
-
-      await authService.refreshToken()
-
-      await get().refreshAuth()
-    } catch (err) {
-      const errorMessage = getErrorMessage(err)
-      set({ error: errorMessage, isLoading: false })
-      throw err
-    }
-  },
-
-  getTokenStatus: () => {
-    return authService.getTokenStatus()
   },
 }))
 

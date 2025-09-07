@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuthStatus } from '@/hooks'
-import { tokenManager } from '@/utils/auth/tokenManager'
 import { Skeleton } from '@/components/ui'
 
 interface AuthGuardProps {
@@ -19,59 +18,44 @@ export function AuthGuard({
 }: AuthGuardProps) {
   const { isAuthenticated, isLoading } = useAuthStatus()
   const router = useRouter()
-  const [shouldRedirect, setShouldRedirect] = useState(false)
-  const [hasChecked, setHasChecked] = useState(false)
-  const [forceComplete, setForceComplete] = useState(false)
+  const pathname = usePathname()
 
-  // Timeout to prevent infinite loading
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setForceComplete(true)
-      setHasChecked(true)
-    }, 2000) // Max 2 seconds for AuthGuard
+  // Define route configurations
+  const protectedRoutes = ['/showcase', '/profile']
+  const authRoutes = ['/login', '/register', '/forgot-password']
 
-    return () => clearTimeout(timeout)
-  }, [])
+  const isProtectedRoute = protectedRoutes.some(route =>
+    pathname.startsWith(route)
+  )
+  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
 
   useEffect(() => {
-    // Reset redirect state when loading starts
-    if (isLoading) {
-      setHasChecked(false)
-      setShouldRedirect(false)
+    if (isLoading) return // Wait for auth state to be determined
+
+    // Redirect unauthenticated users from protected routes to login
+    if (isProtectedRoute && !isAuthenticated) {
+      const redirectUrl = `${redirectTo}?redirect=${encodeURIComponent(pathname)}`
+      router.push(redirectUrl)
       return
     }
 
-    // Only check after loading is complete and we haven't checked yet
-    if (!isLoading && !hasChecked) {
-      // Small delay to ensure auth state is fully synchronized
-      const timer = setTimeout(() => {
-        // Double-check with token manager for most accurate state
-        const hasValidTokens = tokenManager.isAuthenticated()
-        const isLoggedIn = isAuthenticated || hasValidTokens
-
-        if (!isLoggedIn) {
-          setShouldRedirect(true)
-        } else {
-          setShouldRedirect(false)
-        }
-
-        setHasChecked(true)
-      }, 150) // Slightly longer delay
-
-      return () => clearTimeout(timer)
+    // Redirect authenticated users from auth routes to showcase
+    if (isAuthRoute && isAuthenticated) {
+      router.push('/showcase')
+      return
     }
-  }, [isLoading, isAuthenticated, hasChecked])
+  }, [
+    isAuthenticated,
+    isLoading,
+    isProtectedRoute,
+    isAuthRoute,
+    pathname,
+    router,
+    redirectTo,
+  ])
 
-  useEffect(() => {
-    if (shouldRedirect) {
-      const currentPath = window.location.pathname
-      const redirectUrl = `${redirectTo}?redirect=${encodeURIComponent(currentPath)}`
-      router.push(redirectUrl)
-    }
-  }, [shouldRedirect, redirectTo, router])
-
-  // Show loading state while auth is being determined (but not forever)
-  if ((isLoading || !hasChecked) && !forceComplete) {
+  // Show loading state while determining auth
+  if (isLoading) {
     return (
       fallback || (
         <div className='min-h-screen flex items-center justify-center'>
@@ -85,8 +69,8 @@ export function AuthGuard({
     )
   }
 
-  // Show redirecting state while redirecting
-  if (shouldRedirect) {
+  // Show redirecting state for protected routes when not authenticated
+  if (isProtectedRoute && !isAuthenticated) {
     return (
       fallback || (
         <div className='min-h-screen flex items-center justify-center'>
@@ -98,20 +82,19 @@ export function AuthGuard({
     )
   }
 
-  // Show content if authenticated
-  const hasValidTokens = tokenManager.isAuthenticated()
-  if (isAuthenticated || hasValidTokens) {
-    return <>{children}</>
+  // Show redirecting state for auth routes when authenticated
+  if (isAuthRoute && isAuthenticated) {
+    return (
+      fallback || (
+        <div className='min-h-screen flex items-center justify-center'>
+          <div className='text-center'>
+            <p className='text-muted-foreground'>Redirecting...</p>
+          </div>
+        </div>
+      )
+    )
   }
 
-  // Fallback - shouldn't reach here, but safety net
-  return (
-    fallback || (
-      <div className='min-h-screen flex items-center justify-center'>
-        <div className='text-center'>
-          <p className='text-muted-foreground'>Redirecting to login...</p>
-        </div>
-      </div>
-    )
-  )
+  // Render children for all other cases
+  return <>{children}</>
 }

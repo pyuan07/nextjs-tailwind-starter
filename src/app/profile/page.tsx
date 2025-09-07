@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth, useLogout } from '@/hooks'
+import { useAuth } from '@/hooks'
 import {
   Button,
   Card,
@@ -16,7 +16,7 @@ import { Icon } from '@/lib/icons'
 export default function ProfilePage() {
   const router = useRouter()
   const { user, isAuthenticated, isLoading } = useAuth()
-  const { logout } = useLogout()
+  const { logout } = useAuth()
 
   // Redirect if not authenticated
   useEffect(() => {

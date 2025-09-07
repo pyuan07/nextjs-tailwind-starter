@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useLogin } from '@/hooks'
+import { useAuth } from '@/hooks'
 import {
   Button,
   Card,
@@ -18,7 +18,7 @@ import { Icon } from '@/lib/icons'
 function LoginContent() {
   const _router = useRouter()
   const searchParams = useSearchParams()
-  const { login, isLoading, error } = useLogin()
+  const { login, isLoading, error } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: '',

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { useAuth, useLogout, useUpdateProfile } from '@/hooks'
+import { useAuth } from '@/hooks'
 import {
   Card,
   CardContent,
@@ -18,8 +18,8 @@ import LoginForm from '../auth/LoginForm'
 
 const UserProfile = () => {
   const { user, isAuthenticated, isLoading } = useAuth()
-  const { logout, isLoading: isLoggingOut } = useLogout()
-  const { updateProfile, isLoading: isUpdating } = useUpdateProfile()
+  const { logout, isLoading: isLoggingOut } = useAuth()
+  const { updateProfile, isLoading: isUpdating } = useAuth()
   const [showLoginForm, setShowLoginForm] = useState(false)
 
   const handleLogout = async () => {

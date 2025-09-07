@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useLogin } from '@/hooks'
+import { useAuth } from '@/hooks'
 import {
   Button,
   Card,
@@ -24,7 +24,7 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ onSuccess, className }: LoginFormProps) {
-  const { login, isLoading, error } = useLogin()
+  const { login, isLoading, error } = useAuth()
   const [formData, setFormData] = useState<LoginRequest>({
     email: '',
     password: '',

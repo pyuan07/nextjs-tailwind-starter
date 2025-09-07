@@ -3,7 +3,7 @@ import { tokenManager } from '@/utils/auth/tokenManager'
 import type { LoginRequest, RegisterRequest, TokenPair } from '@/types/api/auth'
 import type { User } from '@/types/entities'
 
-// Generate realistic tokens with expiry
+// Generate realistic tokens with expiry (temperory used for demo user)
 function generateTokenPair(): TokenPair {
   const now = Date.now()
   const randomId = Math.random().toString(36).substr(2, 9)
