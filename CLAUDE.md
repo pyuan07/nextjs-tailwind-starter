@@ -1,0 +1,1 @@
+- This is a industry standard starter frontend website and mobile app with monorepo. this will be used for many projects and dev as a boilerplate. so, please help to always keep it clean, maintainable, extendable, easy to use, industry standard, simple and understandable. no trick or hack. do it properly.

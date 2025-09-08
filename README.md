@@ -1,6 +1,6 @@
-# Next.js Tailwind Starter
+# NextJS + React Native Monorepo Starter
 
-A modern, production-ready Next.js starter template built with the latest technologies and best practices for 2025.
+A modern monorepo starter with Next.js web app and React Native mobile app sharing common code.
 
 ## 🚀 Tech Stack
 
@@ -51,91 +51,38 @@ A modern, production-ready Next.js starter template built with the latest techno
 ## 📁 Project Structure
 
 ```
-src/
-├── app/                           # Next.js App Router (Pages)
-│   ├── (auth)/                   # Authentication route group
-│   │   ├── login/                # Login page with form validation
-│   │   ├── register/             # Registration page
-│   │   ├── forgot-password/      # Password recovery
-│   │   └── layout.tsx            # Auth-specific layout
-│   ├── api/                      # API routes
-│   │   └── health/               # Health check endpoint
-│   ├── showcase/                 # Protected component showcase page
-│   ├── profile/                  # User profile management
-│   ├── privacy/                  # Privacy policy page
-│   ├── terms/                    # Terms of service page
-│   ├── layout.tsx                # Root layout with providers
-│   ├── page.tsx                  # Landing page with hero section
-│   └── globals.css               # Global styles with Tailwind v4
-├── components/                   # React components
-│   ├── ui/                       # shadcn/ui base components
-│   │   ├── button.tsx            # Button with multiple variants
-│   │   ├── card.tsx              # Card container components
-│   │   ├── form.tsx              # Form components with validation
-│   │   ├── input.tsx             # Input components
-│   │   ├── loading.tsx           # Loading spinners and skeletons
-│   │   ├── dialog.tsx            # Modal/dialog components
-│   │   ├── dropdown-menu.tsx     # Dropdown menu components
-│   │   ├── navigation-menu.tsx   # Navigation components
-│   │   ├── sonner.tsx            # Toast notification setup
-│   │   ├── error-boundary.tsx    # Error handling wrapper
-│   │   └── [20+ more components] # Complete UI library
-│   ├── features/                 # Feature-specific components
-│   │   ├── auth/                 # Authentication components
-│   │   │   ├── AuthGuard.tsx     # Route protection wrapper
-│   │   │   ├── LoginForm.tsx     # Login form with validation
-│   │   │   └── RegisterForm.tsx  # Registration form
-│   │   ├── common/               # Shared feature components
-│   │   │   ├── Navbar.tsx        # Navigation bar
-│   │   │   ├── ThemeToggle.tsx   # Dark/light mode switcher
-│   │   │   └── UserDropdown.tsx  # User menu dropdown
-│   │   └── user/                 # User management components
-│   │       ├── UserProfile.tsx   # Profile management UI
-│   │       └── UsersList.tsx     # User listing component
-│   └── providers/                # Context providers
-│       ├── auth-initializer.tsx  # Authentication initialization
-│       └── theme-provider.tsx    # Theme context provider
-├── hooks/                        # Custom React hooks
-│   ├── api/                      # API-related hooks
-│   │   ├── useApi.ts             # Generic API hook
-│   │   └── __tests__/            # Hook tests
-│   ├── use-auth.ts               # Authentication hook
-│   ├── use-theme.ts              # Theme management hook
-│   └── use-toast.ts              # Toast notifications hook
-├── lib/                          # Utility libraries
-│   ├── utils.ts                  # General utilities and cn() helper
-│   ├── icons.tsx                 # Icon components (Lucide React)
-│   └── logger.ts                 # Logging utilities
-├── utils/                        # Helper functions
-│   ├── api/                      # API utilities
-│   │   ├── client.ts             # HTTP client configuration
-│   │   └── helpers.ts            # API helper functions
-│   ├── auth/                     # Authentication utilities
-│   │   └── tokenManager.ts      # Token management
-│   ├── security.ts               # Security utilities
-│   └── validation.ts             # Validation helpers
-├── types/                        # TypeScript type definitions
-│   ├── api/                      # API-related types
-│   │   ├── auth.ts               # Authentication types
-│   │   ├── users.ts              # User types
-│   │   └── common.ts             # Common API types
-│   ├── entities/                 # Domain entity types
-│   │   └── user.ts               # User entity definitions
-│   ├── ui/                       # UI-related types
-│   │   └── theme.ts              # Theme types
-│   └── common/                   # Common utility types
-├── services/                     # External services
-│   ├── authService.ts            # Authentication API service
-│   └── userService.ts            # User management service
-├── stores/                       # Zustand state stores
-│   └── auth-store.ts             # Authentication state management
-├── config/                       # Configuration
-│   └── env.ts                    # Environment variables
-├── constants/                    # Application constants
-│   └── api.ts                    # API constants
-├── test/                         # Test configuration
-│   └── setup.ts                  # Jest setup file
-└── middleware.ts                 # Next.js middleware for auth & security
+├── apps/
+│   ├── web/                      # Next.js Web Application
+│   │   ├── src/app/             # Next.js App Router (Pages)
+│   │   │   ├── (auth)/          # Authentication route group
+│   │   │   ├── api/             # API routes
+│   │   │   ├── showcase/        # Protected component showcase
+│   │   │   ├── profile/         # User profile management
+│   │   │   ├── layout.tsx       # Root layout with providers
+│   │   │   ├── page.tsx         # Landing page
+│   │   │   └── globals.css      # Global styles with Tailwind v4
+│   │   ├── src/components/      # Web-specific React components
+│   │   ├── src/hooks/           # Web-specific hooks
+│   │   └── package.json         # Web app dependencies
+│   └── mobile/                   # React Native Mobile App
+│       ├── App.tsx              # Main mobile app component
+│       ├── src/components/      # Mobile-specific components
+│       ├── tailwind.config.js   # NativeWind configuration
+│       ├── babel.config.js      # Babel config for NativeWind
+│       └── package.json         # Mobile app dependencies
+├── packages/
+│   └── shared/                   # Shared Code Package
+│       ├── src/services/        # API clients and business logic
+│       ├── src/types/           # TypeScript definitions
+│       ├── src/utils/           # Common utilities
+│       ├── src/stores/          # Zustand state stores
+│       ├── src/constants/       # App constants
+│       ├── src/hooks/           # Shared hooks
+│       ├── src/index.ts         # Package entry point
+│       └── package.json         # Shared package dependencies
+├── package.json                  # Root monorepo configuration
+├── turbo.json                    # Turborepo configuration
+└── tsconfig.json                 # TypeScript project references
 ```
 
 ### Key Files & Their Purposes:
@@ -165,47 +112,22 @@ src/
 ### Prerequisites
 
 - Node.js 18+
-- npm, yarn, or pnpm
+- npm or yarn
+- Expo CLI (for mobile development)
 
 ### Installation
 
-1. **Clone or download this starter:**
+```bash
+# Install dependencies
+npm install
 
-   ```bash
-   git clone <your-repo-url>
-   cd nextjs-tailwind-starter
-   ```
+# Start both apps in development
+npm run dev
 
-2. **Install dependencies:**
-
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Set up environment variables:**
-
-   ```bash
-   cp .env.example .env.local
-   ```
-
-   Edit `.env.local` with your configuration values.
-
-4. **Run the development server:**
-
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
-
-5. **Open your browser:**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+# Or start individually
+npm run dev:web     # Web app (http://localhost:3000)
+npm run dev:mobile  # Mobile app (Expo)
+```
 
 ### 🎮 Try the Demo
 
@@ -222,26 +144,29 @@ The application includes a demo authentication system:
 - **Showcase** (`/showcase`) - Protected component showcase page (requires login)
 - **Profile** (`/profile`) - User profile management (requires login)
 
-## 📜 Available Scripts
+## 🛠 Available Commands
 
-| Script                  | Description                               |
-| ----------------------- | ----------------------------------------- |
-| `npm run dev`           | Start development server with Turbopack   |
-| `npm run build`         | Build for production with Turbopack       |
-| `npm run start`         | Start production server                   |
-| `npm run lint`          | Run ESLint with auto-fix                  |
-| `npm run lint:check`    | Check ESLint issues without fixing        |
-| `npm run format`        | Format code with Prettier                 |
-| `npm run format:check`  | Check formatting without fixing           |
-| `npm run typecheck`     | Run TypeScript type checking              |
-| `npm run test`          | Run tests with Jest                       |
-| `npm run test:watch`    | Run tests in watch mode                   |
-| `npm run test:run`      | Run tests once without watch mode         |
-| `npm run test:coverage` | Run tests with coverage report            |
-| `npm run analyze`       | Analyze bundle size                       |
-| `npm run clean`         | Clean build outputs                       |
-| `npm run check-all`     | Run all quality checks (lint, type, test) |
-| `npm run prepare`       | Setup Husky git hooks                     |
+```bash
+# Development
+npm run dev                 # Start both apps
+npm run dev:web            # Start web app only
+npm run dev:mobile         # Start mobile app only
+
+# Building
+npm run build              # Build both apps
+npm run build:web          # Build web app
+npm run build:mobile       # Build mobile app
+
+# Code Quality
+npm run lint               # Lint all packages
+npm run lint:fix           # Fix linting issues
+npm run typecheck          # Run TypeScript checks
+npm run format             # Format code with Prettier
+
+# Utilities
+npm run clean              # Clean all build artifacts
+npm run clean:cache        # Clean Turbo cache
+```
 
 ## 🔧 Configuration
 
@@ -262,7 +187,7 @@ NODE_ENV=development
 This starter uses Tailwind CSS v4 with CSS-first configuration in `src/app/globals.css`:
 
 ```css
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --color-primary: hsl(221.2 83.2% 53.3%);
@@ -301,10 +226,10 @@ Route protection and security headers in `src/middleware.ts`:
 
 ```typescript
 // Protected routes (require authentication)
-const protectedRoutes = ['/showcase', '/profile']
+const protectedRoutes = ["/showcase", "/profile"];
 
 // Auth routes (redirect if already authenticated)
-const authRoutes = ['/login', '/register', '/forgot-password']
+const authRoutes = ["/login", "/register", "/forgot-password"];
 ```
 
 ### TypeScript Configuration
@@ -366,22 +291,22 @@ Complete theme system with:
 
 ```typescript
 interface AuthState {
-  user: User | null
-  isAuthenticated: boolean
-  login: (credentials: LoginCredentials) => Promise<void>
-  logout: () => void
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>(set => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
-  login: async credentials => {
+  login: async (credentials) => {
     // Authentication logic
   },
   logout: () => {
     // Logout logic
   },
-}))
+}));
 ```
 
 ## 🔒 Security Features
@@ -456,3 +381,5 @@ Built with these amazing technologies:
 **Happy coding! 🚀**
 
 For detailed usage instructions and code explanations, see [GUIDE.md](./GUIDE.md).
+
+# Test

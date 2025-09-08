@@ -23,6 +23,8 @@ This comprehensive guide will help you understand and effectively use this Next.
 
 ## Getting Started
 
+/clear
+
 ### Quick Setup
 
 1. **Clone the repository:**
@@ -241,7 +243,7 @@ hooks/
 ```typescript
 // hooks/use-auth.ts
 export function useAuth() {
-  const { user, isAuthenticated, login, logout } = useAuthStore()
+  const { user, isAuthenticated, login, logout } = useAuthStore();
 
   return {
     user,
@@ -249,20 +251,20 @@ export function useAuth() {
     login: useCallback(
       async (credentials: LoginCredentials) => {
         try {
-          await login(credentials)
-          toast.success('Login successful!')
+          await login(credentials);
+          toast.success("Login successful!");
         } catch (error) {
-          toast.error('Login failed')
-          throw error
+          toast.error("Login failed");
+          throw error;
         }
       },
-      [login]
+      [login],
     ),
     logout: useCallback(() => {
-      logout()
-      toast.success('Logged out successfully')
+      logout();
+      toast.success("Logged out successfully");
     }, [logout]),
-  }
+  };
 }
 ```
 
@@ -278,21 +280,21 @@ lib/
 #### `utils.ts` - Essential Utilities
 
 ```typescript
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 // Utility for combining class names with Tailwind merge
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 // Format date helper
 export function formatDate(date: Date | string) {
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(new Date(date))
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(new Date(date));
 }
 ```
 
@@ -308,38 +310,38 @@ stores/
 
 ```typescript
 interface AuthState {
-  user: User | null
-  isAuthenticated: boolean
-  login: (credentials: LoginCredentials) => Promise<void>
-  logout: () => void
-  refreshUser: () => Promise<void>
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
 
-  login: async credentials => {
-    const response = await authService.login(credentials)
+  login: async (credentials) => {
+    const response = await authService.login(credentials);
     set({
       user: response.user,
       isAuthenticated: true,
-    })
+    });
   },
 
   logout: () => {
-    authService.logout()
+    authService.logout();
     set({
       user: null,
       isAuthenticated: false,
-    })
+    });
   },
 
   refreshUser: async () => {
-    const user = await authService.getCurrentUser()
-    set({ user })
+    const user = await authService.getCurrentUser();
+    set({ user });
   },
-}))
+}));
 ```
 
 ### `/src/types` - Type Definitions
@@ -382,37 +384,37 @@ services/
 ### `middleware.ts` - Route Protection & Security
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname } = request.nextUrl;
 
   // Protected routes
-  const protectedRoutes = ['/showcase', '/profile']
-  const isProtectedRoute = protectedRoutes.some(route =>
-    pathname.startsWith(route)
-  )
+  const protectedRoutes = ["/showcase", "/profile"];
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname.startsWith(route),
+  );
 
   // Check authentication
-  const token = request.cookies.get('auth_token')?.value
+  const token = request.cookies.get("auth_token")?.value;
 
   if (isProtectedRoute && !token) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Security headers
-  const response = NextResponse.next()
+  const response = NextResponse.next();
 
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('X-XSS-Protection', '1; mode=block')
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-XSS-Protection", "1; mode=block");
 
-  return response
+  return response;
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-}
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
 ```
 
 ---
@@ -460,7 +462,7 @@ Modern utility-first styling:
 
 ```css
 /* globals.css - CSS-first configuration */
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --color-primary: hsl(221.2 83.2% 53.3%);
@@ -502,34 +504,34 @@ Replace the demo service with real API:
 class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     // Replace with your API endpoint
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error('Login failed')
+      throw new Error("Login failed");
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     // Store token securely
-    document.cookie = `auth_token=${data.token}; HttpOnly; Secure; SameSite=Strict`
+    document.cookie = `auth_token=${data.token}; HttpOnly; Secure; SameSite=Strict`;
 
-    return data
+    return data;
   }
 
   async getCurrentUser(): Promise<User> {
-    const response = await fetch('/api/auth/me', {
-      credentials: 'include',
-    })
+    const response = await fetch("/api/auth/me", {
+      credentials: "include",
+    });
 
     if (!response.ok) {
-      throw new Error('Failed to get user')
+      throw new Error("Failed to get user");
     }
 
-    return response.json()
+    return response.json();
   }
 }
 ```
@@ -540,7 +542,7 @@ Add routes to middleware:
 
 ```typescript
 // middleware.ts
-const protectedRoutes = ['/dashboard', '/settings', '/admin']
+const protectedRoutes = ["/dashboard", "/settings", "/admin"];
 ```
 
 ---
@@ -702,24 +704,24 @@ function ThemeToggle() {
 For data that should persist:
 
 ```typescript
-import { persist } from 'zustand/middleware'
+import { persist } from "zustand/middleware";
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
-    set => ({
-      language: 'en',
+    (set) => ({
+      language: "en",
       notifications: true,
-      setLanguage: language => set({ language }),
+      setLanguage: (language) => set({ language }),
       toggleNotifications: () =>
-        set(state => ({
+        set((state) => ({
           notifications: !state.notifications,
         })),
     }),
     {
-      name: 'user-settings',
-    }
-  )
-)
+      name: "user-settings",
+    },
+  ),
+);
 ```
 
 ---
@@ -732,7 +734,7 @@ The starter uses Tailwind v4 with CSS-first configuration:
 
 ```css
 /* app/globals.css */
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   /* Colors */
@@ -746,7 +748,7 @@ The starter uses Tailwind v4 with CSS-first configuration:
   --spacing-container: 1rem;
 
   /* Typography */
-  --font-family-sans: 'Inter Variable', sans-serif;
+  --font-family-sans: "Inter Variable", sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
 }
@@ -777,29 +779,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 #### Component Variants with CVA
 
 ```typescript
-import { cva, type VariantProps } from 'class-variance-authority'
+import { cva, type VariantProps } from "class-variance-authority";
 
 const cardVariants = cva(
-  'rounded-lg border bg-card text-card-foreground shadow-sm',
+  "rounded-lg border bg-card text-card-foreground shadow-sm",
   {
     variants: {
       variant: {
-        default: 'border-border',
-        destructive: 'border-red-500 bg-red-50 text-red-900',
-        success: 'border-green-500 bg-green-50 text-green-900',
+        default: "border-border",
+        destructive: "border-red-500 bg-red-50 text-red-900",
+        success: "border-green-500 bg-green-50 text-green-900",
       },
       size: {
-        sm: 'p-3',
-        md: 'p-6',
-        lg: 'p-8',
+        sm: "p-3",
+        md: "p-6",
+        lg: "p-8",
       },
     },
     defaultVariants: {
-      variant: 'default',
-      size: 'md',
+      variant: "default",
+      size: "md",
     },
-  }
-)
+  },
+);
 ```
 
 #### Responsive Design
@@ -831,14 +833,14 @@ const cardVariants = cva(
 // eslint.config.mjs
 export default [
   {
-    extends: ['next/core-web-vitals', 'next/typescript'],
+    extends: ["next/core-web-vitals", "next/typescript"],
     rules: {
-      'prefer-const': 'error',
-      'no-unused-vars': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
+      "prefer-const": "error",
+      "no-unused-vars": "error",
+      "react-hooks/exhaustive-deps": "warn",
     },
   },
-]
+];
 ```
 
 #### Prettier Setup
@@ -920,21 +922,21 @@ SMTP_PORT=587
 
 ```javascript
 // jest.config.js
-const nextJest = require('next/jest')
+const nextJest = require("next/jest");
 
 const createJestConfig = nextJest({
-  dir: './',
-})
+  dir: "./",
+});
 
 const customJestConfig = {
-  setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
-  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ["<rootDir>/src/test/setup.ts"],
+  testEnvironment: "jsdom",
   moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    "^@/(.*)$": "<rootDir>/src/$1",
   },
-}
+};
 
-module.exports = createJestConfig(customJestConfig)
+module.exports = createJestConfig(customJestConfig);
 ```
 
 ### Test Examples
@@ -972,24 +974,24 @@ describe('Button', () => {
 
 ```typescript
 // hooks/__tests__/useAuth.test.tsx
-import { renderHook, act } from '@testing-library/react'
-import { useAuth } from '@/hooks/use-auth'
+import { renderHook, act } from "@testing-library/react";
+import { useAuth } from "@/hooks/use-auth";
 
-describe('useAuth', () => {
-  it('should login successfully', async () => {
-    const { result } = renderHook(() => useAuth())
+describe("useAuth", () => {
+  it("should login successfully", async () => {
+    const { result } = renderHook(() => useAuth());
 
     await act(async () => {
       await result.current.login({
-        email: 'test@example.com',
-        password: 'password',
-      })
-    })
+        email: "test@example.com",
+        password: "password",
+      });
+    });
 
-    expect(result.current.isAuthenticated).toBe(true)
-    expect(result.current.user).toBeTruthy()
-  })
-})
+    expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.user).toBeTruthy();
+  });
+});
 ```
 
 ### Testing Best Practices
@@ -1023,18 +1025,18 @@ describe('useAuth', () => {
    ```javascript
    // next.config.ts
    export default {
-     output: 'standalone', // For Docker deployment
+     output: "standalone", // For Docker deployment
      experimental: {
        turbo: {
          rules: {
-           '*.svg': {
-             loaders: ['@svgr/webpack'],
-             as: '*.js',
+           "*.svg": {
+             loaders: ["@svgr/webpack"],
+             as: "*.js",
            },
          },
        },
      },
-   }
+   };
    ```
 
 ### Docker Deployment
@@ -1112,16 +1114,16 @@ npm run analyze
    ```typescript
    // components/features/common/Navbar.tsx
    const navigation = [
-     { name: 'Home', href: '/' },
-     { name: 'Dashboard', href: '/dashboard' },
-     { name: 'Profile', href: '/profile' },
-   ]
+     { name: "Home", href: "/" },
+     { name: "Dashboard", href: "/dashboard" },
+     { name: "Profile", href: "/profile" },
+   ];
    ```
 
 3. **Protect route (if needed):**
    ```typescript
    // middleware.ts
-   const protectedRoutes = ['/dashboard', '/profile']
+   const protectedRoutes = ["/dashboard", "/profile"];
    ```
 
 ### Creating New Components
@@ -1183,7 +1185,7 @@ npm run analyze
    // stores/auth-store.ts
    interface AuthState {
      // ... existing state
-     loginWithProvider: (provider: 'google' | 'github') => Promise<void>
+     loginWithProvider: (provider: "google" | "github") => Promise<void>;
    }
    ```
 
@@ -1194,14 +1196,14 @@ npm run analyze
    ```typescript
    // app/api/users/route.ts
    export async function GET() {
-     const users = await getUsersFromDatabase()
-     return Response.json(users)
+     const users = await getUsersFromDatabase();
+     return Response.json(users);
    }
 
    export async function POST(request: Request) {
-     const body = await request.json()
-     const user = await createUser(body)
-     return Response.json(user, { status: 201 })
+     const body = await request.json();
+     const user = await createUser(body);
+     return Response.json(user, { status: 201 });
    }
    ```
 
@@ -1210,8 +1212,8 @@ npm run analyze
    // services/userService.ts
    class UserService {
      async getUsers(): Promise<User[]> {
-       const response = await fetch('/api/users')
-       return response.json()
+       const response = await fetch("/api/users");
+       return response.json();
      }
    }
    ```
