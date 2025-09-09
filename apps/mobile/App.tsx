@@ -1,158 +1,85 @@
 import { StatusBar } from "expo-status-bar";
+import { GluestackUIProvider } from "@gluestack-ui/themed";
+import config from "./gluestack-ui.config";
 import {
-  StyleSheet,
   ScrollView,
-  View,
+  VStack,
+  HStack as _HStack,
   Text,
-  TouchableOpacity,
-} from "react-native";
+  Button as _Button,
+  ButtonText as _ButtonText,
+  Card,
+  Heading,
+  Badge as _Badge,
+  BadgeText as _BadgeText,
+  SafeAreaView,
+} from "@gluestack-ui/themed";
+import { HelloWorld } from "./src/components/HelloWorld";
+import { ComponentShowcase } from "./src/components/ComponentShowcase";
+import { UIShowcase } from "./src/components/UIShowcase";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <StatusBar style="auto" />
-      <ScrollView style={styles.scrollView}>
-        <Text style={styles.title}>🚀 Monorepo Starter</Text>
+    <GluestackUIProvider config={config}>
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <StatusBar style="auto" />
 
-        {/* Hello World Component */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Hello Developer! 👋</Text>
-          <Text style={styles.cardText}>
-            Welcome to your React Native + Next.js Monorepo!
-          </Text>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Get Started</Text>
-          </TouchableOpacity>
-        </View>
+        <ScrollView className="flex-1">
+          <VStack className="pt-12 pb-8">
+            <Heading className="text-3xl font-bold text-center text-gray-900 mb-6">
+              🚀 Monorepo Starter
+            </Heading>
 
-        {/* Shared Demo */}
-        <View style={[styles.card, styles.greenCard]}>
-          <Text style={styles.cardTitle}>📦 Shared Code Demo</Text>
-          <Text style={styles.cardText}>Package: Shared API Configuration</Text>
-          <Text style={styles.cardText}>
-            Description: This component demonstrates shared code usage between
-            web and mobile
-          </Text>
-        </View>
+            {/* Hello World Component */}
+            <HelloWorld name="Developer" />
 
-        {/* Component Showcase */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>🎨 Component Showcase</Text>
-          <View style={styles.row}>
-            <View style={[styles.chip, styles.blueChip]}>
-              <Text style={styles.chipText}>Button</Text>
-            </View>
-            <View style={[styles.chip, styles.whiteChip]}>
-              <Text style={[styles.chipText, styles.darkText]}>Card</Text>
-            </View>
-            <View style={[styles.chip, styles.purpleChip]}>
-              <Text style={styles.chipText}>Badge</Text>
-            </View>
-          </View>
-        </View>
+            {/* Shared Demo */}
+            <Card className="bg-green-50 mx-4 mb-4 p-5 rounded-xl shadow-sm">
+              <Heading className="text-xl font-semibold text-green-800 mb-2">
+                📦 Shared Code Demo
+              </Heading>
+              <Text className="text-gray-600 mb-1">
+                Package: Shared API Configuration
+              </Text>
+              <Text className="text-gray-600">
+                This component demonstrates shared code usage between web and
+                mobile
+              </Text>
+            </Card>
 
-        {/* Features */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>✨ Features Included</Text>
-          <Text style={styles.listItem}>• React Native with Expo</Text>
-          <Text style={styles.listItem}>• Next.js Web Application</Text>
-          <Text style={styles.listItem}>• Shared Code Package</Text>
-          <Text style={styles.listItem}>• TypeScript Support</Text>
-          <Text style={styles.listItem}>• Turborepo Monorepo</Text>
-        </View>
-      </ScrollView>
-    </View>
+            {/* Quick Component Showcase */}
+            <ComponentShowcase />
+
+            {/* Features */}
+            <Card className="bg-white mx-4 mb-4 p-5 rounded-xl shadow-sm">
+              <Heading className="text-xl font-semibold text-gray-800 mb-4">
+                ✨ Features Included
+              </Heading>
+              <VStack className="gap-2">
+                <Text className="text-gray-600">• React Native with Expo</Text>
+                <Text className="text-gray-600">• Next.js Web Application</Text>
+                <Text className="text-gray-600">• Shared Code Package</Text>
+                <Text className="text-gray-600">• TypeScript Support</Text>
+                <Text className="text-gray-600">• Turborepo Monorepo</Text>
+                <Text className="text-gray-600">
+                  • Gluestack UI + NativeWind
+                </Text>
+              </VStack>
+            </Card>
+
+            {/* Full UI Showcase */}
+            <Card className="bg-white mx-4 mb-4 p-5 rounded-xl shadow-sm">
+              <Heading className="text-xl font-semibold text-gray-800 mb-4">
+                🎯 Complete UI Showcase
+              </Heading>
+              <Text className="text-gray-600 mb-4">
+                Explore all available Gluestack UI components:
+              </Text>
+              <UIShowcase />
+            </Card>
+          </VStack>
+        </ScrollView>
+      </SafeAreaView>
+    </GluestackUIProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f3f4f6",
-  },
-  scrollView: {
-    flex: 1,
-    paddingTop: 50,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#1f2937",
-    marginBottom: 24,
-  },
-  card: {
-    backgroundColor: "#e0f2fe",
-    margin: 16,
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  greenCard: {
-    backgroundColor: "#f0fdf4",
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e40af",
-    marginBottom: 8,
-  },
-  cardText: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginBottom: 4,
-  },
-  button: {
-    backgroundColor: "#3b82f6",
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    marginTop: 16,
-  },
-  buttonText: {
-    color: "white",
-    textAlign: "center",
-    fontWeight: "600",
-  },
-  row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginTop: 12,
-  },
-  chip: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    minWidth: 80,
-  },
-  blueChip: {
-    backgroundColor: "#3b82f6",
-  },
-  whiteChip: {
-    backgroundColor: "#ffffff",
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-  },
-  purpleChip: {
-    backgroundColor: "#8b5cf6",
-  },
-  chipText: {
-    color: "white",
-    fontWeight: "600",
-    textAlign: "center",
-    fontSize: 12,
-  },
-  darkText: {
-    color: "#1f2937",
-  },
-  listItem: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginBottom: 4,
-  },
-});

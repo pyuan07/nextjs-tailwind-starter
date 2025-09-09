@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import {
+  Card,
+  Text,
+  Button,
+  ButtonText,
+  Heading,
+  VStack,
+} from "@gluestack-ui/themed";
 
 interface HelloWorldProps {
   name?: string;
@@ -7,18 +14,20 @@ interface HelloWorldProps {
 
 export const HelloWorld: React.FC<HelloWorldProps> = ({ name = "World" }) => {
   return (
-    <View className="bg-blue-50 p-6 rounded-lg shadow-sm mx-4 mb-4">
-      <Text className="text-2xl font-bold text-blue-800 text-center mb-2">
-        Hello {name}! 👋
-      </Text>
-      <Text className="text-gray-600 text-center mb-4">
-        Welcome to your React Native + Next.js Monorepo!
-      </Text>
-      <TouchableOpacity className="bg-blue-500 py-3 px-6 rounded-lg">
-        <Text className="text-white text-center font-semibold">
-          Get Started
+    <Card className="bg-blue-50 p-6 rounded-xl shadow-sm mx-4 mb-4">
+      <VStack className="gap-4 items-center">
+        <Heading className="text-2xl font-bold text-blue-800 text-center">
+          Hello {name}! 👋
+        </Heading>
+        <Text className="text-gray-600 text-center">
+          Welcome to your React Native + Next.js Monorepo!
         </Text>
-      </TouchableOpacity>
-    </View>
+        <Button className="bg-blue-500 rounded-lg px-6">
+          <ButtonText className="text-white font-semibold">
+            Get Started
+          </ButtonText>
+        </Button>
+      </VStack>
+    </Card>
   );
 };

@@ -4,6 +4,7 @@ module.exports = {
     "./App.{js,jsx,ts,tsx}",
     "./src/**/*.{js,jsx,ts,tsx}",
     "./components/**/*.{js,jsx,ts,tsx}",
+    "./node_modules/@gluestack-ui/themed/lib/components/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {},
