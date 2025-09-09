@@ -4,15 +4,28 @@ A modern monorepo starter with Next.js web app and React Native mobile app shari
 
 ## 🚀 Tech Stack
 
-- **[Next.js 15](https://nextjs.org/)** - React framework with App Router and Turbopack
-- **[React 19](https://react.dev/)** - Latest React with Server Components
-- **[TypeScript](https://www.typescriptlang.org/)** - Full type safety with strict configuration
+### **Web Application (Next.js)**
+
+- **[Next.js 15.5.2](https://nextjs.org/)** - React framework with App Router and Turbopack
+- **[React 19.1.0](https://react.dev/)** - Latest React with Server Components
+- **[TypeScript 5](https://www.typescriptlang.org/)** - Full type safety with strict configuration
 - **[Tailwind CSS v4](https://tailwindcss.com/)** - Utility-first styling with CSS-first configuration
 - **[shadcn/ui](https://ui.shadcn.com/)** - Beautifully designed components built with Radix UI
-- **[Zustand](https://zustand.docs.pmnd.rs/)** - Lightweight state management (~1KB)
 - **[React Hook Form](https://react-hook-form.com/)** - Performant forms with easy validation
-- **[Zod](https://zod.dev/)** - TypeScript-first schema validation
-- **Modern Tooling** - ESLint 9, Prettier, Husky, Lint-staged, Jest
+
+### **Mobile Application (React Native)**
+
+- **[Expo 53.0.22](https://expo.dev/)** - React Native platform with managed workflow
+- **[React Native 0.79.6](https://reactnative.dev/)** - Cross-platform mobile development
+- **[NativeWind 4.0.1](https://www.nativewind.dev/)** - Tailwind CSS for React Native
+- **[React Navigation 7](https://reactnavigation.org/)** - Navigation library for React Native
+
+### **Shared Libraries & Tools**
+
+- **[Zustand 5.0.8](https://zustand.docs.pmnd.rs/)** - Lightweight state management (~1KB)
+- **[Zod 4.1.5](https://zod.dev/)** - TypeScript-first schema validation
+- **[Turborepo 2.2.3](https://turbo.build/)** - High-performance build system for monorepos
+- **Modern Tooling** - ESLint 8, Prettier, Husky, Lint-staged
 
 ## ✨ Features
 
@@ -39,7 +52,7 @@ A modern monorepo starter with Next.js web app and React Native mobile app shari
 - **TypeScript** - Strict type safety throughout the codebase
 - **Hot Reload** - Instant feedback during development
 - **Code Quality** - ESLint 9, Prettier, and pre-commit hooks (Husky)
-- **Testing Ready** - Jest setup with React Testing Library
+- **Testing Ready** - Jest configuration ready for implementation
 
 ### 🛡️ Security & Production
 
@@ -111,9 +124,10 @@ A modern monorepo starter with Next.js web app and React Native mobile app shari
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or yarn
-- Expo CLI (for mobile development)
+- **Node.js 18+** (Latest LTS recommended)
+- **npm 10.2.4+** (as specified in packageManager)
+- **Expo CLI** (for mobile development): `npm install -g @expo/cli`
+- **EAS CLI** (for building): `npm install -g eas-cli`
 
 ### Installation
 
@@ -149,23 +163,32 @@ The application includes a demo authentication system:
 ```bash
 # Development
 npm run dev                 # Start both apps
-npm run dev:web            # Start web app only
-npm run dev:mobile         # Start mobile app only
+npm run dev:web            # Start web app only (http://localhost:3000)
+npm run dev:mobile         # Start mobile app with Expo
 
 # Building
 npm run build              # Build both apps
-npm run build:web          # Build web app
-npm run build:mobile       # Build mobile app
+npm run build:web          # Build web app with Turbopack
+npm run build:mobile       # Build mobile app with EAS
+
+# Mobile Development
+npm run mobile:android     # Run on Android device/emulator
+npm run mobile:ios         # Run on iOS device/simulator
+npm run mobile:reset       # Clear Expo cache and restart
 
 # Code Quality
 npm run lint               # Lint all packages
 npm run lint:fix           # Fix linting issues
 npm run typecheck          # Run TypeScript checks
 npm run format             # Format code with Prettier
+npm run format:check       # Check code formatting
+npm run check-all          # Run lint and typecheck together
 
 # Utilities
-npm run clean              # Clean all build artifacts
-npm run clean:cache        # Clean Turbo cache
+npm run clean              # Clean all build artifacts and dependencies
+npm run clean:cache        # Clean Turbo cache only
+npm run clean:deps         # Clean node_modules only
+npm run fresh              # Clean everything and reinstall
 ```
 
 ## 🔧 Configuration
@@ -320,12 +343,14 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 ## 🧪 Testing
 
-Jest setup with React Testing Library:
+Testing infrastructure is configured but needs implementation:
 
-- **Unit Tests** - Component and hook testing
-- **Integration Tests** - Feature testing
-- **Coverage Reports** - Track test coverage
-- **Watch Mode** - Development testing workflow
+- **Jest Configuration** - Ready for unit and integration tests
+- **React Testing Library** - Component testing framework available
+- **Test Scripts** - `npm run test` and `npm run test:web`/`npm run test:mobile`
+- **Coverage** - Ready to track test coverage once tests are implemented
+
+> **Note**: Test files need to be created. Infrastructure is ready in `/package.json` scripts.
 
 ## 🚀 Deployment
 
@@ -382,4 +407,41 @@ Built with these amazing technologies:
 
 For detailed usage instructions and code explanations, see [GUIDE.md](./GUIDE.md).
 
-# Test
+---
+
+## 📱 Mobile Development
+
+### Expo Development
+
+```bash
+# Start development server
+npm run dev:mobile
+
+# Run on specific platforms
+expo start --android    # Android device/emulator
+expo start --ios        # iOS device/simulator
+expo start --web        # Web browser (for testing)
+
+# Clear cache if needed
+expo start --clear
+```
+
+### Building for Production
+
+```bash
+# Build for all platforms
+npm run build:mobile
+
+# Build for specific platforms
+eas build --platform android
+eas build --platform ios
+```
+
+### Mobile-Specific Features
+
+- **NativeWind** - Tailwind CSS styling for React Native
+- **React Navigation** - Stack navigation with type safety
+- **Expo managed workflow** - Simplified development and building
+- **Shared codebase** - Business logic shared with web app
+
+---

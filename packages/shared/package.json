@@ -11,7 +11,6 @@
     "typecheck": "tsc --noEmit",
     "clean:deps": "rm -rf node_modules"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/node": "^20.19.13",
     "eslint": "^9",

@@ -56,6 +56,9 @@
       "prettier --write"
     ]
   },
+  "overrides": {
+    "ansi-styles": "^4.3.0"
+  },
   "packageManager": "npm@10.2.4",
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.13"

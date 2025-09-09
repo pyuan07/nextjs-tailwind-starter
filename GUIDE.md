@@ -23,8 +23,6 @@ This comprehensive guide will help you understand and effectively use this Next.
 
 ## Getting Started
 
-/clear
-
 ### Quick Setup
 
 1. **Clone the repository:**
@@ -81,12 +79,32 @@ This starter follows modern React patterns and Next.js best practices:
 
 ### Key Architectural Decisions
 
-- **App Router** - Uses Next.js 13+ App Router for modern routing
-- **Server Components** - Leverages React 19 Server Components
+- **Monorepo Architecture** - Turborepo for efficient multi-app development
+- **App Router** - Uses Next.js 15.5.2 App Router for modern routing
+- **Server Components** - Leverages React 19.1.0 Server Components
 - **Zustand** - Lightweight state management over Redux
 - **shadcn/ui** - Component library built on Radix UI primitives
 - **Zod + React Hook Form** - Type-safe form validation
 - **Middleware** - Route protection and security headers
+
+### Monorepo Structure
+
+This project uses **Turborepo** to manage a monorepo with three main packages:
+
+```
+├── apps/
+│   ├── web/          # Next.js web application
+│   └── mobile/       # React Native mobile app (Expo)
+└── packages/
+    └── shared/       # Shared code between apps
+```
+
+**Benefits:**
+
+- **Code Reuse** - Share types, services, and utilities
+- **Consistent Development** - Same tooling across all apps
+- **Efficient Builds** - Turborepo caching and parallelization
+- **Type Safety** - Shared TypeScript definitions
 
 ---
 
