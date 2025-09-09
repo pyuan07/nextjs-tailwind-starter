@@ -1,5 +1,6 @@
-/* eslint-disable no-console, no-unreachable */
+/* eslint-disable no-unreachable */
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 interface HealthCheckResponse {
   status: "healthy" | "unhealthy";
@@ -79,7 +80,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Health check failed:", error);
+    logger.error("Health check failed", error as Error);
 
     return NextResponse.json(
       {
@@ -99,7 +100,7 @@ async function _checkDatabase(): Promise<boolean> {
     // Example: await db.raw('SELECT 1')
     return true;
   } catch (error) {
-    console.error("Database health check failed:", error);
+    logger.error("Database health check failed", error as Error);
     return false;
   }
 }
@@ -110,7 +111,7 @@ async function _checkRedis(): Promise<boolean> {
     // Example: await redis.ping()
     return true;
   } catch (error) {
-    console.error("Redis health check failed:", error);
+    logger.error("Redis health check failed", error as Error);
     return false;
   }
 }
@@ -121,7 +122,7 @@ async function _checkExternalAPIs(): Promise<boolean> {
     // Example: await fetch('https://api.example.com/health')
     return true;
   } catch (error) {
-    console.error("External API health check failed:", error);
+    logger.error("External API health check failed", error as Error);
     return false;
   }
 }

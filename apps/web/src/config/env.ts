@@ -1,5 +1,5 @@
+/* eslint-disable no-console */
 // Validated environment configuration with proper error handling
-import { logger } from "@/lib/logger";
 
 // Environment variable validation schema
 interface EnvSchema {
@@ -26,7 +26,7 @@ function validateEnv(): EnvSchema {
 
   // Log environment validation in development
   if (nodeEnv === "development") {
-    logger.info("Environment variables validated successfully", {
+    console.info("Environment variables validated successfully", {
       NODE_ENV: nodeEnv,
       API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || "default",
       APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "default",

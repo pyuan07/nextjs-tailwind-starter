@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { logger } from "@/lib/logger";
 import { useAuth } from "@/hooks";
 import {
   Button,
@@ -38,7 +39,7 @@ function LoginContent() {
         window.location.href = redirectTo;
       }, 500);
     } catch (err) {
-      console.error("Login failed:", err);
+      logger.error("Login failed", err as Error);
     }
   };
 
