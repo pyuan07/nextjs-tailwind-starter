@@ -1,0 +1,48 @@
+{
+  "navigation": {
+    "home": "Utama",
+    "profile": "Profil",
+    "showcase": "Pameran",
+    "login": "Log Masuk",
+    "register": "Daftar",
+    "logout": "Log Keluar"
+  },
+  "actions": {
+    "submit": "Hantar",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "edit": "Edit",
+    "delete": "Padam",
+    "confirm": "Sahkan",
+    "continue": "Teruskan",
+    "back": "Kembali",
+    "next": "Seterusnya",
+    "previous": "Sebelumnya",
+    "loading": "Memuatkan...",
+    "search": "Cari",
+    "filter": "Tapis",
+    "clear": "Kosongkan",
+    "close": "Tutup"
+  },
+  "status": {
+    "success": "Berjaya",
+    "error": "Ralat",
+    "warning": "Amaran",
+    "info": "Maklumat",
+    "pending": "Menunggu",
+    "completed": "Selesai",
+    "failed": "Gagal"
+  },
+  "theme": {
+    "light": "Terang",
+    "dark": "Gelap",
+    "system": "Sistem",
+    "toggleTheme": "Tukar tema"
+  },
+  "language": {
+    "english": "English",
+    "chinese": "中文简体",
+    "malay": "Bahasa Melayu",
+    "switchLanguage": "Tukar bahasa"
+  }
+}

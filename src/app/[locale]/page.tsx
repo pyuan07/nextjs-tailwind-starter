@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import {
   Button,
   Card,
@@ -9,6 +10,7 @@ import {
 } from '@/components/ui'
 
 export default function Home() {
+  const t = useTranslations('pages.home')
   const techStack = [
     { name: 'Next.js 15', desc: 'React framework with App Router & Turbopack' },
     {
@@ -16,7 +18,7 @@ export default function Home() {
       desc: 'Utility-first CSS with new CSS-first config',
     },
     {
-      name: 'TypeScript',
+      name: t('features.typescript'),
       desc: 'Type-safe development with modern JavaScript',
     },
     {
@@ -31,18 +33,17 @@ export default function Home() {
       <main className='container mx-auto px-4 py-16'>
         {/* Hero Section */}
         <div className='text-center mb-16'>
-          <h2 className='text-4xl font-bold mb-4'>Simple. Modern. Ready.</h2>
+          <h2 className='text-4xl font-bold mb-4'>{t('title')}</h2>
           <p className='text-xl text-muted-foreground mb-8 max-w-2xl mx-auto'>
-            A clean, well-structured starter template for your next React
-            project. Built with the latest technologies and best practices.
+            {t('description')}
           </p>
           <div className='flex gap-4 justify-center'>
             <Link href='/showcase'>
-              <Button size='lg'>Explore Showcase →</Button>
+              <Button size='lg'>{t('getStarted')} →</Button>
             </Link>
             <Link href='/login'>
               <Button variant='outline' size='lg'>
-                Try Demo
+                {t('learnMore')}
               </Button>
             </Link>
           </div>
@@ -51,7 +52,7 @@ export default function Home() {
         {/* Tech Stack */}
         <div className='mb-16'>
           <h3 className='text-2xl font-semibold text-center mb-8'>
-            Built With
+            {t('features.title')}
           </h3>
           <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6'>
             {techStack.map((tech, i) => (
@@ -80,17 +81,17 @@ export default function Home() {
                 href='/terms'
                 className='text-muted-foreground hover:text-foreground transition-colors'
               >
-                Terms of Service
+                {useTranslations('pages.terms')('title')}
               </Link>
               <Link
                 href='/privacy'
                 className='text-muted-foreground hover:text-foreground transition-colors'
               >
-                Privacy Policy
+                {useTranslations('pages.privacy')('title')}
               </Link>
             </div>
             <p className='text-sm text-muted-foreground text-center'>
-              Built with Next.js 15, React 19, TypeScript, and Tailwind CSS v4
+              {t('subtitle')}
             </p>
           </div>
         </div>

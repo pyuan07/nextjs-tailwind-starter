@@ -1,0 +1,149 @@
+{
+  "home": {
+    "title": "Welcome to Next.js Starter",
+    "subtitle": "A modern, full-featured starter template for Next.js applications",
+    "description": "Built with TypeScript, Tailwind CSS, and industry best practices",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "features": {
+      "title": "Features",
+      "typescript": "TypeScript Support",
+      "tailwind": "Tailwind CSS",
+      "authentication": "Authentication Ready",
+      "responsive": "Responsive Design",
+      "darkMode": "Dark Mode",
+      "internationalization": "Internationalization"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account settings and preferences",
+    "personalInfo": "Personal Information",
+    "accountSettings": "Account Settings",
+    "preferences": "Preferences",
+    "security": "Security",
+    "updateProfile": "Update Profile",
+    "changePassword": "Change Password",
+    "deleteAccount": "Delete Account"
+  },
+  "showcase": {
+    "title": "shadcn/ui Component Showcase",
+    "subtitle": "Professional, accessible React components built with Radix UI and Tailwind CSS.",
+    "components": "Components",
+    "features": "Features",
+    "examples": "Examples",
+    "buttons": {
+      "title": "Button Components",
+      "description": "Professional button system with essential variants",
+      "variants": "Variants:",
+      "sizes": "Sizes:",
+      "interactiveStates": "Interactive States:",
+      "default": "Default",
+      "destructive": "Destructive",
+      "outline": "Outline",
+      "secondary": "Secondary",
+      "ghost": "Ghost",
+      "link": "Link",
+      "small": "Small",
+      "large": "Large",
+      "clickForLoading": "Click for Loading",
+      "loading": "Loading...",
+      "disabled": "Disabled",
+      "showToast": "Show Toast"
+    },
+    "badges": {
+      "title": "Badge Components",
+      "description": "Status indicators and labels"
+    },
+    "forms": {
+      "title": "Form Components",
+      "description": "Complete form controls with consistent styling",
+      "name": "Name",
+      "email": "Email",
+      "priority": "Priority",
+      "message": "Message",
+      "placeholders": {
+        "name": "Enter your name",
+        "email": "Enter your email",
+        "message": "Enter your message",
+        "selectPriority": "Select priority"
+      },
+      "priorities": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical"
+      }
+    },
+    "dropdowns": {
+      "title": "Dropdown Components",
+      "description": "Interactive dropdown menus",
+      "simpleDropdown": "Simple Dropdown",
+      "userMenu": "User Menu",
+      "selectOption": "Select an option",
+      "demoUser": "Demo User",
+      "myAccount": "My Account",
+      "settings": "Settings",
+      "support": "Support",
+      "signOut": "Sign out",
+      "options": {
+        "option1": "Option 1",
+        "option2": "Option 2",
+        "option3": "Option 3"
+      }
+    },
+    "dialogs": {
+      "title": "Dialog/Modal Components",
+      "description": "Modal dialogs for user interactions",
+      "simple": {
+        "trigger": "Simple Dialog",
+        "title": "Simple Dialog",
+        "description": "This is a simple dialog example with basic content.",
+        "content": "You can add any content here. This dialog will close when you click the X or press Escape."
+      },
+      "confirmation": {
+        "trigger": "Confirmation Dialog",
+        "title": "Are you absolutely sure?",
+        "description": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+        "cancel": "Cancel",
+        "continue": "Continue"
+      },
+      "form": {
+        "trigger": "Form Dialog",
+        "title": "Edit Profile",
+        "description": "Make changes to your profile here. Click save when you're done.",
+        "saveChanges": "Save changes"
+      }
+    },
+    "toasts": {
+      "buttonClicked": "Button clicked!",
+      "loadingCompleted": "Loading demo completed!",
+      "optionSelected": "{option} selected",
+      "actionConfirmed": "Action confirmed!",
+      "profileSaved": "Profile saved!"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: {date}",
+    "introduction": "This Privacy Policy describes how we collect, use, and protect your information.",
+    "dataCollection": "Data Collection",
+    "dataUsage": "Data Usage",
+    "dataSecurity": "Data Security",
+    "contact": "Contact Us"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: {date}",
+    "introduction": "These Terms of Service govern your use of our application.",
+    "userResponsibilities": "User Responsibilities",
+    "serviceProvision": "Service Provision",
+    "limitation": "Limitation of Liability",
+    "contact": "Contact Us"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "The page you're looking for doesn't exist.",
+    "goHome": "Go Home"
+  }
+}

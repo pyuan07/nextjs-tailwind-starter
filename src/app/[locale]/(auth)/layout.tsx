@@ -14,14 +14,21 @@ export default function AuthLayout({
   return (
     <div className='min-h-screen bg-gradient-to-br from-background to-muted/20'>
       {/* Header */}
-      <header className='absolute top-0 left-0 right-0 z-10'>
+      <header className='absolute top-0 left-0 right-0 z-50'>
         <div className='container mx-auto px-4 py-6'>
           <div className='flex items-center justify-between'>
             <Link
               href='/'
+              className='text-lg font-semibold text-foreground hover:text-foreground/80 transition-colors flex items-center gap-2'
+            >
+              <span>←</span>
+              <span>Back to Home</span>
+            </Link>
+            <Link
+              href='/'
               className='text-xl font-bold text-foreground hover:text-foreground/80 transition-colors'
             >
-              ← Back to Home
+              React Tailwind Starter
             </Link>
           </div>
         </div>

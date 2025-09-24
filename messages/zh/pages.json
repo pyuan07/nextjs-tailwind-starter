@@ -1,0 +1,149 @@
+{
+  "home": {
+    "title": "欢迎使用 Next.js 快速启动模板",
+    "subtitle": "现代化、功能完整的 Next.js 应用程序启动模板",
+    "description": "使用 TypeScript、Tailwind CSS 和行业最佳实践构建",
+    "getStarted": "开始使用",
+    "learnMore": "了解更多",
+    "features": {
+      "title": "特性",
+      "typescript": "TypeScript 支持",
+      "tailwind": "Tailwind CSS",
+      "authentication": "身份认证就绪",
+      "responsive": "响应式设计",
+      "darkMode": "深色模式",
+      "internationalization": "国际化"
+    }
+  },
+  "profile": {
+    "title": "个人资料",
+    "subtitle": "管理您的账户设置和偏好",
+    "personalInfo": "个人信息",
+    "accountSettings": "账户设置",
+    "preferences": "偏好设置",
+    "security": "安全",
+    "updateProfile": "更新资料",
+    "changePassword": "修改密码",
+    "deleteAccount": "删除账户"
+  },
+  "showcase": {
+    "title": "shadcn/ui 组件展示",
+    "subtitle": "基于 Radix UI 和 Tailwind CSS 构建的专业、无障碍 React 组件。",
+    "components": "组件",
+    "features": "特性",
+    "examples": "示例",
+    "buttons": {
+      "title": "按钮组件",
+      "description": "具有基本变体的专业按钮系统",
+      "variants": "变体：",
+      "sizes": "尺寸：",
+      "interactiveStates": "交互状态：",
+      "default": "默认",
+      "destructive": "危险",
+      "outline": "轮廓",
+      "secondary": "次要",
+      "ghost": "幽灵",
+      "link": "链接",
+      "small": "小",
+      "large": "大",
+      "clickForLoading": "点击加载",
+      "loading": "加载中...",
+      "disabled": "禁用",
+      "showToast": "显示提示"
+    },
+    "badges": {
+      "title": "徽章组件",
+      "description": "状态指示器和标签"
+    },
+    "forms": {
+      "title": "表单组件",
+      "description": "具有一致样式的完整表单控件",
+      "name": "姓名",
+      "email": "邮箱",
+      "priority": "优先级",
+      "message": "消息",
+      "placeholders": {
+        "name": "输入您的姓名",
+        "email": "输入您的邮箱",
+        "message": "输入您的消息",
+        "selectPriority": "选择优先级"
+      },
+      "priorities": {
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "critical": "紧急"
+      }
+    },
+    "dropdowns": {
+      "title": "下拉菜单组件",
+      "description": "交互式下拉菜单",
+      "simpleDropdown": "简单下拉菜单",
+      "userMenu": "用户菜单",
+      "selectOption": "选择选项",
+      "demoUser": "演示用户",
+      "myAccount": "我的账户",
+      "settings": "设置",
+      "support": "支持",
+      "signOut": "退出",
+      "options": {
+        "option1": "选项 1",
+        "option2": "选项 2",
+        "option3": "选项 3"
+      }
+    },
+    "dialogs": {
+      "title": "对话框/模态框组件",
+      "description": "用于用户交互的模态对话框",
+      "simple": {
+        "trigger": "简单对话框",
+        "title": "简单对话框",
+        "description": "这是一个带有基本内容的简单对话框示例。",
+        "content": "您可以在这里添加任何内容。点击 X 或按 Escape 键将关闭此对话框。"
+      },
+      "confirmation": {
+        "trigger": "确认对话框",
+        "title": "您确定要这样做吗？",
+        "description": "此操作无法撤消。这将永久删除您的账户并从我们的服务器中删除您的数据。",
+        "cancel": "取消",
+        "continue": "继续"
+      },
+      "form": {
+        "trigger": "表单对话框",
+        "title": "编辑资料",
+        "description": "在此处更改您的资料。完成后点击保存。",
+        "saveChanges": "保存更改"
+      }
+    },
+    "toasts": {
+      "buttonClicked": "按钮已点击！",
+      "loadingCompleted": "加载演示完成！",
+      "optionSelected": "{option} 已选择",
+      "actionConfirmed": "操作已确认！",
+      "profileSaved": "资料已保存！"
+    }
+  },
+  "privacy": {
+    "title": "隐私政策",
+    "lastUpdated": "最后更新时间：{date}",
+    "introduction": "本隐私政策描述了我们如何收集、使用和保护您的信息。",
+    "dataCollection": "数据收集",
+    "dataUsage": "数据使用",
+    "dataSecurity": "数据安全",
+    "contact": "联系我们"
+  },
+  "terms": {
+    "title": "服务条款",
+    "lastUpdated": "最后更新时间：{date}",
+    "introduction": "这些服务条款规定了您对我们应用程序的使用。",
+    "userResponsibilities": "用户责任",
+    "serviceProvision": "服务提供",
+    "limitation": "责任限制",
+    "contact": "联系我们"
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "message": "您查找的页面不存在。",
+    "goHome": "回到首页"
+  }
+}

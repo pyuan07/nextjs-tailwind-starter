@@ -1,0 +1,149 @@
+{
+  "home": {
+    "title": "Selamat Datang ke Starter Next.js",
+    "subtitle": "Template starter moden dan lengkap untuk aplikasi Next.js",
+    "description": "Dibina dengan TypeScript, Tailwind CSS dan amalan terbaik industri",
+    "getStarted": "Mula",
+    "learnMore": "Ketahui Lebih Lanjut",
+    "features": {
+      "title": "Ciri-ciri",
+      "typescript": "Sokongan TypeScript",
+      "tailwind": "Tailwind CSS",
+      "authentication": "Pengesahan Sedia",
+      "responsive": "Reka Bentuk Responsif",
+      "darkMode": "Mod Gelap",
+      "internationalization": "Antarabangsa"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Uruskan tetapan akaun dan keutamaan anda",
+    "personalInfo": "Maklumat Peribadi",
+    "accountSettings": "Tetapan Akaun",
+    "preferences": "Keutamaan",
+    "security": "Keselamatan",
+    "updateProfile": "Kemas Kini Profil",
+    "changePassword": "Tukar Kata Laluan",
+    "deleteAccount": "Padam Akaun"
+  },
+  "showcase": {
+    "title": "Pameran Komponen shadcn/ui",
+    "subtitle": "Komponen React yang profesional dan boleh diakses dibina dengan Radix UI dan Tailwind CSS.",
+    "components": "Komponen",
+    "features": "Ciri-ciri",
+    "examples": "Contoh",
+    "buttons": {
+      "title": "Komponen Butang",
+      "description": "Sistem butang profesional dengan varian penting",
+      "variants": "Varian:",
+      "sizes": "Saiz:",
+      "interactiveStates": "Keadaan Interaktif:",
+      "default": "Lalai",
+      "destructive": "Memusnah",
+      "outline": "Garis Luar",
+      "secondary": "Sekunder",
+      "ghost": "Hantu",
+      "link": "Pautan",
+      "small": "Kecil",
+      "large": "Besar",
+      "clickForLoading": "Klik untuk Memuatkan",
+      "loading": "Memuatkan...",
+      "disabled": "Dilumpuhkan",
+      "showToast": "Tunjuk Notifikasi"
+    },
+    "badges": {
+      "title": "Komponen Lencana",
+      "description": "Penunjuk status dan label"
+    },
+    "forms": {
+      "title": "Komponen Borang",
+      "description": "Kawalan borang lengkap dengan gaya yang konsisten",
+      "name": "Nama",
+      "email": "Emel",
+      "priority": "Keutamaan",
+      "message": "Mesej",
+      "placeholders": {
+        "name": "Masukkan nama anda",
+        "email": "Masukkan emel anda",
+        "message": "Masukkan mesej anda",
+        "selectPriority": "Pilih keutamaan"
+      },
+      "priorities": {
+        "low": "Rendah",
+        "medium": "Sederhana",
+        "high": "Tinggi",
+        "critical": "Kritikal"
+      }
+    },
+    "dropdowns": {
+      "title": "Komponen Menu Dropdown",
+      "description": "Menu dropdown interaktif",
+      "simpleDropdown": "Dropdown Mudah",
+      "userMenu": "Menu Pengguna",
+      "selectOption": "Pilih pilihan",
+      "demoUser": "Pengguna Demo",
+      "myAccount": "Akaun Saya",
+      "settings": "Tetapan",
+      "support": "Sokongan",
+      "signOut": "Keluar",
+      "options": {
+        "option1": "Pilihan 1",
+        "option2": "Pilihan 2",
+        "option3": "Pilihan 3"
+      }
+    },
+    "dialogs": {
+      "title": "Komponen Dialog/Modal",
+      "description": "Dialog modal untuk interaksi pengguna",
+      "simple": {
+        "trigger": "Dialog Mudah",
+        "title": "Dialog Mudah",
+        "description": "Ini adalah contoh dialog mudah dengan kandungan asas.",
+        "content": "Anda boleh menambah sebarang kandungan di sini. Dialog ini akan ditutup apabila anda klik X atau tekan Escape."
+      },
+      "confirmation": {
+        "trigger": "Dialog Pengesahan",
+        "title": "Adakah anda benar-benar pasti?",
+        "description": "Tindakan ini tidak boleh dibatalkan. Ini akan memadamkan akaun anda secara kekal dan mengeluarkan data anda dari pelayan kami.",
+        "cancel": "Batal",
+        "continue": "Teruskan"
+      },
+      "form": {
+        "trigger": "Dialog Borang",
+        "title": "Edit Profil",
+        "description": "Buat perubahan pada profil anda di sini. Klik simpan apabila selesai.",
+        "saveChanges": "Simpan Perubahan"
+      }
+    },
+    "toasts": {
+      "buttonClicked": "Butang diklik!",
+      "loadingCompleted": "Demo pemuatan selesai!",
+      "optionSelected": "{option} dipilih",
+      "actionConfirmed": "Tindakan disahkan!",
+      "profileSaved": "Profil disimpan!"
+    }
+  },
+  "privacy": {
+    "title": "Dasar Privasi",
+    "lastUpdated": "Kemas kini terakhir: {date}",
+    "introduction": "Dasar Privasi ini menerangkan bagaimana kami mengumpul, menggunakan dan melindungi maklumat anda.",
+    "dataCollection": "Pengumpulan Data",
+    "dataUsage": "Penggunaan Data",
+    "dataSecurity": "Keselamatan Data",
+    "contact": "Hubungi Kami"
+  },
+  "terms": {
+    "title": "Terma Perkhidmatan",
+    "lastUpdated": "Kemas kini terakhir: {date}",
+    "introduction": "Terma Perkhidmatan ini mengawal penggunaan aplikasi kami oleh anda.",
+    "userResponsibilities": "Tanggungjawab Pengguna",
+    "serviceProvision": "Penyediaan Perkhidmatan",
+    "limitation": "Had Liabiliti",
+    "contact": "Hubungi Kami"
+  },
+  "notFound": {
+    "title": "Halaman Tidak Dijumpai",
+    "message": "Halaman yang anda cari tidak wujud.",
+    "goHome": "Pergi ke Utama"
+  }
+}

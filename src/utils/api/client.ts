@@ -94,11 +94,18 @@ export const api = {
       return response.json()
     } catch (error) {
       const duration = Date.now() - startTime
-      logger.error('API call failed', {
-        endpoint,
-        duration: `${duration}ms`,
-        error: error.message,
-      })
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      logger.error(
+        'API call failed',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          url,
+          endpoint,
+          duration: `${duration}ms`,
+          errorMessage,
+        }
+      )
       throw error
     }
   },

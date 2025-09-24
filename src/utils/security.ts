@@ -1,17 +1,170 @@
 import { logger } from '@/lib/logger'
+import DOMPurify from 'dompurify'
 
 /**
- * Sanitize HTML to prevent XSS attacks
+ * DOMPurify configuration for different sanitization levels
  */
-export function sanitizeHtml(dirty: string): string {
-  // Basic HTML sanitization - in production, use DOMPurify
-  return dirty
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;')
+export const SANITIZE_CONFIGS = {
+  // Strict: Only allow basic text formatting
+  strict: {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br'] as string[],
+    ALLOWED_ATTR: [] as string[],
+    KEEP_CONTENT: false,
+    RETURN_DOM: false,
+    RETURN_DOM_FRAGMENT: false,
+    RETURN_TRUSTED_TYPE: false,
+  },
+
+  // Basic: Allow common safe HTML elements
+  basic: {
+    ALLOWED_TAGS: [
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'p',
+      'br',
+      'strong',
+      'b',
+      'em',
+      'i',
+      'u',
+      'ul',
+      'ol',
+      'li',
+      'blockquote',
+      'code',
+      'pre',
+    ] as string[],
+    ALLOWED_ATTR: ['class'] as string[],
+    KEEP_CONTENT: false,
+    RETURN_DOM: false,
+    RETURN_DOM_FRAGMENT: false,
+    RETURN_TRUSTED_TYPE: false,
+  },
+
+  // Rich: Allow more elements for rich content
+  rich: {
+    ALLOWED_TAGS: [
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'p',
+      'br',
+      'strong',
+      'b',
+      'em',
+      'i',
+      'u',
+      's',
+      'del',
+      'ul',
+      'ol',
+      'li',
+      'blockquote',
+      'code',
+      'pre',
+      'a',
+      'img',
+      'table',
+      'thead',
+      'tbody',
+      'tr',
+      'th',
+      'td',
+      'div',
+      'span',
+    ] as string[],
+    ALLOWED_ATTR: [
+      'href',
+      'title',
+      'alt',
+      'src',
+      'width',
+      'height',
+      'class',
+      'id',
+      'target',
+      'rel',
+    ] as string[],
+    KEEP_CONTENT: false,
+    RETURN_DOM: false,
+    RETURN_DOM_FRAGMENT: false,
+    RETURN_TRUSTED_TYPE: false,
+  },
+}
+
+/**
+ * Sanitize HTML to prevent XSS attacks using DOMPurify
+ * @param dirty - The HTML string to sanitize
+ * @param level - Sanitization level: 'strict' | 'basic' | 'rich'
+ * @returns Sanitized HTML string
+ */
+export function sanitizeHtml(
+  dirty: string,
+  level: keyof typeof SANITIZE_CONFIGS = 'basic'
+): string {
+  if (typeof dirty !== 'string') {
+    logger.securityEvent('Invalid HTML input type', { inputType: typeof dirty })
+    return ''
+  }
+
+  if (!dirty.trim()) {
+    return ''
+  }
+
+  try {
+    // Use DOMPurify with configuration for the specified level
+    const config = SANITIZE_CONFIGS[level]
+    const clean = DOMPurify.sanitize(dirty, config)
+
+    // Log if content was sanitized
+    if (clean !== dirty) {
+      logger.securityEvent('HTML was sanitized', {
+        level,
+        originalLength: dirty.length,
+        sanitizedLength: clean.length,
+        hasScript: dirty.toLowerCase().includes('<script'),
+        hasOnEvents: /\son\w+\s*=/i.test(dirty),
+        hasJavaScript: /javascript:/i.test(dirty),
+      })
+    }
+
+    return clean
+  } catch (error) {
+    logger.error('HTML sanitization failed', error as Error, {
+      inputLength: dirty.length,
+      level,
+    })
+
+    // Fallback to basic text sanitization
+    return dirty
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .replace(/\//g, '&#x2F;')
+  }
+}
+
+/**
+ * Sanitize HTML for safe display in React components
+ * Returns an object compatible with dangerouslySetInnerHTML
+ * @param dirty - The HTML string to sanitize
+ * @param level - Sanitization level
+ * @returns Object with __html property for dangerouslySetInnerHTML
+ */
+export function sanitizeForReact(
+  dirty: string,
+  level: keyof typeof SANITIZE_CONFIGS = 'basic'
+): { __html: string } {
+  return { __html: sanitizeHtml(dirty, level) }
 }
 
 /**

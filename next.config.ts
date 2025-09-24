@@ -1,8 +1,11 @@
 import type { NextConfig } from 'next'
+import createNextIntlPlugin from 'next-intl/plugin'
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/config.ts')
 
 const nextConfig: NextConfig = {
   // Performance optimizations
@@ -58,10 +61,9 @@ const nextConfig: NextConfig = {
         )
       }
 
-      // Tree shaking improvements
+      // Tree shaking improvements (compatible with Next.js caching)
       config.optimization = {
         ...config.optimization,
-        usedExports: true,
         sideEffects: false,
       }
 
@@ -70,4 +72,4 @@ const nextConfig: NextConfig = {
   }),
 }
 
-export default withBundleAnalyzer(nextConfig)
+export default withNextIntl(withBundleAnalyzer(nextConfig))

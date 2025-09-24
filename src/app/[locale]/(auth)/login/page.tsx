@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks'
 import {
   Button,
@@ -19,6 +20,7 @@ function LoginContent() {
   const _router = useRouter()
   const searchParams = useSearchParams()
   const { login, isLoading, error } = useAuth()
+  const t = useTranslations('auth.login')
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -58,11 +60,11 @@ function LoginContent() {
     <div className='space-y-6'>
       {/* Welcome Header */}
       <div className='text-center space-y-2'>
-        <h1 className='text-3xl font-bold'>Welcome back</h1>
+        <h1 className='text-3xl font-bold'>{t('welcomeBack')}</h1>
         <p className='text-muted-foreground'>
           {searchParams.get('redirect')
-            ? 'Please sign in to access this page'
-            : 'Sign in to your account to continue'}
+            ? t('signInToAccess')
+            : t('signInToContinue')}
         </p>
       </div>
 
@@ -71,7 +73,7 @@ function LoginContent() {
         <div className='p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg'>
           <p className='text-sm text-amber-700 dark:text-amber-300'>
             <Icon name='warning' size='sm' className='inline mr-1' />
-            You need to sign in to access{' '}
+            {t('needSignInAccess')}{' '}
             <span className='font-medium'>{searchParams.get('redirect')}</span>
           </p>
         </div>
@@ -80,34 +82,32 @@ function LoginContent() {
       {/* Login Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Sign In</CardTitle>
-          <CardDescription>
-            Enter your credentials to access your account
-          </CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('enterCredentials')}</CardDescription>
         </CardHeader>
         <CardContent className='space-y-4'>
           {/* Demo Credentials */}
           <div className='p-3 bg-blue-50 dark:bg-blue-950 rounded-md'>
             <p className='text-sm text-blue-700 dark:text-blue-300 mb-2'>
-              Demo credentials:
+              {t('demoCredentials')}
             </p>
             <ul className='text-xs text-blue-600 dark:text-blue-400 space-y-1'>
-              <li>Email: demo@example.com</li>
-              <li>Password: password</li>
+              <li>{t('email')}: demo@example.com</li>
+              <li>{t('password')}: password</li>
             </ul>
             <button
               type='button'
               onClick={handleDemoLogin}
               className='mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline'
             >
-              Click to use demo credentials
+              {t('clickUseDemoCredentials')}
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className='space-y-4'>
             <div>
               <label htmlFor='email' className='block text-sm font-medium mb-1'>
-                Email
+                {t('email')}
               </label>
               <input
                 id='email'
@@ -118,7 +118,7 @@ function LoginContent() {
                 required
                 disabled={isLoading}
                 className='w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50'
-                placeholder='Enter your email'
+                placeholder={t('enterYourEmail')}
               />
             </div>
 
@@ -127,7 +127,7 @@ function LoginContent() {
                 htmlFor='password'
                 className='block text-sm font-medium mb-1'
               >
-                Password
+                {t('password')}
               </label>
               <input
                 id='password'
@@ -138,7 +138,7 @@ function LoginContent() {
                 required
                 disabled={isLoading}
                 className='w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50'
-                placeholder='Enter your password'
+                placeholder={t('enterYourPassword')}
               />
             </div>
 
@@ -156,10 +156,10 @@ function LoginContent() {
               {isLoading ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Signing in...
+                  {t('signingIn')}
                 </>
               ) : (
-                'Sign In'
+                t('signIn')
               )}
             </Button>
           </form>
@@ -169,12 +169,12 @@ function LoginContent() {
       {/* Links */}
       <div className='text-center text-sm'>
         <div className='flex items-center justify-center space-x-1'>
-          <span className='text-muted-foreground'>Don't have an account?</span>
+          <span className='text-muted-foreground'>{t('dontHaveAccount')}</span>
           <Link
             href='/register'
             className='font-medium text-primary hover:underline'
           >
-            Create one here
+            {t('createOneHere')}
           </Link>
         </div>
         <div className='mt-2'>
@@ -182,7 +182,7 @@ function LoginContent() {
             href='/forgot-password'
             className='text-primary hover:underline'
           >
-            Forgot your password?
+            {t('forgotYourPassword')}
           </Link>
         </div>
       </div>

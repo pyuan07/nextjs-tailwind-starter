@@ -1,10 +1,12 @@
 'use client'
 
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { usePathname } from 'next/navigation'
-import { useAuth } from '@/hooks'
-import { ThemeToggle, UserDropdown } from '@/components/features'
-import { Button } from '@/components/ui'
+import { useTranslations } from 'next-intl'
+import { ThemeToggle } from '@/components/features'
+import { LocaleSwitcher } from '@/components/features/i18n'
+import { Button as _Button } from '@/components/ui'
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -14,9 +16,28 @@ import {
 } from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
 
+// Dynamically import auth-dependent components to prevent hydration issues
+const AuthNavActions = dynamic(() => import('./AuthNavSection'), {
+  ssr: false,
+  loading: () => (
+    <div className='flex items-center gap-4'>
+      <div className='w-16 h-9 bg-muted animate-pulse rounded' />
+      <div className='w-20 h-9 bg-muted animate-pulse rounded' />
+    </div>
+  ),
+})
+
+const AuthNavLinks = dynamic(
+  () => import('./AuthNavSection').then(mod => ({ default: mod.AuthNavLinks })),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+)
+
 export function Navbar() {
   const pathname = usePathname()
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const t = useTranslations('common.navigation')
 
   return (
     <header className='border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
@@ -39,53 +60,20 @@ export function Navbar() {
                         'bg-accent text-accent-foreground'
                     )}
                   >
-                    Showcase
+                    {t('showcase')}
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-
-              {isAuthenticated && (
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href='/profile'
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        pathname === '/profile' &&
-                          'bg-accent text-accent-foreground'
-                      )}
-                    >
-                      Profile
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              )}
+              <AuthNavLinks />
             </NavigationMenuList>
           </NavigationMenu>
         </div>
 
         {/* Right side actions */}
         <div className='flex items-center gap-4'>
+          <LocaleSwitcher variant='dropdown' size='sm' />
           <ThemeToggle />
-
-          {!isLoading && (
-            <>
-              {isAuthenticated && user ? (
-                <UserDropdown user={user} />
-              ) : (
-                <div className='flex items-center gap-4'>
-                  <Link href='/login'>
-                    <Button variant='outline' size='sm'>
-                      Login
-                    </Button>
-                  </Link>
-                  <Link href='/register'>
-                    <Button size='sm'>Get Started</Button>
-                  </Link>
-                </div>
-              )}
-            </>
-          )}
+          <AuthNavActions />
         </div>
       </div>
     </header>
