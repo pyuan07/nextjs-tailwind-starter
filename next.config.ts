@@ -1,11 +1,8 @@
 import type { NextConfig } from 'next'
-import createNextIntlPlugin from 'next-intl/plugin'
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
-
-const withNextIntl = createNextIntlPlugin('./src/i18n/config.ts')
 
 const nextConfig: NextConfig = {
   // Performance optimizations
@@ -72,4 +69,5 @@ const nextConfig: NextConfig = {
   }),
 }
 
-export default withNextIntl(withBundleAnalyzer(nextConfig))
+// No next-intl wrapper needed for simplified backoffice approach
+export default withBundleAnalyzer(nextConfig)

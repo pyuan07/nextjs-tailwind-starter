@@ -2,22 +2,13 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { env } from '@/config/env'
 import { generateSecureToken, rateLimiter } from '@/utils/security'
-import createMiddleware from 'next-intl/middleware'
-import { locales, defaultLocale } from '@/i18n/config'
 
 /**
- * Enhanced middleware with comprehensive security headers and route protection
- * Implements OWASP security guidelines and industry best practices
+ * Simplified middleware for backoffice applications
+ * Focus on security without SEO/i18n complexity
  */
 
-// Create the internationalization middleware
-const intlMiddleware = createMiddleware({
-  locales,
-  defaultLocale,
-  localePrefix: 'always',
-})
-
-// Route configurations (without locale prefix)
+// Route configurations - simple paths without locale prefixes
 const PROTECTED_ROUTES = ['/showcase', '/profile', '/dashboard', '/admin']
 const AUTH_ROUTES = [
   '/login',
@@ -128,14 +119,14 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
     )
   }
 
-  // Content Security Policy
+  // Content Security Policy - simplified for backoffice
   const cspDirectives = env.isProduction
     ? [
         "default-src 'self'",
         `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https: blob:",
-        "font-src 'self' https://fonts.gstatic.com",
+        "font-src 'self'",
         "connect-src 'self' https:",
         "media-src 'self'",
         "object-src 'none'",
@@ -153,7 +144,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
         "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https: blob:",
-        "font-src 'self' https://fonts.gstatic.com",
+        "font-src 'self'",
         "connect-src 'self' https: ws: wss:",
         "media-src 'self'",
         "object-src 'none'",
@@ -186,9 +177,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Skip security checks for API routes and handle them with intl middleware
+  // Skip security checks for API routes but apply rate limiting
   if (pathname.startsWith('/api/')) {
-    // Apply rate limiting for API routes
     if (applyRateLimit(request)) {
       const clientIP = request.headers.get('x-forwarded-for') || 'unknown'
       console.warn(`Rate limit exceeded: ${clientIP} - ${pathname}`)
@@ -201,17 +191,6 @@ export function middleware(request: NextRequest) {
     }
     return NextResponse.next()
   }
-
-  // Handle internationalization first
-  const intlResponse = intlMiddleware(request)
-  if (intlResponse) {
-    // If intl middleware returns a response (redirect), apply security headers to it
-    const secureResponse = addSecurityHeaders(intlResponse)
-    return secureResponse
-  }
-
-  // Extract locale from pathname for route checking
-  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '') || '/'
 
   // Check for suspicious activity
   if (isSuspiciousRequest(request)) {
@@ -232,28 +211,23 @@ export function middleware(request: NextRequest) {
     })
   }
 
-  // Authentication and routing logic (using path without locale)
+  // Authentication and routing logic - simple paths
   const isUserAuthenticated = isAuthenticated(request)
   const isProtectedRoute = PROTECTED_ROUTES.some(route =>
-    pathWithoutLocale.startsWith(route)
+    pathname.startsWith(route)
   )
-  const isAuthRoute = AUTH_ROUTES.some(route =>
-    pathWithoutLocale.startsWith(route)
-  )
-
-  // Get current locale from pathname
-  const locale = pathname.match(/^\/([a-z]{2})/)?.[1] || defaultLocale
+  const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route))
 
   // Redirect unauthenticated users from protected routes
   if (isProtectedRoute && !isUserAuthenticated) {
-    const loginUrl = new URL(`/${locale}/login`, request.url)
+    const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirect', url)
     return NextResponse.redirect(loginUrl)
   }
 
   // Redirect authenticated users from auth routes
   if (isAuthRoute && isUserAuthenticated) {
-    const showcaseUrl = new URL(`/${locale}/showcase`, request.url)
+    const showcaseUrl = new URL('/showcase', request.url)
     return NextResponse.redirect(showcaseUrl)
   }
 
@@ -266,8 +240,7 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for static files and internal Next.js routes
-     * This includes API routes for rate limiting and security headers
-     * Updated to work with internationalized routing
+     * Simplified for backoffice use without locale routing
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],

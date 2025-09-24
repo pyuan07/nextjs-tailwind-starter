@@ -3,10 +3,9 @@
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { usePathname } from 'next/navigation'
-import { useTranslations } from 'next-intl'
+import { useTranslation } from '@/contexts/LanguageContext'
 import { ThemeToggle } from '@/components/features'
-import { LocaleSwitcher } from '@/components/features/i18n'
-import { Button as _Button } from '@/components/ui'
+import { LanguageSwitcher } from '@/components/features/language/LanguageSwitcher'
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -37,32 +36,30 @@ const AuthNavLinks = dynamic(
 
 export function Navbar() {
   const pathname = usePathname()
-  const t = useTranslations('common.navigation')
+  const t = useTranslation()
 
   return (
     <header className='border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='container mx-auto flex h-16 items-center justify-between px-4'>
         <div className='flex items-center gap-6'>
           <Link href='/' className='text-xl font-bold'>
-            React Tailwind Starter
+            Backoffice Starter
           </Link>
 
           {/* Navigation Menu */}
           <NavigationMenu className='hidden md:flex'>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href='/showcase'
+                <Link href='/' legacyBehavior passHref>
+                  <NavigationMenuLink
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      pathname === '/showcase' &&
-                        'bg-accent text-accent-foreground'
+                      pathname === '/' && 'bg-accent text-accent-foreground'
                     )}
                   >
-                    {t('showcase')}
-                  </Link>
-                </NavigationMenuLink>
+                    {t('nav.home')}
+                  </NavigationMenuLink>
+                </Link>
               </NavigationMenuItem>
               <AuthNavLinks />
             </NavigationMenuList>
@@ -71,7 +68,7 @@ export function Navbar() {
 
         {/* Right side actions */}
         <div className='flex items-center gap-4'>
-          <LocaleSwitcher variant='dropdown' size='sm' />
+          <LanguageSwitcher variant='select' size='sm' />
           <ThemeToggle />
           <AuthNavActions />
         </div>
