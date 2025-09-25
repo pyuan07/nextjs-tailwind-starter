@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useTranslation } from '@/contexts/LanguageContext'
+import { useTranslations } from 'next-intl'
 import {
   Button,
   Card,
@@ -12,20 +12,25 @@ import {
 } from '@/components/ui'
 
 export default function Home() {
-  const t = useTranslation()
+  const t = useTranslations()
+  const tCommon = useTranslations('common')
+  const _tHome = useTranslations('pages.home')
   const techStack = [
-    { name: 'Next.js 15', desc: 'React framework with App Router & Turbopack' },
     {
-      name: 'Tailwind CSS v4',
-      desc: 'Utility-first CSS with new CSS-first config',
+      name: tCommon('techStack.nextjs.name'),
+      desc: tCommon('techStack.nextjs.description'),
     },
     {
-      name: 'TypeScript',
-      desc: 'Type-safe development with modern JavaScript',
+      name: tCommon('techStack.tailwind.name'),
+      desc: tCommon('techStack.tailwind.description'),
     },
     {
-      name: 'Modern Tooling',
-      desc: 'ESLint, Prettier, Husky, and testing setup',
+      name: tCommon('techStack.typescript.name'),
+      desc: tCommon('techStack.typescript.description'),
+    },
+    {
+      name: tCommon('techStack.tooling.name'),
+      desc: tCommon('techStack.tooling.description'),
     },
   ]
 
@@ -35,18 +40,19 @@ export default function Home() {
       <main className='container mx-auto px-4 py-16'>
         {/* Hero Section */}
         <div className='text-center mb-16'>
-          <h2 className='text-4xl font-bold mb-4'>Welcome to Our Platform</h2>
+          <h2 className='text-4xl font-bold mb-4'>
+            {tCommon('brand.welcome')}
+          </h2>
           <p className='text-xl text-muted-foreground mb-8 max-w-2xl mx-auto'>
-            Modern Next.js starter with enterprise-grade features, security, and
-            performance optimization.
+            {tCommon('brand.description')}
           </p>
           <div className='flex gap-4 justify-center'>
             <Link href='/showcase'>
-              <Button size='lg'>{t('nav.showcase')} →</Button>
+              <Button size='lg'>{t('navigation.showcase')} →</Button>
             </Link>
             <Link href='/login'>
               <Button variant='outline' size='lg'>
-                {t('auth.login')}
+                {t('navigation.login')}
               </Button>
             </Link>
           </div>
@@ -55,7 +61,7 @@ export default function Home() {
         {/* Tech Stack */}
         <div className='mb-16'>
           <h3 className='text-2xl font-semibold text-center mb-8'>
-            Technology Stack
+            {tCommon('techStack.title')}
           </h3>
           <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6'>
             {techStack.map((tech, i) => (
@@ -74,7 +80,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-
       {/* Footer */}
       <footer className='border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-16'>
         <div className='container mx-auto px-4 py-6'>
@@ -84,17 +89,17 @@ export default function Home() {
                 href='/terms'
                 className='text-muted-foreground hover:text-foreground transition-colors'
               >
-                Terms of Service
+                {tCommon('footer.termsOfService')}
               </Link>
               <Link
                 href='/privacy'
                 className='text-muted-foreground hover:text-foreground transition-colors'
               >
-                Privacy Policy
+                {tCommon('footer.privacyPolicy')}
               </Link>
             </div>
             <p className='text-sm text-muted-foreground text-center'>
-              Built with modern web technologies for enterprise applications.
+              {tCommon('footer.builtWith')}
             </p>
           </div>
         </div>

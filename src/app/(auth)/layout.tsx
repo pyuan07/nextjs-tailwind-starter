@@ -33,12 +33,10 @@ export default function AuthLayout({
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       <main className='flex items-center justify-center min-h-screen px-4'>
         <div className='w-full max-w-md'>{children}</div>
       </main>
-
       {/* Footer */}
       <footer className='absolute bottom-0 left-0 right-0 text-center py-6 text-sm text-muted-foreground'>
         <p>

@@ -1,7 +1,7 @@
 {
   "home": {
-    "title": "Welcome to Next.js Starter",
-    "subtitle": "A modern, full-featured starter template for Next.js applications",
+    "title": "Welcome to Our Platform",
+    "subtitle": "Modern Next.js starter with enterprise-grade features, security, and performance optimization.",
     "description": "Built with TypeScript, Tailwind CSS, and industry best practices",
     "getStarted": "Get Started",
     "learnMore": "Learn More",
@@ -117,10 +117,18 @@
     },
     "toasts": {
       "buttonClicked": "Button clicked!",
-      "loadingCompleted": "Loading demo completed!",
+      "loadingCompleted": "Loading completed successfully!",
+      "formSubmitted": "Form submitted successfully!",
       "optionSelected": "{option} selected",
       "actionConfirmed": "Action confirmed!",
       "profileSaved": "Profile saved!"
+    },
+    "interactive": {
+      "clickForLoading": "Click for Loading Demo",
+      "useDemoCredentials": "Use Demo Credentials",
+      "showToast": "Show Toast",
+      "enterYour": "Enter your {field}",
+      "selectPriority": "Select priority"
     }
   },
   "privacy": {

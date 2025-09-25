@@ -1,10 +1,13 @@
 'use client'
 
+import { useLocale, useTranslations } from 'next-intl'
 import {
-  useLanguage,
-  LANGUAGES,
-  type Language,
-} from '@/contexts/LanguageContext'
+  locales,
+  type Locale,
+  localeNames,
+  localeFlags,
+  setClientLocale,
+} from '@/i18n/config'
 import {
   Select,
   SelectContent,
@@ -29,34 +32,28 @@ interface LocaleSwitcherProps {
   size?: 'sm' | 'default' | 'lg'
 }
 
-const localeNames: Record<Language, string> = {
-  en: 'English',
-  zh: '中文',
-}
-
-const localeFlags: Record<Language, string> = {
-  en: '🇺🇸',
-  zh: '🇨🇳',
-}
-
 export function LocaleSwitcher({
   variant = 'dropdown',
   className,
   showLabel = false,
   size = 'default',
 }: LocaleSwitcherProps) {
-  const { language, setLanguage, t } = useLanguage()
-  const locales = Object.keys(LANGUAGES) as Language[]
+  const t = useTranslations('language')
+  const currentLocale = useLocale() as Locale
+
+  const handleLocaleChange = (newLocale: Locale) => {
+    setClientLocale(newLocale)
+  }
 
   if (variant === 'select') {
     return (
       <div className={cn('flex items-center gap-2', className)}>
         {showLabel && (
           <span className='text-sm font-medium text-muted-foreground'>
-            {t('settings.language')}
+            {t('switchLanguage')}
           </span>
         )}
-        <Select value={language} onValueChange={setLanguage}>
+        <Select value={currentLocale} onValueChange={handleLocaleChange}>
           <SelectTrigger
             className={cn(
               'w-auto min-w-[120px]',
@@ -67,11 +64,11 @@ export function LocaleSwitcher({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {locales.map(loc => (
-              <SelectItem key={loc} value={loc}>
+            {locales.map(locale => (
+              <SelectItem key={locale} value={locale}>
                 <div className='flex items-center gap-2'>
-                  <span>{localeFlags[loc]}</span>
-                  <span>{localeNames[loc]}</span>
+                  <span>{localeFlags[locale]}</span>
+                  <span>{localeNames[locale]}</span>
                 </div>
               </SelectItem>
             ))}
@@ -86,23 +83,23 @@ export function LocaleSwitcher({
       <div className={cn('flex flex-wrap gap-1', className)}>
         {showLabel && (
           <span className='text-sm font-medium text-muted-foreground mr-2'>
-            {t('settings.language')}:
+            {t('switchLanguage')}:
           </span>
         )}
-        {locales.map(loc => (
+        {locales.map(locale => (
           <Button
-            key={loc}
-            variant={language === loc ? 'default' : 'outline'}
+            key={locale}
+            variant={currentLocale === locale ? 'default' : 'outline'}
             size={size}
-            onClick={() => setLanguage(loc)}
+            onClick={() => handleLocaleChange(locale)}
             className={cn(
               'min-w-[80px]',
               size === 'sm' && 'h-7 px-2 text-xs',
               size === 'lg' && 'h-12 px-4 text-base'
             )}
           >
-            <span className='mr-1'>{localeFlags[loc]}</span>
-            {localeNames[loc]}
+            <span className='mr-1'>{localeFlags[locale]}</span>
+            {localeNames[locale]}
           </Button>
         ))}
       </div>
@@ -114,7 +111,7 @@ export function LocaleSwitcher({
     <div className={cn('flex items-center gap-2', className)}>
       {showLabel && (
         <span className='text-sm font-medium text-muted-foreground'>
-          {t('settings.language')}
+          {t('switchLanguage')}
         </span>
       )}
       <DropdownMenu>
@@ -127,7 +124,7 @@ export function LocaleSwitcher({
               size === 'sm' && 'h-8 px-2 text-xs',
               size === 'lg' && 'h-12 px-4 text-base'
             )}
-            aria-label={t('settings.language')}
+            aria-label={t('switchLanguage')}
           >
             <Globe
               className={cn(
@@ -137,9 +134,9 @@ export function LocaleSwitcher({
               )}
             />
             <span className='hidden sm:inline'>
-              {localeFlags[language]} {localeNames[language]}
+              {localeFlags[currentLocale]} {localeNames[currentLocale]}
             </span>
-            <span className='sm:hidden'>{localeFlags[language]}</span>
+            <span className='sm:hidden'>{localeFlags[currentLocale]}</span>
             <Languages
               className={cn(
                 'h-3 w-3 opacity-50',
@@ -150,18 +147,18 @@ export function LocaleSwitcher({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='min-w-[150px]'>
-          {locales.map(loc => (
+          {locales.map(locale => (
             <DropdownMenuItem
-              key={loc}
-              onClick={() => setLanguage(loc)}
+              key={locale}
+              onClick={() => handleLocaleChange(locale)}
               className={cn(
                 'flex items-center gap-2 cursor-pointer',
-                language === loc && 'bg-accent'
+                currentLocale === locale && 'bg-accent'
               )}
             >
-              <span>{localeFlags[loc]}</span>
-              <span>{localeNames[loc]}</span>
-              {language === loc && (
+              <span>{localeFlags[locale]}</span>
+              <span>{localeNames[locale]}</span>
+              {currentLocale === locale && (
                 <span className='ml-auto text-xs text-muted-foreground'>✓</span>
               )}
             </DropdownMenuItem>

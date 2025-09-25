@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useTranslation } from '@/contexts/LanguageContext'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks'
 import { UserDropdown } from '@/components/features'
 import { Button } from '@/components/ui'
@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 export function AuthNavLinks() {
   const pathname = usePathname()
   const { isAuthenticated, isLoading } = useAuth()
-  const t = useTranslation()
+  const t = useTranslations('navigation')
 
   if (isLoading || !isAuthenticated) {
     return null
@@ -35,7 +35,7 @@ export function AuthNavLinks() {
             pathname === '/profile' && 'bg-accent text-accent-foreground'
           )}
         >
-          {t('nav.profile')}
+          {t('profile')}
         </Link>
       </NavigationMenuLink>
     </NavigationMenuItem>
@@ -47,7 +47,7 @@ export function AuthNavLinks() {
  */
 export default function AuthNavActions() {
   const { user, isAuthenticated, isLoading } = useAuth()
-  const t = useTranslation()
+  const t = useTranslations('navigation')
 
   if (isLoading) {
     return (
@@ -66,11 +66,11 @@ export default function AuthNavActions() {
         <div className='flex items-center gap-4'>
           <Link href='/login'>
             <Button variant='outline' size='sm'>
-              {t('auth.login')}
+              {t('login')}
             </Button>
           </Link>
           <Link href='/register'>
-            <Button size='sm'>Register</Button>
+            <Button size='sm'>{t('register')}</Button>
           </Link>
         </div>
       )}

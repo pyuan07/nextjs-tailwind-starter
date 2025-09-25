@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks'
 import { Button } from '@/components/ui'
 import {
@@ -20,6 +21,7 @@ interface UserDropdownProps {
 
 export function UserDropdown({ user }: UserDropdownProps) {
   const { logout, isLoading: isLoggingOut } = useAuth()
+  const tAuth = useTranslations('auth')
 
   const handleLogout = async () => {
     try {
@@ -60,13 +62,13 @@ export function UserDropdown({ user }: UserDropdownProps) {
         <DropdownMenuItem asChild className='py-2'>
           <Link href='/profile' className='flex items-center px-4'>
             <User className='mr-3 h-4 w-4' />
-            <span>Profile</span>
+            <span>{tAuth('profile.title')}</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className='py-2'>
           <Link href='/profile' className='flex items-center px-4'>
             <Settings className='mr-3 h-4 w-4' />
-            <span>Settings</span>
+            <span>{tAuth('profile.settings')}</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -78,12 +80,12 @@ export function UserDropdown({ user }: UserDropdownProps) {
           {isLoggingOut ? (
             <>
               <Loader2 className='mr-3 h-4 w-4 animate-spin' />
-              <span>Signing out...</span>
+              <span>{tAuth('logout.signingOut')}</span>
             </>
           ) : (
             <>
               <LogOut className='mr-3 h-4 w-4' />
-              <span>Sign out</span>
+              <span>{tAuth('profile.signOut')}</span>
             </>
           )}
         </DropdownMenuItem>

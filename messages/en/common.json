@@ -41,8 +41,56 @@
   },
   "language": {
     "english": "English",
-    "spanish": "Español",
-    "french": "Français",
+    "chinese": "中文简体",
+    "malay": "Bahasa Melayu",
     "switchLanguage": "Switch language"
+  },
+  "brand": {
+    "name": "Backoffice Starter",
+    "welcome": "Welcome to Our Platform",
+    "description": "Modern Next.js starter with enterprise-grade features, security, and performance optimization."
+  },
+  "footer": {
+    "builtWith": "Built with modern web technologies for enterprise applications.",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy"
+  },
+  "techStack": {
+    "title": "Technology Stack",
+    "nextjs": {
+      "name": "Next.js 15",
+      "description": "React framework with App Router & Turbopack"
+    },
+    "tailwind": {
+      "name": "Tailwind CSS v4",
+      "description": "Utility-first CSS with new CSS-first config"
+    },
+    "typescript": {
+      "name": "TypeScript",
+      "description": "Type-safe development with modern JavaScript"
+    },
+    "tooling": {
+      "name": "Modern Tooling",
+      "description": "ESLint, Prettier, Husky, and testing setup"
+    }
+  },
+  "errors": {
+    "somethingWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred.",
+    "tryAgainOrReload": "You can try again or reload the page.",
+    "reloadOrContact": "Please reload the page or contact support.",
+    "errorId": "Error ID:",
+    "errorDetails": "Error Details",
+    "errorMessage": "Error Message:",
+    "stackTrace": "Stack Trace:",
+    "retryAttempts": "Retry attempts:",
+    "tryAgain": "Try Again",
+    "left": "left",
+    "reloadPage": "Reload Page",
+    "feedbackSent": "Feedback Sent",
+    "reportError": "Report Error",
+    "showErrorDetails": "Show Error Details",
+    "sectionError": "Section Error",
+    "sectionErrorMessage": "This section encountered an error and cannot be displayed."
   }
 }

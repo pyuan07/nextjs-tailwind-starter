@@ -44,5 +44,53 @@
     "chinese": "中文简体",
     "malay": "Bahasa Melayu",
     "switchLanguage": "Tukar bahasa"
+  },
+  "brand": {
+    "name": "Starter Backoffice",
+    "welcome": "Selamat datang ke platform kami",
+    "description": "Starter Next.js moden dengan ciri-ciri peringkat perusahaan, keselamatan, dan pengoptimuman prestasi."
+  },
+  "footer": {
+    "builtWith": "Dibina dengan teknologi web moden untuk aplikasi perusahaan.",
+    "termsOfService": "Terma Perkhidmatan",
+    "privacyPolicy": "Polisi Privasi"
+  },
+  "techStack": {
+    "title": "Teknologi Stack",
+    "nextjs": {
+      "name": "Next.js 15",
+      "description": "Kerangka React dengan App Router & Turbopack"
+    },
+    "tailwind": {
+      "name": "Tailwind CSS v4",
+      "description": "CSS utiliti-pertama dengan konfigurasi CSS-pertama baharu"
+    },
+    "typescript": {
+      "name": "TypeScript",
+      "description": "Pembangunan selamat-jenis dengan JavaScript moden"
+    },
+    "tooling": {
+      "name": "Alatan Moden",
+      "description": "Persediaan ESLint, Prettier, Husky, dan ujian"
+    }
+  },
+  "errors": {
+    "somethingWrong": "Sesuatu tidak kena",
+    "unexpectedError": "Ralat yang tidak dijangka berlaku.",
+    "tryAgainOrReload": "Anda boleh cuba lagi atau muat semula halaman.",
+    "reloadOrContact": "Sila muat semula halaman atau hubungi sokongan.",
+    "errorId": "ID Ralat:",
+    "errorDetails": "Butiran Ralat",
+    "errorMessage": "Mesej Ralat:",
+    "stackTrace": "Stack Trace:",
+    "retryAttempts": "Percubaan semula:",
+    "tryAgain": "Cuba Lagi",
+    "left": "tinggal",
+    "reloadPage": "Muat Semula Halaman",
+    "feedbackSent": "Maklum Balas Dihantar",
+    "reportError": "Laporkan Ralat",
+    "showErrorDetails": "Tunjukkan Butiran Ralat",
+    "sectionError": "Ralat Bahagian",
+    "sectionErrorMessage": "Bahagian ini mengalami ralat dan tidak dapat dipaparkan."
   }
 }

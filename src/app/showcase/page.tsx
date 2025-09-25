@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useTranslation } from '@/contexts/LanguageContext'
+import { useTranslations } from 'next-intl'
 import { AuthGuard } from '@/components/features'
 import {
   Button,
@@ -26,7 +26,7 @@ import { Icon } from '@/lib/icons'
 
 function ShowcaseContent() {
   const { toast } = useToast()
-  const t = useTranslation()
+  const t = useTranslations()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -62,11 +62,10 @@ function ShowcaseContent() {
           <div className='space-y-2'>
             <h1 className='text-3xl font-bold flex items-center gap-3'>
               <Icon name='component' size='xl' />
-              {t('nav.showcase')} Demo
+              {t('pages.showcase.title')}
             </h1>
             <p className='text-muted-foreground'>
-              Explore our UI components and features in this interactive
-              showcase.
+              {t('pages.showcase.subtitle')}
             </p>
           </div>
 
@@ -172,7 +171,9 @@ function ShowcaseContent() {
                     </div>
 
                     <div>
-                      <Label htmlFor='email'>{t('auth.email')}</Label>
+                      <Label htmlFor='email'>
+                        {t('pages.showcase.forms.email')}
+                      </Label>
                       <Input
                         id='email'
                         name='email'
@@ -220,7 +221,7 @@ function ShowcaseContent() {
                 </div>
 
                 <div className='flex justify-end'>
-                  <Button type='submit'>{t('form.submit')}</Button>
+                  <Button type='submit'>{t('common.submit')}</Button>
                 </div>
               </form>
             </CardContent>

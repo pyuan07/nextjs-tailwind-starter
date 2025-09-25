@@ -1,7 +1,7 @@
 {
   "home": {
-    "title": "欢迎使用 Next.js 快速启动模板",
-    "subtitle": "现代化、功能完整的 Next.js 应用程序启动模板",
+    "title": "欢迎来到我们的平台",
+    "subtitle": "现代化的Next.js启动器，具备企业级功能、安全性和性能优化。",
     "description": "使用 TypeScript、Tailwind CSS 和行业最佳实践构建",
     "getStarted": "开始使用",
     "learnMore": "了解更多",

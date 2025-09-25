@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useTranslation } from '@/contexts/LanguageContext'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks'
 import {
   Button,
@@ -20,7 +20,9 @@ function LoginContent() {
   const _router = useRouter()
   const searchParams = useSearchParams()
   const { login, isLoading, error } = useAuth()
-  const t = useTranslation()
+  const t = useTranslations()
+  const tAuth = useTranslations('auth.login')
+  const _tCommon = useTranslations('common')
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -63,8 +65,8 @@ function LoginContent() {
         <h1 className='text-3xl font-bold'>{t('auth.welcome')}</h1>
         <p className='text-muted-foreground'>
           {searchParams.get('redirect')
-            ? 'Please sign in to access the requested page'
-            : 'Sign in to continue to your account'}
+            ? tAuth('signInToAccess')
+            : tAuth('signInToContinue')}
         </p>
       </div>
 
@@ -73,7 +75,7 @@ function LoginContent() {
         <div className='p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg'>
           <p className='text-sm text-amber-700 dark:text-amber-300'>
             <Icon name='warning' size='sm' className='inline mr-1' />
-            You need to sign in to access{' '}
+            {tAuth('needSignInAccess')}{' '}
             <span className='font-medium'>{searchParams.get('redirect')}</span>
           </p>
         </div>
@@ -83,13 +85,13 @@ function LoginContent() {
       <Card>
         <CardHeader>
           <CardTitle>{t('auth.login')}</CardTitle>
-          <CardDescription>Enter your credentials to sign in</CardDescription>
+          <CardDescription>{tAuth('enterCredentials')}</CardDescription>
         </CardHeader>
         <CardContent className='space-y-4'>
           {/* Demo Credentials */}
           <div className='p-3 bg-blue-50 dark:bg-blue-950 rounded-md'>
             <p className='text-sm text-blue-700 dark:text-blue-300 mb-2'>
-              Demo credentials for testing
+              {tAuth('demoCredentials')}
             </p>
             <ul className='text-xs text-blue-600 dark:text-blue-400 space-y-1'>
               <li>{t('auth.email')}: demo@example.com</li>
@@ -100,7 +102,7 @@ function LoginContent() {
               onClick={handleDemoLogin}
               className='mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline'
             >
-              Click to use demo credentials
+              {tAuth('clickUseDemoCredentials')}
             </button>
           </div>
 
@@ -118,7 +120,7 @@ function LoginContent() {
                 required
                 disabled={isLoading}
                 className='w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50'
-                placeholder='Enter your email'
+                placeholder={tAuth('enterYourEmail')}
               />
             </div>
 
@@ -138,7 +140,7 @@ function LoginContent() {
                 required
                 disabled={isLoading}
                 className='w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50'
-                placeholder='Enter your password'
+                placeholder={tAuth('enterYourPassword')}
               />
             </div>
 
@@ -156,7 +158,7 @@ function LoginContent() {
               {isLoading ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Signing in...
+                  {tAuth('signingIn')}
                 </>
               ) : (
                 t('auth.signIn')
@@ -169,12 +171,14 @@ function LoginContent() {
       {/* Links */}
       <div className='text-center text-sm'>
         <div className='flex items-center justify-center space-x-1'>
-          <span className='text-muted-foreground'>Don't have an account?</span>
+          <span className='text-muted-foreground'>
+            {tAuth('dontHaveAccount')}
+          </span>
           <Link
             href='/register'
             className='font-medium text-primary hover:underline'
           >
-            Create one here
+            {tAuth('createOneHere')}
           </Link>
         </div>
         <div className='mt-2'>
@@ -182,7 +186,7 @@ function LoginContent() {
             href='/forgot-password'
             className='text-primary hover:underline'
           >
-            Forgot your password?
+            {tAuth('forgotYourPassword')}
           </Link>
         </div>
       </div>
