@@ -13,7 +13,6 @@ import {
 
 export default function Home() {
   const t = useTranslation()
-
   const techStack = [
     { name: 'Next.js 15', desc: 'React framework with App Router & Turbopack' },
     {
@@ -25,8 +24,8 @@ export default function Home() {
       desc: 'Type-safe development with modern JavaScript',
     },
     {
-      name: 'Backoffice Ready',
-      desc: 'Optimized for internal tools and dashboards',
+      name: 'Modern Tooling',
+      desc: 'ESLint, Prettier, Husky, and testing setup',
     },
   ]
 
@@ -36,16 +35,14 @@ export default function Home() {
       <main className='container mx-auto px-4 py-16'>
         {/* Hero Section */}
         <div className='text-center mb-16'>
-          <h2 className='text-4xl font-bold mb-4'>
-            Simplified Backoffice Starter
-          </h2>
+          <h2 className='text-4xl font-bold mb-4'>Welcome to Our Platform</h2>
           <p className='text-xl text-muted-foreground mb-8 max-w-2xl mx-auto'>
-            A streamlined Next.js template optimized for internal tools, admin
-            panels, and ERP systems. Fast, simple, and efficient.
+            Modern Next.js starter with enterprise-grade features, security, and
+            performance optimization.
           </p>
           <div className='flex gap-4 justify-center'>
             <Link href='/showcase'>
-              <Button size='lg'>Get Started →</Button>
+              <Button size='lg'>{t('nav.showcase')} →</Button>
             </Link>
             <Link href='/login'>
               <Button variant='outline' size='lg'>
@@ -55,10 +52,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Features */}
+        {/* Tech Stack */}
         <div className='mb-16'>
           <h3 className='text-2xl font-semibold text-center mb-8'>
-            Optimized for Internal Tools
+            Technology Stack
           </h3>
           <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6'>
             {techStack.map((tech, i) => (
@@ -76,46 +73,28 @@ export default function Home() {
             ))}
           </div>
         </div>
-
-        {/* Backoffice Benefits */}
-        <div className='mb-16'>
-          <h3 className='text-2xl font-semibold text-center mb-8'>
-            Why This Approach?
-          </h3>
-          <div className='grid md:grid-cols-2 gap-8'>
-            <Card className='p-6'>
-              <h4 className='text-lg font-semibold mb-4 text-green-600'>
-                ✅ Simplified
-              </h4>
-              <ul className='space-y-2 text-sm text-muted-foreground'>
-                <li>• No complex URL routing</li>
-                <li>• Simple localStorage language switching</li>
-                <li>• Reduced bundle size</li>
-                <li>• Faster initial load</li>
-              </ul>
-            </Card>
-            <Card className='p-6'>
-              <h4 className='text-lg font-semibold mb-4 text-blue-600'>
-                🎯 Optimized for Internal Use
-              </h4>
-              <ul className='space-y-2 text-sm text-muted-foreground'>
-                <li>• No SEO overhead</li>
-                <li>• Focused on functionality</li>
-                <li>• Easy maintenance</li>
-                <li>• Perfect for admin panels</li>
-              </ul>
-            </Card>
-          </div>
-        </div>
       </main>
 
-      {/* Simplified Footer */}
+      {/* Footer */}
       <footer className='border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-16'>
         <div className='container mx-auto px-4 py-6'>
-          <div className='text-center'>
-            <p className='text-sm text-muted-foreground'>
-              Simplified Next.js starter for backoffice tools and internal
-              applications
+          <div className='flex flex-col items-center gap-4'>
+            <div className='flex gap-6 text-sm'>
+              <Link
+                href='/terms'
+                className='text-muted-foreground hover:text-foreground transition-colors'
+              >
+                Terms of Service
+              </Link>
+              <Link
+                href='/privacy'
+                className='text-muted-foreground hover:text-foreground transition-colors'
+              >
+                Privacy Policy
+              </Link>
+            </div>
+            <p className='text-sm text-muted-foreground text-center'>
+              Built with modern web technologies for enterprise applications.
             </p>
           </div>
         </div>

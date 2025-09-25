@@ -69,5 +69,5 @@ const nextConfig: NextConfig = {
   }),
 }
 
-// No next-intl wrapper needed for simplified backoffice approach
+// Export configuration with bundle analyzer
 export default withBundleAnalyzer(nextConfig)

@@ -4,11 +4,11 @@ import { env } from '@/config/env'
 import { generateSecureToken, rateLimiter } from '@/utils/security'
 
 /**
- * Simplified middleware for backoffice applications
- * Focus on security without SEO/i18n complexity
+ * Simplified middleware for business applications
+ * Focus on security without i18n routing complexity
  */
 
-// Route configurations - simple paths without locale prefixes
+// Route configurations - standard paths
 const PROTECTED_ROUTES = ['/showcase', '/profile', '/dashboard', '/admin']
 const AUTH_ROUTES = [
   '/login',
@@ -211,7 +211,7 @@ export function middleware(request: NextRequest) {
     })
   }
 
-  // Authentication and routing logic - simple paths
+  // Authentication and routing logic - standard paths
   const isUserAuthenticated = isAuthenticated(request)
   const isProtectedRoute = PROTECTED_ROUTES.some(route =>
     pathname.startsWith(route)
@@ -240,7 +240,7 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for static files and internal Next.js routes
-     * Simplified for backoffice use without locale routing
+     * Standard routing without locale prefixes
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],

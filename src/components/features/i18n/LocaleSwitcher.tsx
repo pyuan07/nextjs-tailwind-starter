@@ -1,8 +1,10 @@
 'use client'
 
-import { useLocale, useTranslations } from 'next-intl'
-import { useRouter, usePathname } from 'next/navigation'
-import { locales, type Locale } from '@/i18n/config'
+import {
+  useLanguage,
+  LANGUAGES,
+  type Language,
+} from '@/contexts/LanguageContext'
 import {
   Select,
   SelectContent,
@@ -27,16 +29,14 @@ interface LocaleSwitcherProps {
   size?: 'sm' | 'default' | 'lg'
 }
 
-const localeNames: Record<Locale, string> = {
+const localeNames: Record<Language, string> = {
   en: 'English',
-  zh: '中文简体',
-  ms: 'Bahasa Melayu',
+  zh: '中文',
 }
 
-const localeFlags: Record<Locale, string> = {
+const localeFlags: Record<Language, string> = {
   en: '🇺🇸',
   zh: '🇨🇳',
-  ms: '🇲🇾',
 }
 
 export function LocaleSwitcher({
@@ -45,27 +45,18 @@ export function LocaleSwitcher({
   showLabel = false,
   size = 'default',
 }: LocaleSwitcherProps) {
-  const t = useTranslations('common.language')
-  const locale = useLocale() as Locale
-  const router = useRouter()
-  const pathname = usePathname()
-
-  const handleLocaleChange = (newLocale: Locale) => {
-    // Remove the current locale from pathname and add the new one
-    const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '') || '/'
-    const newPath = `/${newLocale}${pathWithoutLocale}`
-    router.push(newPath)
-  }
+  const { language, setLanguage, t } = useLanguage()
+  const locales = Object.keys(LANGUAGES) as Language[]
 
   if (variant === 'select') {
     return (
       <div className={cn('flex items-center gap-2', className)}>
         {showLabel && (
           <span className='text-sm font-medium text-muted-foreground'>
-            {t('switchLanguage')}
+            {t('settings.language')}
           </span>
         )}
-        <Select value={locale} onValueChange={handleLocaleChange}>
+        <Select value={language} onValueChange={setLanguage}>
           <SelectTrigger
             className={cn(
               'w-auto min-w-[120px]',
@@ -95,15 +86,15 @@ export function LocaleSwitcher({
       <div className={cn('flex flex-wrap gap-1', className)}>
         {showLabel && (
           <span className='text-sm font-medium text-muted-foreground mr-2'>
-            {t('switchLanguage')}:
+            {t('settings.language')}:
           </span>
         )}
         {locales.map(loc => (
           <Button
             key={loc}
-            variant={locale === loc ? 'default' : 'outline'}
+            variant={language === loc ? 'default' : 'outline'}
             size={size}
-            onClick={() => handleLocaleChange(loc)}
+            onClick={() => setLanguage(loc)}
             className={cn(
               'min-w-[80px]',
               size === 'sm' && 'h-7 px-2 text-xs',
@@ -123,7 +114,7 @@ export function LocaleSwitcher({
     <div className={cn('flex items-center gap-2', className)}>
       {showLabel && (
         <span className='text-sm font-medium text-muted-foreground'>
-          {t('switchLanguage')}
+          {t('settings.language')}
         </span>
       )}
       <DropdownMenu>
@@ -136,7 +127,7 @@ export function LocaleSwitcher({
               size === 'sm' && 'h-8 px-2 text-xs',
               size === 'lg' && 'h-12 px-4 text-base'
             )}
-            aria-label={t('switchLanguage')}
+            aria-label={t('settings.language')}
           >
             <Globe
               className={cn(
@@ -146,9 +137,9 @@ export function LocaleSwitcher({
               )}
             />
             <span className='hidden sm:inline'>
-              {localeFlags[locale]} {localeNames[locale]}
+              {localeFlags[language]} {localeNames[language]}
             </span>
-            <span className='sm:hidden'>{localeFlags[locale]}</span>
+            <span className='sm:hidden'>{localeFlags[language]}</span>
             <Languages
               className={cn(
                 'h-3 w-3 opacity-50',
@@ -162,15 +153,15 @@ export function LocaleSwitcher({
           {locales.map(loc => (
             <DropdownMenuItem
               key={loc}
-              onClick={() => handleLocaleChange(loc)}
+              onClick={() => setLanguage(loc)}
               className={cn(
                 'flex items-center gap-2 cursor-pointer',
-                locale === loc && 'bg-accent'
+                language === loc && 'bg-accent'
               )}
             >
               <span>{localeFlags[loc]}</span>
               <span>{localeNames[loc]}</span>
-              {locale === loc && (
+              {language === loc && (
                 <span className='ml-auto text-xs text-muted-foreground'>✓</span>
               )}
             </DropdownMenuItem>

@@ -119,7 +119,7 @@ class ErrorReportingService {
               extra: {
                 tagName: target.tagName,
                 src:
-                  (target as HTMLImageElement | HTMLLinkElement).src ||
+                  (target as HTMLImageElement).src ||
                   (target as HTMLLinkElement).href,
               },
             }

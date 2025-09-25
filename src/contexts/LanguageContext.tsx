@@ -166,9 +166,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Don't render until initialized to avoid hydration mismatch
+  // Show loading state until initialized to avoid hydration mismatch
   if (!isInitialized) {
-    return null
+    return (
+      <LanguageContext.Provider
+        value={{
+          language: DEFAULT_LANGUAGE,
+          setLanguage,
+          t: key => translations[DEFAULT_LANGUAGE][key] || key,
+          languages: LANGUAGES,
+        }}
+      >
+        {children}
+      </LanguageContext.Provider>
+    )
   }
 
   return (

@@ -14,13 +14,13 @@ import { Globe } from 'lucide-react'
 
 interface LanguageSwitcherProps {
   variant?: 'select' | 'buttons'
-  size?: 'sm' | 'md'
+  size?: 'sm' | 'default'
   showIcon?: boolean
 }
 
 export function LanguageSwitcher({
   variant = 'select',
-  size = 'md',
+  size = 'default',
   showIcon = true,
 }: LanguageSwitcherProps) {
   const { language, setLanguage, languages } = useLanguage()
