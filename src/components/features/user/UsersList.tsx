@@ -11,9 +11,9 @@ import {
   Button,
   Alert,
   AlertDescription,
-  UserListSkeleton,
+  Skeleton,
 } from '@/components/ui'
-import type { User } from '@/types/entities'
+import type { User } from '@/types/api'
 
 interface UsersListProps {
   className?: string
@@ -64,7 +64,24 @@ function UsersList({ className }: UsersListProps) {
   )
 
   if (loading) {
-    return <UserListSkeleton className={className} />
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <Skeleton className='h-6 w-32' />
+        </CardHeader>
+        <CardContent className='space-y-4'>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className='flex items-center space-x-4'>
+              <Skeleton className='h-10 w-10 rounded-full' />
+              <div className='space-y-2'>
+                <Skeleton className='h-4 w-24' />
+                <Skeleton className='h-3 w-32' />
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    )
   }
 
   if (error) {

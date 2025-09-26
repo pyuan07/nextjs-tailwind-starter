@@ -68,8 +68,3 @@ export { Textarea } from './textarea'
 export { Toaster } from './sonner'
 export { ErrorBoundary, withErrorBoundary } from './error-boundary'
 export { Loading, LoadingOverlay, PageLoading, ButtonLoading } from './loading'
-export {
-  AuthLoadingSkeleton,
-  UserCardSkeleton,
-  UserListSkeleton,
-} from './loading-states'

@@ -1,14 +1,8 @@
-// Main types barrel export following industry standards
-// Organized by domain for better maintainability and scalability
+// Centralized types export
+// All types consolidated for external API integration
 
-// Domain entities (business models)
-export * from './entities'
-
-// API types (DTOs, requests, responses)
+// API types (DTOs, requests, responses, entities)
 export * from './api'
 
-// UI component types
-export * from './ui'
-
-// Common utility types
-export * from './common'
+// i18n types
+export * from './i18n'

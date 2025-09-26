@@ -17,7 +17,7 @@ import {
 } from '@/components/ui'
 import { SectionErrorBoundary } from '@/components/ui/error-boundary'
 import { Loader2 } from 'lucide-react'
-import type { LoginRequest } from '@/types/api/auth'
+import type { LoginRequest } from '@/types/api'
 
 interface LoginFormProps {
   onSuccess?: () => void

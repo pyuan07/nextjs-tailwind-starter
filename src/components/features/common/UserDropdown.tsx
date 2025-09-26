@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Loader2, User, Settings, LogOut } from 'lucide-react'
-import type { User as UserType } from '@/types/entities'
+import type { User as UserType } from '@/types/api'
 
 interface UserDropdownProps {
   user: UserType

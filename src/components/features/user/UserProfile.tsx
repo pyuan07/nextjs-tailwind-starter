@@ -36,9 +36,7 @@ const LoginForm = createDynamicComponent(
 )
 
 function UserProfileContent() {
-  const { user, isAuthenticated, isLoading } = useAuth()
-  const { logout, isLoading: isLoggingOut } = useAuth()
-  const { updateProfile, isLoading: isUpdating } = useAuth()
+  const { user, isAuthenticated, isLoading, logout, updateProfile } = useAuth()
   const [showLoginForm, setShowLoginForm] = useState(false)
 
   const handleLogout = async () => {
@@ -163,9 +161,9 @@ function UserProfileContent() {
           onClick={handleUpdateName}
           variant='outline'
           size='sm'
-          disabled={isUpdating}
+          disabled={isLoading}
         >
-          {isUpdating ? (
+          {isLoading ? (
             <>
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               Updating...
@@ -178,9 +176,9 @@ function UserProfileContent() {
           onClick={handleLogout}
           variant='destructive'
           size='sm'
-          disabled={isLoggingOut}
+          disabled={isLoading}
         >
-          {isLoggingOut ? (
+          {isLoading ? (
             <>
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               Signing out...

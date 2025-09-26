@@ -1,13 +1,38 @@
 // Simplified user service - from complex class to simple functions
-import type { User } from '@/types/entities'
+import type { User } from '@/types/api'
 
-// Mock data for demo purposes
+// Mock data for demo purposes (matching User interface from types/api.ts)
 const mockUsers: User[] = [
-  { id: 1, name: 'John Doe', email: 'john@example.com' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com' },
-  { id: 4, name: 'Alice Brown', email: 'alice@example.com' },
-  { id: 5, name: 'Charlie Wilson', email: 'charlie@example.com' },
+  {
+    id: 1,
+    name: 'John Doe',
+    email: 'john@example.com',
+    avatar: null,
+    role: 'user',
+    isEmailVerified: true,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+  },
+  {
+    id: 2,
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+    avatar: null,
+    role: 'admin',
+    isEmailVerified: true,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+  },
+  {
+    id: 3,
+    name: 'Bob Johnson',
+    email: 'bob@example.com',
+    avatar: null,
+    role: 'user',
+    isEmailVerified: false,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+  },
 ]
 
 // Simple user service with demo data
@@ -63,7 +88,7 @@ export const userService = {
       await new Promise(resolve => setTimeout(resolve, 800))
 
       const newUser = {
-        id: Math.max(...mockUsers.map(u => u.id)) + 1,
+        id: Math.max(...mockUsers.map(u => Number(u.id))) + 1,
         ...userData,
       }
 

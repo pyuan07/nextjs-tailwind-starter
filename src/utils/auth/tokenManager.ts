@@ -1,10 +1,6 @@
 // Industry-standard secure token manager
 import { logger } from '@/lib/logger'
-import type {
-  TokenPair,
-  StoredTokenInfo,
-  TokenValidation,
-} from '@/types/api/auth'
+import type { TokenPair, StoredTokenInfo, TokenValidation } from '@/types/api'
 
 // Constants following industry standards
 const ACCESS_TOKEN_KEY = 'access_token_info'
@@ -282,36 +278,53 @@ export class SecureTokenManager {
       throw new Error('No refresh token available')
     }
 
-    // TODO: Replace with actual API call when implementing real backend
-    // const response = await fetch('/api/auth/refresh', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ refreshToken })
-    // })
+    try {
+      // Dynamic import to avoid circular dependency
+      const { api } = await import('@/lib/api')
+      const { API_ENDPOINTS } = await import('@/types/api')
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500))
+      logger.info('Calling external API for token refresh')
 
-    // Generate new token pair (production-ready approach with rotation)
-    const now = Date.now()
-    const randomId = Math.random().toString(36).substr(2, 9)
+      const response = await api.post<{
+        access: { token: string; expires: string }
+        refresh: { token: string; expires: string }
+      }>(API_ENDPOINTS.auth.refresh, {
+        refreshToken,
+      })
 
-    const newTokens: TokenPair = {
-      accessToken: `eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.${btoa(
-        JSON.stringify({
-          sub: 'demo-user',
-          iat: Math.floor(now / 1000),
-          exp: Math.floor((now + 15 * 60 * 1000) / 1000), // 15 minutes
-          jti: randomId,
-        })
-      )}`,
-      refreshToken: `rt_${now}_${randomId}`, // New refresh token (rotation)
-      accessTokenExpiry: now + 15 * 60 * 1000, // 15 minutes
-      refreshTokenExpiry: now + 7 * 24 * 60 * 60 * 1000, // 7 days
-      tokenType: 'Bearer',
+      // Convert API response to internal token format
+      const newTokens: TokenPair = {
+        accessToken: response.access.token,
+        refreshToken: response.refresh.token,
+        accessTokenExpiry: new Date(response.access.expires).getTime(),
+        refreshTokenExpiry: new Date(response.refresh.expires).getTime(),
+        tokenType: 'Bearer',
+      }
+
+      logger.info('External API token refresh successful')
+
+      return newTokens
+    } catch (error) {
+      logger.error('External API token refresh failed', error as Error)
+
+      // Fallback: If API is not available, generate demo tokens for development
+      if (process.env.NODE_ENV === 'development') {
+        logger.warn('Using demo tokens as fallback in development mode')
+
+        const now = Date.now()
+        const randomId = Math.random().toString(36).substr(2, 9)
+
+        return {
+          accessToken: `demo_access_${now}_${randomId}`,
+          refreshToken: `demo_refresh_${now}_${randomId}`,
+          accessTokenExpiry: now + 15 * 60 * 1000, // 15 minutes
+          refreshTokenExpiry: now + 7 * 24 * 60 * 60 * 1000, // 7 days
+          tokenType: 'Bearer',
+        }
+      }
+
+      throw error
     }
-
-    return newTokens
   }
 
   private setRefreshTokenCookie(refreshToken: string, expiry: number): void {

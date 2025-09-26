@@ -41,8 +41,8 @@ function LoginContent() {
       setTimeout(() => {
         window.location.href = redirectTo
       }, 500)
-    } catch (err) {
-      console.error('Login failed:', err)
+    } catch (_err) {
+      // Error is handled by the auth hook
     }
   }
 
@@ -84,7 +84,7 @@ function LoginContent() {
       {/* Login Form */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('auth.login')}</CardTitle>
+          <CardTitle>{tAuth('title')}</CardTitle>
           <CardDescription>{tAuth('enterCredentials')}</CardDescription>
         </CardHeader>
         <CardContent className='space-y-4'>

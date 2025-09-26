@@ -44,10 +44,13 @@ const validatedEnv = validateEnv()
 
 // Export validated and typed environment configuration
 export const env = {
-  // API Configuration
+  // API Configuration - TypeScript API Server
   API_BASE_URL:
-    validatedEnv.NEXT_PUBLIC_API_BASE_URL ||
-    'https://jsonplaceholder.typicode.com',
+    validatedEnv.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001',
+
+  // App URL (for CORS and redirects)
+  NEXT_PUBLIC_APP_URL:
+    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
 
   // App Configuration
   APP_NAME: validatedEnv.NEXT_PUBLIC_APP_NAME || 'React Tailwind Starter',

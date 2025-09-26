@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 import { authService } from '@/services'
-import { getErrorMessage } from '@/utils/api'
+import { getErrorMessage } from '@/utils/helpers'
 import type {
   LoginRequest,
   RegisterRequest,
   UpdateUserRequest,
-} from '@/types/api/auth'
-import type { User } from '@/types/entities'
+  User,
+} from '@/types/api'
 
 interface AuthState {
   user: User | null
@@ -141,13 +141,13 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     }
   },
 
-  updateProfile: async (updates: UpdateUserRequest) => {
+  updateProfile: async (updates: UpdateUserRequest): Promise<User> => {
     try {
       set({ isLoading: true, error: null })
 
       const response = await authService.updateProfile(updates)
 
-      if (!response.success) {
+      if (!response.success || !response.data) {
         throw new Error(response.message || 'Update failed')
       }
 

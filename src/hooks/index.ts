@@ -1,8 +1,13 @@
+// Centralized hooks exports with named exports for clarity
+
 // Auth hooks (Zustand-based)
-export * from './use-auth'
+export { useAuth, useAuthStatus } from './use-auth'
 
 // Theme hooks
-export * from './use-theme'
+export { useTheme } from './use-theme'
 
 // API hooks
-export * from './api/useApi'
+export { useApi, useMutation } from './api/useApi'
+
+// Export types for convenience
+export type { User, LoginRequest, RegisterRequest } from '@/types/api'
