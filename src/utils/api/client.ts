@@ -86,7 +86,7 @@ export const api = {
           }
         }
 
-        const error = new Error(errorText) as any
+        const error = new Error(errorText) as Error & { status: number }
         error.status = response.status
         throw error
       }

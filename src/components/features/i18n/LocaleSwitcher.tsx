@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useCallback } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import {
   locales,
@@ -42,9 +43,9 @@ function LocaleSwitcherContent({
   const t = useTranslations('language')
   const currentLocale = useLocale() as Locale
 
-  const handleLocaleChange = (newLocale: Locale) => {
+  const handleLocaleChange = useCallback((newLocale: Locale) => {
     setClientLocale(newLocale)
-  }
+  }, [])
 
   if (variant === 'select') {
     return (
@@ -170,6 +171,8 @@ function LocaleSwitcherContent({
   )
 }
 
+const MemoizedLocaleSwitcherContent = memo(LocaleSwitcherContent)
+
 export function LocaleSwitcher(props: LocaleSwitcherProps) {
   return (
     <SectionErrorBoundary
@@ -177,7 +180,7 @@ export function LocaleSwitcher(props: LocaleSwitcherProps) {
       title='Language Switcher Error'
       description='The language switcher encountered an error.'
     >
-      <LocaleSwitcherContent {...props} />
+      <MemoizedLocaleSwitcherContent {...props} />
     </SectionErrorBoundary>
   )
 }

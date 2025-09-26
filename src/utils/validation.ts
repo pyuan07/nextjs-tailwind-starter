@@ -1,23 +1,29 @@
 import { logger } from '@/lib/logger'
 
-// Validation rule types
-export type ValidationRule<T = any> = {
+// Validation rule types with proper generics
+export type ValidationRule<T = unknown> = {
   message: string
   validate: (
     value: T,
-    allValues?: Record<string, any>
+    allValues?: Record<string, unknown>
   ) => boolean | Promise<boolean>
 }
 
-export type ValidationRules<T = any> = {
+export type ValidationRules<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> = {
   [K in keyof T]?: ValidationRule<T[K]>[]
 }
 
-export type ValidationErrors<T = any> = {
+export type ValidationErrors<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> = {
   [K in keyof T]?: string[]
 }
 
-export type ValidationResult<T = any> = {
+export type ValidationResult<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> = {
   isValid: boolean
   errors: ValidationErrors<T>
   hasErrors: boolean
@@ -26,7 +32,9 @@ export type ValidationResult<T = any> = {
 /**
  * Core validation engine
  */
-export class Validator<T extends Record<string, any> = Record<string, any>> {
+export class Validator<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> {
   private rules: ValidationRules<T> = {}
   private customMessages: Partial<Record<keyof T, string>> = {}
 
@@ -276,10 +284,10 @@ export const rules = {
   }),
 
   // Async validation (e.g., checking if username exists)
-  async: <T>(
-    asyncValidator: (value: T) => Promise<boolean>,
+  async: <TValue>(
+    asyncValidator: (value: TValue) => Promise<boolean>,
     message = 'Validation failed'
-  ): ValidationRule<T> => ({
+  ): ValidationRule<TValue> => ({
     message,
     validate: async value => {
       try {
@@ -356,7 +364,7 @@ export const rules = {
 /**
  * Helper function to create a validator with common form rules
  */
-export function createFormValidator<T extends Record<string, any>>(config: {
+export function createFormValidator<T extends Record<string, unknown>>(config: {
   [K in keyof T]?: {
     rules: ValidationRule<T[K]>[]
     message?: string
@@ -365,7 +373,10 @@ export function createFormValidator<T extends Record<string, any>>(config: {
   const validator = new Validator<T>()
 
   Object.entries(config).forEach(([field, { rules: fieldRules, message }]) => {
-    validator.field(field as keyof T, fieldRules as ValidationRule<any>[])
+    validator.field(
+      field as keyof T,
+      fieldRules as ValidationRule<T[keyof T]>[]
+    )
     if (message) {
       validator.message(field as keyof T, message)
     }
@@ -377,7 +388,7 @@ export function createFormValidator<T extends Record<string, any>>(config: {
 /**
  * Utility to get the first error for each field
  */
-export function getFirstErrors<T>(
+export function getFirstErrors<T extends Record<string, unknown>>(
   errors: ValidationErrors<T>
 ): Record<keyof T, string | undefined> {
   const firstErrors: Record<string, string | undefined> = {}
@@ -395,7 +406,7 @@ export function getFirstErrors<T>(
 /**
  * Check if a field has errors
  */
-export function hasFieldError<T>(
+export function hasFieldError<T extends Record<string, unknown>>(
   errors: ValidationErrors<T>,
   field: keyof T
 ): boolean {
@@ -406,6 +417,8 @@ export function hasFieldError<T>(
 /**
  * Get all errors as a flat array
  */
-export function getAllErrors<T>(errors: ValidationErrors<T>): string[] {
+export function getAllErrors<T extends Record<string, unknown>>(
+  errors: ValidationErrors<T>
+): string[] {
   return Object.values(errors).flat().filter(Boolean) as string[]
 }

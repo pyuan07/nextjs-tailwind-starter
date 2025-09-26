@@ -1,5 +1,5 @@
 // Simplified API hook - replaces complex useQuery/useUsers hooks
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface ApiState<T> {
   data: T | null
@@ -7,20 +7,23 @@ interface ApiState<T> {
   error: string | null
 }
 
+type ApiResponse<T> = { data?: T } | T
+type ApiFetcher<T> = () => Promise<ApiResponse<T>>
+
 /**
  * Simple, unified API hook for data fetching
  * Replaces the complex useQuery pattern with something easy to understand
  */
-export function useApi<T = unknown>(
-  fetcher: () => Promise<{ data?: T } | T>
-): ApiState<T> {
+export function useApi<T = unknown>(fetcher: ApiFetcher<T>): ApiState<T> {
   const [state, setState] = useState<ApiState<T>>({
     data: null,
     loading: true,
     error: null,
   })
 
-  const memoizedFetcher = useCallback(fetcher, [])
+  // Use ref to store the latest fetcher without causing re-renders
+  const fetcherRef = useRef(fetcher)
+  fetcherRef.current = fetcher
 
   useEffect(() => {
     let isCancelled = false
@@ -28,7 +31,7 @@ export function useApi<T = unknown>(
     const fetchData = async () => {
       try {
         setState(prev => ({ ...prev, loading: true, error: null }))
-        const response = await memoizedFetcher()
+        const response = await fetcherRef.current()
 
         if (!isCancelled) {
           const data =
@@ -57,7 +60,7 @@ export function useApi<T = unknown>(
     return () => {
       isCancelled = true
     }
-  }, [memoizedFetcher])
+  }, []) // Empty dependency array - only run once on mount
 
   return state
 }

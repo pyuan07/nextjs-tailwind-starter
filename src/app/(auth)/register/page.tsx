@@ -4,9 +4,13 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks'
-import { RegisterForm } from '@/components/features'
 import { Card, CardContent } from '@/components/ui'
 import { useToast } from '@/hooks/use-toast'
+import { createDynamicComponent } from '@/utils/dynamic-imports'
+
+const RegisterForm = createDynamicComponent(
+  () => import('@/components/features/auth/RegisterForm')
+)
 
 export default function RegisterPage() {
   const router = useRouter()

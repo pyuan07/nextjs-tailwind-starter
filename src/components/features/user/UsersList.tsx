@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo, useMemo } from 'react'
 import { useApi } from '@/hooks'
 import { userService } from '@/services'
 import {
@@ -11,7 +11,7 @@ import {
   Button,
   Alert,
   AlertDescription,
-  Skeleton,
+  UserListSkeleton,
 } from '@/components/ui'
 import type { User } from '@/types/entities'
 
@@ -19,7 +19,36 @@ interface UsersListProps {
   className?: string
 }
 
-export default function UsersList({ className }: UsersListProps) {
+interface UserCardProps {
+  user: User
+}
+
+const UserCard = memo<UserCardProps>(({ user }) => {
+  const initials = user.name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+
+  return (
+    <Card className='transition-shadow hover:shadow-md'>
+      <CardHeader className='pb-3'>
+        <div className='flex items-center space-x-3'>
+          <div className='h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center'>
+            <span className='text-sm font-medium'>{initials}</span>
+          </div>
+          <div>
+            <CardTitle className='text-base'>{user.name}</CardTitle>
+            <p className='text-sm text-muted-foreground'>{user.email}</p>
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
+  )
+})
+
+UserCard.displayName = 'UserCard'
+
+function UsersList({ className }: UsersListProps) {
   const [showMore, setShowMore] = useState(false)
 
   // Use the simplified API hook
@@ -29,26 +58,13 @@ export default function UsersList({ className }: UsersListProps) {
     error,
   } = useApi<User[]>(() => userService.getUsers())
 
+  const displayedUsers = useMemo(
+    () => (showMore ? users || [] : (users || []).slice(0, 3)),
+    [users, showMore]
+  )
+
   if (loading) {
-    return (
-      <div className={className}>
-        <div className='space-y-4'>
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <div className='flex items-center space-x-3'>
-                  <Skeleton className='h-10 w-10 rounded-full' />
-                  <div className='space-y-2'>
-                    <Skeleton className='h-4 w-[120px]' />
-                    <Skeleton className='h-3 w-[180px]' />
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-      </div>
-    )
+    return <UserListSkeleton className={className} />
   }
 
   if (error) {
@@ -61,30 +77,11 @@ export default function UsersList({ className }: UsersListProps) {
     )
   }
 
-  const displayedUsers = showMore ? users || [] : (users || []).slice(0, 3)
-
   return (
     <div className={className}>
       <div className='space-y-4'>
         {displayedUsers.map(user => (
-          <Card key={user.id} className='transition-shadow hover:shadow-md'>
-            <CardHeader className='pb-3'>
-              <div className='flex items-center space-x-3'>
-                <div className='h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center'>
-                  <span className='text-sm font-medium'>
-                    {user.name
-                      .split(' ')
-                      .map(n => n[0])
-                      .join('')}
-                  </span>
-                </div>
-                <div>
-                  <CardTitle className='text-base'>{user.name}</CardTitle>
-                  <p className='text-sm text-muted-foreground'>{user.email}</p>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
+          <UserCard key={user.id} user={user} />
         ))}
 
         {users && users.length > 3 && (
@@ -110,3 +107,5 @@ export default function UsersList({ className }: UsersListProps) {
     </div>
   )
 }
+
+export default memo(UsersList)

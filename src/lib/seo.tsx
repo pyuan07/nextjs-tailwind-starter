@@ -34,7 +34,8 @@ export interface StructuredDataConfig {
     | 'Product'
     | 'Person'
     | 'BreadcrumbList'
-  data: Record<string, any>
+    | 'FAQPage'
+  data: Record<string, unknown>
 }
 
 /**
@@ -340,7 +341,7 @@ export const structuredDataGenerators = {
   faq: (
     faqs: { question: string; answer: string }[]
   ): StructuredDataConfig => ({
-    type: 'FAQPage' as any,
+    type: 'FAQPage',
     data: {
       mainEntity: faqs.map(faq => ({
         '@type': 'Question',

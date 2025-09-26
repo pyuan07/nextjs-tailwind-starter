@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -16,10 +17,19 @@ import { cn } from '@/lib/utils'
 /**
  * Auth-dependent navigation links that go inside NavigationMenu
  */
-export function AuthNavLinks() {
+export const AuthNavLinks = memo(function AuthNavLinks() {
   const pathname = usePathname()
   const { isAuthenticated, isLoading } = useAuth()
   const t = useTranslations('navigation')
+
+  const linkClassName = useMemo(
+    () =>
+      cn(
+        navigationMenuTriggerStyle(),
+        pathname === '/profile' && 'bg-accent text-accent-foreground'
+      ),
+    [pathname]
+  )
 
   if (isLoading || !isAuthenticated) {
     return null
@@ -28,24 +38,18 @@ export function AuthNavLinks() {
   return (
     <NavigationMenuItem>
       <NavigationMenuLink asChild>
-        <Link
-          href='/profile'
-          className={cn(
-            navigationMenuTriggerStyle(),
-            pathname === '/profile' && 'bg-accent text-accent-foreground'
-          )}
-        >
+        <Link href='/profile' className={linkClassName}>
           {t('profile')}
         </Link>
       </NavigationMenuLink>
     </NavigationMenuItem>
   )
-}
+})
 
 /**
  * Auth-dependent actions (buttons, dropdown) for the right side
  */
-export default function AuthNavActions() {
+const AuthNavActions = memo(function AuthNavActions() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const t = useTranslations('navigation')
 
@@ -76,4 +80,6 @@ export default function AuthNavActions() {
       )}
     </>
   )
-}
+})
+
+export default AuthNavActions
