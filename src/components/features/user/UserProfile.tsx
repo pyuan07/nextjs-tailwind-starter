@@ -13,10 +13,11 @@ import {
   Button,
   Skeleton,
 } from '@/components/ui'
+import { SectionErrorBoundary } from '@/components/ui/error-boundary'
 import { Loader2 } from 'lucide-react'
 import LoginForm from '../auth/LoginForm'
 
-const UserProfile = () => {
+function UserProfileContent() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const { logout, isLoading: isLoggingOut } = useAuth()
   const { updateProfile, isLoading: isUpdating } = useAuth()
@@ -175,4 +176,14 @@ const UserProfile = () => {
   )
 }
 
-export default UserProfile
+export default function UserProfile() {
+  return (
+    <SectionErrorBoundary
+      componentName='UserProfile'
+      title='Profile Error'
+      description='The user profile encountered an error. Please refresh the page and try again.'
+    >
+      <UserProfileContent />
+    </SectionErrorBoundary>
+  )
+}

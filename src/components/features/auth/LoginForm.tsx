@@ -15,6 +15,7 @@ import {
   Alert,
   AlertDescription,
 } from '@/components/ui'
+import { SectionErrorBoundary } from '@/components/ui/error-boundary'
 import { Loader2 } from 'lucide-react'
 import type { LoginRequest } from '@/types/api/auth'
 
@@ -23,7 +24,7 @@ interface LoginFormProps {
   className?: string
 }
 
-export default function LoginForm({ onSuccess, className }: LoginFormProps) {
+function LoginFormContent({ onSuccess, className }: LoginFormProps) {
   const { login, isLoading, error } = useAuth()
   const [formData, setFormData] = useState<LoginRequest>({
     email: '',
@@ -153,5 +154,17 @@ export default function LoginForm({ onSuccess, className }: LoginFormProps) {
         </form>
       </CardContent>
     </Card>
+  )
+}
+
+export default function LoginForm(props: LoginFormProps) {
+  return (
+    <SectionErrorBoundary
+      componentName='LoginForm'
+      title='Login Error'
+      description='The login form encountered an error. Please refresh the page and try again.'
+    >
+      <LoginFormContent {...props} />
+    </SectionErrorBoundary>
   )
 }

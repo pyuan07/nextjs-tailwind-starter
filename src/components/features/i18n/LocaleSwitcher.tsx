@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Languages, Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { SectionErrorBoundary } from '@/components/ui/error-boundary'
 
 interface LocaleSwitcherProps {
   variant?: 'select' | 'dropdown' | 'buttons'
@@ -32,7 +33,7 @@ interface LocaleSwitcherProps {
   size?: 'sm' | 'default' | 'lg'
 }
 
-export function LocaleSwitcher({
+function LocaleSwitcherContent({
   variant = 'dropdown',
   className,
   showLabel = false,
@@ -166,5 +167,17 @@ export function LocaleSwitcher({
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
+  )
+}
+
+export function LocaleSwitcher(props: LocaleSwitcherProps) {
+  return (
+    <SectionErrorBoundary
+      componentName='LocaleSwitcher'
+      title='Language Switcher Error'
+      description='The language switcher encountered an error.'
+    >
+      <LocaleSwitcherContent {...props} />
+    </SectionErrorBoundary>
   )
 }

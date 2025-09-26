@@ -16,6 +16,7 @@ import {
   Alert,
   AlertDescription,
 } from '@/components/ui'
+import { SectionErrorBoundary } from '@/components/ui/error-boundary'
 import { Loader2 } from 'lucide-react'
 
 interface RegisterFormProps {
@@ -23,10 +24,7 @@ interface RegisterFormProps {
   className?: string
 }
 
-export default function RegisterForm({
-  onSuccess,
-  className,
-}: RegisterFormProps) {
+function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
   const { register: registerUser, isLoading, error } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
@@ -227,5 +225,17 @@ export default function RegisterForm({
         </form>
       </CardContent>
     </Card>
+  )
+}
+
+export default function RegisterForm(props: RegisterFormProps) {
+  return (
+    <SectionErrorBoundary
+      componentName='RegisterForm'
+      title='Registration Error'
+      description='The registration form encountered an error. Please refresh the page and try again.'
+    >
+      <RegisterFormContent {...props} />
+    </SectionErrorBoundary>
   )
 }
