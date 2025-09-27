@@ -14,25 +14,3 @@ export const localeFlags: Record<Locale, string> = {
   zh: '🇨🇳',
   ms: '🇲🇾',
 }
-
-// Client-side locale management
-export function getClientLocale(): Locale {
-  if (typeof window === 'undefined') return defaultLocale
-
-  const cookieValue = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('locale='))
-    ?.split('=')[1] as Locale
-
-  return locales.includes(cookieValue) ? cookieValue : defaultLocale
-}
-
-export function setClientLocale(locale: Locale): void {
-  if (typeof window === 'undefined') return
-
-  // Set cookie with 1 year expiry
-  document.cookie = `locale=${locale}; path=/; max-age=${365 * 24 * 60 * 60}`
-
-  // Reload to apply server-side locale changes
-  window.location.reload()
-}

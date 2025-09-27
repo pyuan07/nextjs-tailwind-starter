@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useAuth } from '@/hooks'
 import { Card, CardContent } from '@/components/ui'
@@ -16,6 +17,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const { isAuthenticated, isLoading } = useAuth()
   const { toast } = useToast()
+  const t = useTranslations('auth.register')
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function RegisterPage() {
   }
 
   const handleRegisterSuccess = () => {
-    toast.success('Account created successfully! Welcome aboard!')
+    toast.success(t('successMessage'))
     router.push('/showcase')
   }
 
@@ -49,10 +51,8 @@ export default function RegisterPage() {
     <div className='space-y-6'>
       {/* Welcome Header */}
       <div className='text-center space-y-2'>
-        <h1 className='text-3xl font-bold'>Create your account</h1>
-        <p className='text-muted-foreground'>
-          Get started with your free account today
-        </p>
+        <h1 className='text-3xl font-bold'>{t('pageTitle')}</h1>
+        <p className='text-muted-foreground'>{t('pageDescription')}</p>
       </div>
 
       {/* Register Form */}
@@ -61,14 +61,12 @@ export default function RegisterPage() {
       {/* Links */}
       <div className='text-center text-sm'>
         <div className='flex items-center justify-center space-x-1'>
-          <span className='text-muted-foreground'>
-            Already have an account?
-          </span>
+          <span className='text-muted-foreground'>{t('hasAccount')}</span>
           <Link
             href='/login'
             className='font-medium text-primary hover:underline'
           >
-            Sign in
+            {t('signIn')}
           </Link>
         </div>
       </div>

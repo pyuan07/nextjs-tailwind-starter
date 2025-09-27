@@ -27,6 +27,7 @@ import { Icon } from '@/lib/icons'
 function ShowcaseContent() {
   const { toast } = useToast()
   const t = useTranslations()
+  const tShowcase = useTranslations('pages.showcase')
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -39,7 +40,7 @@ function ShowcaseContent() {
     setIsLoading(true)
     await new Promise(resolve => setTimeout(resolve, 2000))
     setIsLoading(false)
-    toast.success('Loading completed successfully!')
+    toast.success(tShowcase('toast.loadingCompleted'))
   }
 
   const handleInputChange = (
@@ -50,7 +51,7 @@ function ShowcaseContent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    toast.success('Form submitted successfully!')
+    toast.success(tShowcase('toast.formSubmitted'))
     setFormData({ name: '', email: '', message: '', priority: '' })
   }
 
@@ -62,11 +63,9 @@ function ShowcaseContent() {
           <div className='space-y-2'>
             <h1 className='text-3xl font-bold flex items-center gap-3'>
               <Icon name='component' size='xl' />
-              {t('pages.showcase.title')}
+              {tShowcase('title')}
             </h1>
-            <p className='text-muted-foreground'>
-              {t('pages.showcase.subtitle')}
-            </p>
+            <p className='text-muted-foreground'>{tShowcase('subtitle')}</p>
           </div>
 
           {/* Button Components */}
@@ -74,31 +73,53 @@ function ShowcaseContent() {
             <CardHeader>
               <CardTitle className='flex items-center gap-2'>
                 <Icon name='component' size='md' />
-                Button Components
+                {tShowcase('components.buttons.title')}
               </CardTitle>
               <CardDescription>
-                Various button styles and states
+                {tShowcase('components.buttons.description')}
               </CardDescription>
             </CardHeader>
             <CardContent className='space-y-6'>
               <div>
-                <h4 className='text-sm font-medium mb-3'>Button Variants</h4>
+                <h4 className='text-sm font-medium mb-3'>
+                  {tShowcase('components.buttons.variants')}
+                </h4>
                 <div className='flex flex-wrap gap-3'>
-                  <Button variant='default'>Default</Button>
-                  <Button variant='destructive'>Destructive</Button>
-                  <Button variant='outline'>Outline</Button>
-                  <Button variant='secondary'>Secondary</Button>
-                  <Button variant='ghost'>Ghost</Button>
-                  <Button variant='link'>Link</Button>
+                  <Button variant='default'>
+                    {tShowcase('components.buttons.default')}
+                  </Button>
+                  <Button variant='destructive'>
+                    {tShowcase('components.buttons.destructive')}
+                  </Button>
+                  <Button variant='outline'>
+                    {tShowcase('components.buttons.outline')}
+                  </Button>
+                  <Button variant='secondary'>
+                    {tShowcase('components.buttons.secondary')}
+                  </Button>
+                  <Button variant='ghost'>
+                    {tShowcase('components.buttons.ghost')}
+                  </Button>
+                  <Button variant='link'>
+                    {tShowcase('components.buttons.link')}
+                  </Button>
                 </div>
               </div>
 
               <div>
-                <h4 className='text-sm font-medium mb-3'>Button Sizes</h4>
+                <h4 className='text-sm font-medium mb-3'>
+                  {tShowcase('components.buttons.sizes')}
+                </h4>
                 <div className='flex flex-wrap items-center gap-3'>
-                  <Button size='sm'>Small</Button>
-                  <Button size='default'>Default</Button>
-                  <Button size='lg'>Large</Button>
+                  <Button size='sm'>
+                    {tShowcase('components.buttons.small')}
+                  </Button>
+                  <Button size='default'>
+                    {tShowcase('components.buttons.default')}
+                  </Button>
+                  <Button size='lg'>
+                    {tShowcase('components.buttons.large')}
+                  </Button>
                   <Button size='icon'>
                     <Icon name='feature' size='sm' />
                   </Button>
@@ -106,21 +127,31 @@ function ShowcaseContent() {
               </div>
 
               <div>
-                <h4 className='text-sm font-medium mb-3'>Interactive States</h4>
+                <h4 className='text-sm font-medium mb-3'>
+                  {tShowcase('components.buttons.states')}
+                </h4>
                 <div className='flex flex-wrap gap-3'>
                   <Button onClick={handleLoadingDemo} disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                        Loading...
+                        {tShowcase('components.buttons.loading')}
                       </>
                     ) : (
-                      'Click for Loading Demo'
+                      tShowcase('components.buttons.loadingDemo')
                     )}
                   </Button>
-                  <Button disabled>Disabled</Button>
-                  <Button onClick={() => toast.success('Button clicked!')}>
-                    Show Toast
+                  <Button disabled>
+                    {tShowcase('components.buttons.disabled')}
+                  </Button>
+                  <Button
+                    onClick={() =>
+                      toast.success(
+                        tShowcase('components.buttons.buttonClicked')
+                      )
+                    }
+                  >
+                    {tShowcase('components.buttons.showToast')}
                   </Button>
                 </div>
               </div>
@@ -132,16 +163,24 @@ function ShowcaseContent() {
             <CardHeader>
               <CardTitle className='flex items-center gap-2'>
                 <Icon name='component' size='md' />
-                Badge Components
+                {tShowcase('components.badges.title')}
               </CardTitle>
-              <CardDescription>Status indicators and labels</CardDescription>
+              <CardDescription>
+                {tShowcase('components.badges.description')}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className='flex flex-wrap gap-2'>
-                <Badge>Default</Badge>
-                <Badge variant='secondary'>Secondary</Badge>
-                <Badge variant='destructive'>Destructive</Badge>
-                <Badge variant='outline'>Outline</Badge>
+                <Badge>{tShowcase('components.badges.default')}</Badge>
+                <Badge variant='secondary'>
+                  {tShowcase('components.badges.secondary')}
+                </Badge>
+                <Badge variant='destructive'>
+                  {tShowcase('components.badges.destructive')}
+                </Badge>
+                <Badge variant='outline'>
+                  {tShowcase('components.badges.outline')}
+                </Badge>
               </div>
             </CardContent>
           </Card>
@@ -151,20 +190,26 @@ function ShowcaseContent() {
             <CardHeader>
               <CardTitle className='flex items-center gap-2'>
                 <Icon name='component' size='md' />
-                Form Components
+                {tShowcase('components.forms.title')}
               </CardTitle>
-              <CardDescription>Input fields and form controls</CardDescription>
+              <CardDescription>
+                {tShowcase('components.forms.description')}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className='space-y-6'>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                   <div className='space-y-4'>
                     <div>
-                      <Label htmlFor='name'>Name</Label>
+                      <Label htmlFor='name'>
+                        {tShowcase('components.forms.name')}
+                      </Label>
                       <Input
                         id='name'
                         name='name'
-                        placeholder='Enter your name'
+                        placeholder={tShowcase(
+                          'components.forms.namePlaceholder'
+                        )}
                         value={formData.name}
                         onChange={handleInputChange}
                       />
@@ -172,20 +217,24 @@ function ShowcaseContent() {
 
                     <div>
                       <Label htmlFor='email'>
-                        {t('pages.showcase.forms.email')}
+                        {tShowcase('components.forms.email')}
                       </Label>
                       <Input
                         id='email'
                         name='email'
                         type='email'
-                        placeholder='Enter your email'
+                        placeholder={tShowcase(
+                          'components.forms.emailPlaceholder'
+                        )}
                         value={formData.email}
                         onChange={handleInputChange}
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor='priority'>Priority</Label>
+                      <Label htmlFor='priority'>
+                        {tShowcase('components.forms.priority')}
+                      </Label>
                       <Select
                         value={formData.priority}
                         onValueChange={value =>
@@ -193,13 +242,25 @@ function ShowcaseContent() {
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder='Select priority' />
+                          <SelectValue
+                            placeholder={tShowcase(
+                              'components.forms.priorityPlaceholder'
+                            )}
+                          />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value='low'>Low</SelectItem>
-                          <SelectItem value='medium'>Medium</SelectItem>
-                          <SelectItem value='high'>High</SelectItem>
-                          <SelectItem value='critical'>Critical</SelectItem>
+                          <SelectItem value='low'>
+                            {tShowcase('components.forms.priorityLow')}
+                          </SelectItem>
+                          <SelectItem value='medium'>
+                            {tShowcase('components.forms.priorityMedium')}
+                          </SelectItem>
+                          <SelectItem value='high'>
+                            {tShowcase('components.forms.priorityHigh')}
+                          </SelectItem>
+                          <SelectItem value='critical'>
+                            {tShowcase('components.forms.priorityCritical')}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -207,11 +268,15 @@ function ShowcaseContent() {
 
                   <div className='space-y-4'>
                     <div>
-                      <Label htmlFor='message'>Message</Label>
+                      <Label htmlFor='message'>
+                        {tShowcase('components.forms.message')}
+                      </Label>
                       <Textarea
                         id='message'
                         name='message'
-                        placeholder='Enter your message'
+                        placeholder={tShowcase(
+                          'components.forms.messagePlaceholder'
+                        )}
                         value={formData.message}
                         onChange={handleInputChange}
                         rows={8}
@@ -221,7 +286,7 @@ function ShowcaseContent() {
                 </div>
 
                 <div className='flex justify-end'>
-                  <Button type='submit'>{t('common.submit')}</Button>
+                  <Button type='submit'>{t('common.actions.submit')}</Button>
                 </div>
               </form>
             </CardContent>

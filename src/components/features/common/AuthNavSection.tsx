@@ -1,7 +1,7 @@
 'use client'
 
 import { memo, useMemo } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks'
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
 export const AuthNavLinks = memo(function AuthNavLinks() {
   const pathname = usePathname()
   const { isAuthenticated, isLoading } = useAuth()
-  const t = useTranslations('navigation')
+  const t = useTranslations('common.navigation')
 
   const linkClassName = useMemo(
     () =>
@@ -51,7 +51,7 @@ export const AuthNavLinks = memo(function AuthNavLinks() {
  */
 const AuthNavActions = memo(function AuthNavActions() {
   const { user, isAuthenticated, isLoading } = useAuth()
-  const t = useTranslations('navigation')
+  const t = useTranslations('common.navigation')
 
   if (isLoading) {
     return (

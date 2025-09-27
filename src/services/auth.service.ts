@@ -58,6 +58,7 @@ export const authService = {
           name: 'Demo User',
           isEmailVerified: true,
           role: 'user',
+          lang: 'en',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
@@ -192,6 +193,7 @@ export const authService = {
         id: 1,
         email: 'demo@example.com',
         name: 'Demo User',
+        lang: 'en',
         isEmailVerified: true,
         role: 'user',
         createdAt: new Date().toISOString(),

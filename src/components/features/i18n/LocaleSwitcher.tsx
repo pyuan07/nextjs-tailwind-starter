@@ -1,14 +1,9 @@
 'use client'
 
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import {
-  locales,
-  type Locale,
-  localeNames,
-  localeFlags,
-  setClientLocale,
-} from '@/i18n/config'
+import { useRouter, usePathname } from '@/i18n/navigation'
+import { locales, type Locale, localeNames, localeFlags } from '@/i18n/config'
 import {
   Select,
   SelectContent,
@@ -40,12 +35,20 @@ function LocaleSwitcherContent({
   showLabel = false,
   size = 'default',
 }: LocaleSwitcherProps) {
-  const t = useTranslations('language')
+  const t = useTranslations('common.language')
   const currentLocale = useLocale() as Locale
+  const router = useRouter()
+  const pathname = usePathname()
+  const [isPending, startTransition] = useTransition()
 
-  const handleLocaleChange = useCallback((newLocale: Locale) => {
-    setClientLocale(newLocale)
-  }, [])
+  const handleLocaleChange = useCallback(
+    (newLocale: Locale) => {
+      startTransition(() => {
+        router.replace(pathname, { locale: newLocale })
+      })
+    },
+    [router, pathname]
+  )
 
   if (variant === 'select') {
     return (
@@ -55,12 +58,17 @@ function LocaleSwitcherContent({
             {t('switchLanguage')}
           </span>
         )}
-        <Select value={currentLocale} onValueChange={handleLocaleChange}>
+        <Select
+          value={currentLocale}
+          onValueChange={handleLocaleChange}
+          disabled={isPending}
+        >
           <SelectTrigger
             className={cn(
               'w-auto min-w-[120px]',
               size === 'sm' && 'h-8 text-xs',
-              size === 'lg' && 'h-12 text-base'
+              size === 'lg' && 'h-12 text-base',
+              isPending && 'opacity-50'
             )}
           >
             <SelectValue />
@@ -94,10 +102,12 @@ function LocaleSwitcherContent({
             variant={currentLocale === locale ? 'default' : 'outline'}
             size={size}
             onClick={() => handleLocaleChange(locale)}
+            disabled={isPending}
             className={cn(
               'min-w-[80px]',
               size === 'sm' && 'h-7 px-2 text-xs',
-              size === 'lg' && 'h-12 px-4 text-base'
+              size === 'lg' && 'h-12 px-4 text-base',
+              isPending && 'opacity-50'
             )}
           >
             <span className='mr-1'>{localeFlags[locale]}</span>
@@ -121,10 +131,12 @@ function LocaleSwitcherContent({
           <Button
             variant='outline'
             size={size}
+            disabled={isPending}
             className={cn(
               'gap-2',
               size === 'sm' && 'h-8 px-2 text-xs',
-              size === 'lg' && 'h-12 px-4 text-base'
+              size === 'lg' && 'h-12 px-4 text-base',
+              isPending && 'opacity-50'
             )}
             aria-label={t('switchLanguage')}
           >

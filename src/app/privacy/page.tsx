@@ -25,6 +25,12 @@ export default function PrivacyPolicyPage() {
             <p className='text-muted-foreground'>
               Last updated: {new Date().toLocaleDateString()}
             </p>
+            <div className='p-4 bg-muted rounded-lg border'>
+              <p className='text-sm text-muted-foreground'>
+                <strong>Language Notice:</strong> This legal document is
+                provided in English only for legal consistency and clarity.
+              </p>
+            </div>
           </div>
 
           <div className='space-y-6'>
@@ -266,10 +272,10 @@ export default function PrivacyPolicyPage() {
             <div className='mt-8 p-4 bg-muted rounded-lg border'>
               <p className='text-sm text-muted-foreground'>
                 <strong>Note:</strong> This is a sample Privacy Policy for
-                demonstration purposes. Please consult with a legal professional
-                to create a proper privacy policy for your actual application,
-                especially if you handle personal data or operate in
-                jurisdictions with specific privacy laws (GDPR, CCPA, etc.).
+                demonstration purposes only. Please consult with a legal
+                professional to create a proper privacy policy for your actual
+                application, especially if you handle personal data or operate
+                in jurisdictions with specific privacy laws (GDPR, CCPA, etc.).
               </p>
             </div>
           </div>

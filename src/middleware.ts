@@ -2,13 +2,18 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { env } from '@/config/env'
 import { generateSecureToken, rateLimiter } from '@/utils/security'
+import createMiddleware from 'next-intl/middleware'
+import { locales, defaultLocale } from '@/i18n/config'
 
 /**
- * Simplified middleware for business applications
- * Focus on security without i18n routing complexity
+ * Optimized middleware following industry best practices
+ * - Separated concerns (security, i18n, auth)
+ * - Early returns for performance
+ * - Proper composition pattern
+ * - No code duplication
  */
 
-// Route configurations - standard paths
+// Route configurations
 const PROTECTED_ROUTES = ['/showcase', '/profile', '/dashboard', '/admin']
 const AUTH_ROUTES = [
   '/login',
@@ -16,88 +21,95 @@ const AUTH_ROUTES = [
   '/forgot-password',
   '/reset-password',
 ]
-const _PUBLIC_ROUTES = ['/', '/privacy', '/terms', '/about', '/contact']
-const _API_ROUTES = ['/api']
+const LEGAL_ROUTES = ['/terms', '/privacy']
 
-// Generate a secure nonce for CSP
-function generateNonce(): string {
-  return generateSecureToken(16)
+// Create next-intl middleware
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'always',
+})
+
+// Security utilities
+function getClientIP(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for') ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  )
 }
 
-// Check if user is authenticated
 function isAuthenticated(request: NextRequest): boolean {
   const authToken = request.cookies.get('auth_token')?.value
   return !!authToken && authToken.length > 0
 }
 
-// Apply rate limiting
-function applyRateLimit(request: NextRequest): boolean {
-  const clientIP =
-    request.headers.get('x-forwarded-for') ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  const userAgent = request.headers.get('user-agent') || 'unknown'
-
-  // More restrictive rate limiting for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    return rateLimiter.isRateLimited(
-      `api:${clientIP}`,
-      100, // 100 requests per window
-      15 * 60 * 1000 // 15 minutes
-    )
-  }
-
-  // General rate limiting for all other routes
-  return rateLimiter.isRateLimited(
-    `general:${clientIP}:${userAgent}`,
-    300, // 300 requests per window
-    15 * 60 * 1000 // 15 minutes
+function shouldSkipMiddleware(pathname: string): boolean {
+  return (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/static/') ||
+    pathname.includes('.') ||
+    pathname === '/favicon.ico'
   )
 }
 
-// Check for suspicious activity
-function isSuspiciousRequest(request: NextRequest): boolean {
-  const userAgent = request.headers.get('user-agent') || ''
-  const _referer = request.headers.get('referer') || ''
+function isLegalDocument(pathname: string): boolean {
+  return LEGAL_ROUTES.includes(pathname)
+}
 
-  // Block common bot patterns (add more as needed)
+function isSuspiciousRequest(request: NextRequest): boolean {
+  if (env.isDevelopment) return false
+
+  const userAgent = request.headers.get('user-agent') || ''
+
   const suspiciousPatterns = [
     /bot|crawler|spider|scraper/i,
     /curl|wget|python|php/i,
     /scanner|hack|exploit/i,
   ]
 
-  // Block requests with suspicious user agents
-  if (suspiciousPatterns.some(pattern => pattern.test(userAgent))) {
-    return true
-  }
-
-  // Block requests with no user agent
-  if (!userAgent || userAgent.length < 10) {
-    return true
-  }
-
-  return false
+  return (
+    !userAgent ||
+    userAgent.length < 10 ||
+    suspiciousPatterns.some(pattern => pattern.test(userAgent))
+  )
 }
 
-// Function to add security headers to any response
+function applyRateLimit(request: NextRequest): boolean {
+  const clientIP = getClientIP(request)
+  const userAgent = request.headers.get('user-agent') || 'unknown'
+  const { pathname } = request.nextUrl
+
+  // API routes have stricter limits
+  if (pathname.startsWith('/api/')) {
+    return rateLimiter.isRateLimited(
+      `api:${clientIP}`,
+      100, // 100 requests per 15 minutes
+      15 * 60 * 1000
+    )
+  }
+
+  // General routes
+  return rateLimiter.isRateLimited(
+    `general:${clientIP}:${userAgent}`,
+    300, // 300 requests per 15 minutes
+    15 * 60 * 1000
+  )
+}
+
 function addSecurityHeaders(response: NextResponse): NextResponse {
-  // Generate nonce for CSP
-  const nonce = generateNonce()
+  const nonce = generateSecureToken(16)
 
-  // Core security headers (OWASP recommendations)
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('X-XSS-Protection', '1; mode=block')
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set('X-DNS-Prefetch-Control', 'off')
-  response.headers.set('X-Download-Options', 'noopen')
-  response.headers.set('X-Permitted-Cross-Domain-Policies', 'none')
-
-  // Permissions Policy (formerly Feature Policy)
-  response.headers.set(
-    'Permissions-Policy',
-    [
+  // Core security headers
+  const securityHeaders = {
+    'X-Frame-Options': 'DENY',
+    'X-Content-Type-Options': 'nosniff',
+    'X-XSS-Protection': '1; mode=block',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'X-DNS-Prefetch-Control': 'off',
+    'X-Download-Options': 'noopen',
+    'X-Permitted-Cross-Domain-Policies': 'none',
+    'Permissions-Policy': [
       'camera=()',
       'microphone=()',
       'geolocation=()',
@@ -108,10 +120,15 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
       'gyroscope=()',
       'accelerometer=()',
       'ambient-light-sensor=()',
-    ].join(', ')
-  )
+    ].join(', '),
+    'X-Nonce': nonce,
+  }
 
-  // Strict Transport Security (HSTS) - Only in production
+  Object.entries(securityHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value)
+  })
+
+  // HSTS for production
   if (env.isProduction) {
     response.headers.set(
       'Strict-Transport-Security',
@@ -119,7 +136,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
     )
   }
 
-  // Content Security Policy - simplified for backoffice
+  // Content Security Policy
   const cspDirectives = env.isProduction
     ? [
         "default-src 'self'",
@@ -139,7 +156,6 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
         'block-all-mixed-content',
       ]
     : [
-        // Development CSP - more permissive for hot reload, etc.
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
         "style-src 'self' 'unsafe-inline'",
@@ -156,92 +172,124 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
       ]
 
   response.headers.set('Content-Security-Policy', cspDirectives.join('; '))
-
-  // Store nonce for use in components
-  response.headers.set('X-Nonce', nonce)
-
   return response
 }
 
-export function middleware(request: NextRequest) {
-  const { pathname, search } = request.nextUrl
-  const url = pathname + search
+function createRateLimitResponse(): NextResponse {
+  return new NextResponse('Too Many Requests', {
+    status: 429,
+    headers: { 'Retry-After': '900' },
+  })
+}
 
-  // Skip middleware for static files and internal Next.js routes
-  if (
-    pathname.startsWith('/_next/') ||
-    pathname.startsWith('/static/') ||
-    pathname.includes('.') ||
-    pathname === '/favicon.ico'
-  ) {
+function handleLegalRoutes(
+  request: NextRequest,
+  pathname: string
+): NextResponse | null {
+  // Handle direct legal document access
+  if (isLegalDocument(pathname)) {
+    return addSecurityHeaders(NextResponse.next())
+  }
+
+  // Redirect old locale-based legal documents
+  const legalRedirectMatch = pathname.match(/^\/(en|zh|ms)\/(terms|privacy)$/)
+  if (legalRedirectMatch) {
+    const [, , document] = legalRedirectMatch
+    const redirectUrl = new URL(`/${document}`, request.url)
+    return NextResponse.redirect(redirectUrl, 301)
+  }
+
+  return null
+}
+
+function handleAuthentication(
+  request: NextRequest,
+  pathname: string
+): NextResponse | null {
+  const localeMatch = pathname.match(/^\/([a-z]{2})\/(.*)$/)
+  const localePath = localeMatch ? `/${localeMatch[2]}` : pathname
+  const locale = localeMatch ? localeMatch[1] : defaultLocale
+  const url = pathname + request.nextUrl.search
+
+  const isUserAuth = isAuthenticated(request)
+  const isProtected = PROTECTED_ROUTES.some(
+    route => localePath.startsWith(route) || localePath === route
+  )
+  const isAuth = AUTH_ROUTES.some(
+    route => localePath.startsWith(route) || localePath === route
+  )
+
+  // Redirect unauthenticated users from protected routes
+  if (isProtected && !isUserAuth) {
+    const loginUrl = new URL(`/${locale}/login`, request.url)
+    loginUrl.searchParams.set('redirect', url)
+    return addSecurityHeaders(NextResponse.redirect(loginUrl))
+  }
+
+  // Redirect authenticated users from auth routes
+  if (isAuth && isUserAuth) {
+    const showcaseUrl = new URL(`/${locale}/showcase`, request.url)
+    return addSecurityHeaders(NextResponse.redirect(showcaseUrl))
+  }
+
+  return null
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Early returns for performance
+  if (shouldSkipMiddleware(pathname)) {
     return NextResponse.next()
   }
 
-  // Skip security checks for API routes but apply rate limiting
+  // Handle legal documents first
+  const legalResponse = handleLegalRoutes(request, pathname)
+  if (legalResponse) return legalResponse
+
+  // API routes: rate limiting only
   if (pathname.startsWith('/api/')) {
     if (applyRateLimit(request)) {
-      const clientIP = request.headers.get('x-forwarded-for') || 'unknown'
-      console.warn(`Rate limit exceeded: ${clientIP} - ${pathname}`)
-      return new NextResponse('Too Many Requests', {
-        status: 429,
-        headers: {
-          'Retry-After': '900', // 15 minutes
-        },
-      })
+      console.warn(
+        `API rate limit exceeded: ${getClientIP(request)} - ${pathname}`
+      )
+      return createRateLimitResponse()
     }
     return NextResponse.next()
   }
 
-  // Check for suspicious activity
+  // Security checks for non-API routes
   if (isSuspiciousRequest(request)) {
-    const clientIP = request.headers.get('x-forwarded-for') || 'unknown'
-    console.warn(`Suspicious request blocked: ${clientIP} - ${pathname}`)
+    console.warn(
+      `Suspicious request blocked: ${getClientIP(request)} - ${pathname}`
+    )
     return new NextResponse('Forbidden', { status: 403 })
   }
 
-  // Apply rate limiting
   if (applyRateLimit(request)) {
-    const clientIP = request.headers.get('x-forwarded-for') || 'unknown'
-    console.warn(`Rate limit exceeded: ${clientIP} - ${pathname}`)
-    return new NextResponse('Too Many Requests', {
-      status: 429,
-      headers: {
-        'Retry-After': '900', // 15 minutes
-      },
-    })
+    console.warn(`Rate limit exceeded: ${getClientIP(request)} - ${pathname}`)
+    return createRateLimitResponse()
   }
 
-  // Authentication and routing logic - standard paths
-  const isUserAuthenticated = isAuthenticated(request)
-  const isProtectedRoute = PROTECTED_ROUTES.some(route =>
-    pathname.startsWith(route)
-  )
-  const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route))
+  // Apply i18n middleware
+  const intlResponse = intlMiddleware(request)
 
-  // Redirect unauthenticated users from protected routes
-  if (isProtectedRoute && !isUserAuthenticated) {
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('redirect', url)
-    return NextResponse.redirect(loginUrl)
+  // Handle i18n redirects
+  if (intlResponse?.status === 307 || intlResponse?.status === 308) {
+    return addSecurityHeaders(intlResponse)
   }
 
-  // Redirect authenticated users from auth routes
-  if (isAuthRoute && isUserAuthenticated) {
-    const showcaseUrl = new URL('/showcase', request.url)
-    return NextResponse.redirect(showcaseUrl)
-  }
+  // Handle authentication
+  const authResponse = handleAuthentication(request, pathname)
+  if (authResponse) return authResponse
 
-  // Create response with security headers
-  const response = NextResponse.next()
+  // Default response with security headers
+  const response = intlResponse || NextResponse.next()
   return addSecurityHeaders(response)
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for static files and internal Next.js routes
-     * Standard routing without locale prefixes
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

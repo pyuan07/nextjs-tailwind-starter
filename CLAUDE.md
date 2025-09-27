@@ -175,6 +175,38 @@ The project has a complete authentication system:
 4. **Security**: Respect existing middleware and security patterns
 5. **Performance**: Use Next.js 15 best practices with Turbopack
 
+## 🚫 CRITICAL: NO HACKS OR POOR PRACTICES
+
+**ALWAYS push for proper solutions and industry standards. NEVER accept hacks, workarounds, or poor practices.**
+
+### ❌ Examples of What NOT to Do:
+
+- **Context Fallbacks**: Never use try/catch to handle missing React context
+- **Manual Implementations**: Don't reimplement what libraries already provide
+- **Workarounds**: Avoid fixing symptoms instead of root causes
+- **Anti-patterns**: Don't use escape hatches without proper justification
+
+### ✅ Always Implement:
+
+- **Proper Architecture**: Correct component hierarchy and provider scope
+- **Industry Standards**: Follow established patterns and best practices
+- **Root Cause Fixes**: Solve the actual problem, not just the symptoms
+- **Clean Code**: Maintainable, readable, and performant solutions
+
+### 🎯 When Encountering Issues:
+
+1. **Identify Root Cause**: What is the actual architectural problem?
+2. **Research Standards**: What's the industry-standard solution?
+3. **Implement Properly**: Fix the architecture, not just the error
+4. **Validate**: Ensure the solution follows best practices
+
+**Example from i18n implementation:**
+
+- ❌ BAD: `try { useTranslations() } catch { fallback }`
+- ✅ GOOD: Move components inside proper provider scope
+
+**Remember: Quality code is maintainable code. Hacks create technical debt.**
+
 ## 📝 Code Standards
 
 - **TypeScript**: Strict mode enabled
@@ -184,4 +216,26 @@ The project has a complete authentication system:
 
 ---
 
-**For AI Helpers**: This project prioritizes type safety, internationalization, and user experience. Always consider these aspects when implementing new features or making changes.
+## 🤖 **MANDATORY FOR AI HELPERS**
+
+**This project prioritizes type safety, internationalization, and user experience. Always consider these aspects when implementing new features or making changes.**
+
+### 🚨 **ZERO TOLERANCE FOR POOR PRACTICES**
+
+**AI Helpers MUST:**
+
+1. **Challenge hack solutions** - If asked to implement a workaround, propose the proper solution instead
+2. **Educate on best practices** - Explain why proper architecture matters
+3. **Refuse poor practices** - Don't implement hacks even if requested
+4. **Research industry standards** - Always check what the community recommends
+5. **Prioritize maintainability** - Code quality over quick fixes
+
+### 📋 **Quality Checklist for Every Solution:**
+
+- [ ] Is this the industry-standard approach?
+- [ ] Does this follow React/Next.js best practices?
+- [ ] Is the architecture clean and maintainable?
+- [ ] Are we fixing the root cause or just symptoms?
+- [ ] Will this solution scale and be maintainable?
+
+**Remember: Good developers appreciate being guided toward better solutions. Your role is to elevate code quality, not just make things work.**

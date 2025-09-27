@@ -1,52 +1,22 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks'
+import { AuthGuard } from '@/components/features'
 import {
   Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-  Skeleton,
 } from '@/components/ui'
 import { Icon } from '@/lib/icons'
 
-export default function ProfilePage() {
-  const router = useRouter()
-  const { user, isAuthenticated, isLoading } = useAuth()
-  const { logout } = useAuth()
+function ProfileContent() {
+  const { user, logout } = useAuth()
+  const t = useTranslations('pages.profile')
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/login')
-    }
-  }, [isAuthenticated, isLoading, router])
-
-  if (isLoading) {
-    return (
-      <div className='min-h-screen bg-background flex items-center justify-center'>
-        <Card className='w-full max-w-md'>
-          <CardHeader>
-            <Skeleton className='h-4 w-[200px]' />
-            <Skeleton className='h-4 w-[150px]' />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className='h-20 w-full' />
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Don't render if not authenticated (will redirect)
-  if (!isAuthenticated || !user) {
-    return null
-  }
-
-  const _handleLogout = async () => {
+  const handleLogout = async () => {
     try {
       await logout()
     } catch (_error) {
@@ -54,15 +24,17 @@ export default function ProfilePage() {
     }
   }
 
+  if (!user) {
+    return null
+  }
+
   return (
     <div className='min-h-screen bg-background'>
       <main className='container mx-auto px-4 py-8 max-w-4xl'>
         <div className='space-y-8'>
           <div>
-            <h1 className='text-3xl font-bold'>Profile Settings</h1>
-            <p className='text-muted-foreground'>
-              Manage your account settings
-            </p>
+            <h1 className='text-3xl font-bold'>{t('pageTitle')}</h1>
+            <p className='text-muted-foreground'>{t('pageDescription')}</p>
           </div>
 
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
@@ -70,7 +42,7 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle className='flex items-center gap-2'>
                   <Icon name='user' size='md' />
-                  Profile
+                  {t('title')}
                 </CardTitle>
               </CardHeader>
               <CardContent className='space-y-4'>
@@ -84,7 +56,7 @@ export default function ProfilePage() {
 
                 <div className='space-y-3'>
                   <div>
-                    <label className='text-sm font-medium'>Name</label>
+                    <label className='text-sm font-medium'>{t('name')}</label>
                     <input
                       type='text'
                       className='w-full px-3 py-2 border rounded-md'
@@ -92,7 +64,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className='text-sm font-medium'>Email</label>
+                    <label className='text-sm font-medium'>{t('email')}</label>
                     <input
                       type='email'
                       className='w-full px-3 py-2 border rounded-md'
@@ -101,7 +73,7 @@ export default function ProfilePage() {
                   </div>
                   <Button className='w-full flex items-center gap-2'>
                     <Icon name='save' size='sm' />
-                    Save Changes
+                    {t('saveChanges')}
                   </Button>
                 </div>
               </CardContent>
@@ -111,21 +83,21 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle className='flex items-center gap-2'>
                   <Icon name='security' size='md' />
-                  Security
+                  {t('security')}
                 </CardTitle>
               </CardHeader>
               <CardContent className='space-y-4'>
                 <div className='flex justify-between items-center p-3 border rounded'>
-                  <span>Password</span>
+                  <span>{t('password')}</span>
                   <Button variant='outline' size='sm'>
-                    Change
+                    {t('changePassword')}
                   </Button>
                 </div>
 
                 <div className='flex justify-between items-center p-3 border rounded'>
-                  <span>Two-Factor Auth</span>
+                  <span>{t('twoFactorAuth')}</span>
                   <Button variant='outline' size='sm'>
-                    Enable
+                    {t('enableTwoFactor')}
                   </Button>
                 </div>
               </CardContent>
@@ -135,16 +107,16 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle className='flex items-center gap-2'>
                   <Icon name='settings' size='md' />
-                  Preferences
+                  {t('preferences')}
                 </CardTitle>
               </CardHeader>
               <CardContent className='space-y-4'>
                 <div className='flex justify-between items-center'>
-                  <span>Email Notifications</span>
+                  <span>{t('emailNotifications')}</span>
                   <input type='checkbox' defaultChecked />
                 </div>
                 <div className='flex justify-between items-center'>
-                  <span>Marketing Emails</span>
+                  <span>{t('marketingEmails')}</span>
                   <input type='checkbox' />
                 </div>
               </CardContent>
@@ -154,12 +126,12 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle className='text-red-600 flex items-center gap-2'>
                   <Icon name='warning' size='md' />
-                  Danger Zone
+                  {t('dangerZone')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button variant='destructive' size='sm'>
-                  Delete Account
+                <Button variant='destructive' size='sm' onClick={handleLogout}>
+                  {t('logout')}
                 </Button>
               </CardContent>
             </Card>
@@ -167,5 +139,13 @@ export default function ProfilePage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <AuthGuard>
+      <ProfileContent />
+    </AuthGuard>
   )
 }

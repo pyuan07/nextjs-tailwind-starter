@@ -1,0 +1,289 @@
+{
+  "common": {
+    "navigation": {
+      "home": "Home",
+      "profile": "Profile",
+      "showcase": "Showcase",
+      "login": "Login",
+      "register": "Register",
+      "logout": "Logout"
+    },
+    "actions": {
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "save": "Save",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirm": "Confirm",
+      "continue": "Continue",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "loading": "Loading...",
+      "search": "Search",
+      "filter": "Filter",
+      "clear": "Clear",
+      "close": "Close"
+    },
+    "status": {
+      "success": "Success",
+      "error": "Error",
+      "warning": "Warning",
+      "info": "Information",
+      "pending": "Pending",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "toggleTheme": "Toggle theme"
+    },
+    "language": {
+      "english": "English",
+      "chinese": "中文简体",
+      "malay": "Bahasa Melayu",
+      "switchLanguage": "Switch language"
+    },
+    "brand": {
+      "name": "Backoffice Starter",
+      "welcome": "Welcome to Our Platform",
+      "description": "Modern Next.js starter with enterprise-grade features, security, and performance optimization."
+    },
+    "footer": {
+      "builtWith": "Built with modern web technologies for enterprise applications.",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "techStack": {
+      "title": "Technology Stack",
+      "nextjs": {
+        "name": "Next.js 15",
+        "description": "React framework with App Router & Turbopack"
+      },
+      "tailwind": {
+        "name": "Tailwind CSS v4",
+        "description": "Utility-first CSS with new CSS-first config"
+      },
+      "typescript": {
+        "name": "TypeScript",
+        "description": "Type-safe development with modern JavaScript"
+      },
+      "tooling": {
+        "name": "Modern Tooling",
+        "description": "ESLint, Prettier, Husky, and testing setup"
+      }
+    },
+    "errors": {
+      "somethingWrong": "Something went wrong",
+      "unexpectedError": "An unexpected error occurred.",
+      "tryAgainOrReload": "You can try again or reload the page.",
+      "reloadOrContact": "Please reload the page or contact support.",
+      "errorId": "Error ID:",
+      "errorDetails": "Error Details",
+      "errorMessage": "Error Message:",
+      "stackTrace": "Stack Trace:",
+      "retryAttempts": "Retry attempts:",
+      "tryAgain": "Try Again",
+      "left": "left",
+      "reloadPage": "Reload Page",
+      "feedbackSent": "Feedback Sent",
+      "reportError": "Report Error",
+      "showErrorDetails": "Show Error Details",
+      "sectionError": "Section Error",
+      "sectionErrorMessage": "This section encountered an error and cannot be displayed."
+    }
+  },
+  "auth": {
+    "welcome": "Welcome Back",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "login": {
+      "title": "Sign In",
+      "description": "Enter your credentials to access your account",
+      "signInToContinue": "Sign in to continue to your account",
+      "signInToAccess": "Please sign in to access this page",
+      "enterCredentials": "Enter your credentials to access your account",
+      "demoCredentials": "Demo Credentials",
+      "clickUseDemoCredentials": "Click to use demo credentials",
+      "enterYourEmail": "Enter your email",
+      "enterYourPassword": "Enter your password",
+      "signingIn": "Signing in...",
+      "dontHaveAccount": "Don't have an account?",
+      "createOneHere": "Create one here",
+      "forgotYourPassword": "Forgot your password?",
+      "needSignInAccess": "You need to sign in to access:",
+      "email": "Email",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot your password?",
+      "signIn": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "demo": "Demo Login",
+      "demoHint": "Use demo@example.com / password for quick access"
+    },
+    "register": {
+      "title": "Create Account",
+      "description": "Create a new account to get started",
+      "pageTitle": "Create your account",
+      "pageDescription": "Get started with your free account today",
+      "joinDescription": "Join us to get started with your projects",
+      "name": "Full Name",
+      "namePlaceholder": "John Doe",
+      "email": "Email",
+      "emailPlaceholder": "john@example.com",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "passwordPlaceholder": "••••••••",
+      "agreeTerms": "I agree to the Terms of Service and Privacy Policy (English)",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "viewFullTerms": "View Full Terms",
+      "viewFullPrivacy": "View Full Privacy Policy",
+      "legalNotice": "Legal documents are provided in English only",
+      "createAccount": "Create Account",
+      "creatingAccount": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "successMessage": "Account created successfully! Welcome aboard!"
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "description": "Enter your email to receive a password reset link",
+      "pageTitle": "Forgot password?",
+      "pageDescription": "No worries, we'll send you reset instructions",
+      "resetTitle": "Reset your password",
+      "resetDescription": "Enter your email address and we'll send you a reset link",
+      "email": "Email",
+      "emailAddress": "Email address",
+      "emailPlaceholder": "Enter your email address",
+      "sendReset": "Send reset link",
+      "sendingReset": "Sending reset link...",
+      "backToLogin": "← Back to login",
+      "checkEmail": "Check your email for reset instructions",
+      "checkEmailTitle": "Check your email",
+      "checkEmailDescription": "We've sent a password reset link to",
+      "emailSentTitle": "Email sent successfully",
+      "emailSentDescription": "Follow the instructions in the email to reset your password.",
+      "didntReceive": "Didn't receive the email?",
+      "tryAgain": "Try again",
+      "enterEmailError": "Please enter your email address",
+      "invalidEmailError": "Please enter a valid email address",
+      "resetSuccessMessage": "Password reset email sent successfully!",
+      "resetErrorMessage": "Failed to send reset email. Please try again."
+    },
+    "logout": {
+      "confirm": "Are you sure you want to logout?",
+      "yes": "Yes, logout",
+      "cancel": "Cancel",
+      "signingOut": "Signing out..."
+    },
+    "profile": {
+      "title": "Profile",
+      "settings": "Settings",
+      "signOut": "Sign Out"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailRequired": "Email is required",
+      "passwordRequired": "Password is required",
+      "emailInvalid": "Please enter a valid email",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "nameRequired": "Full name is required",
+      "termsRequired": "You must agree to the terms"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Home",
+      "description": "Welcome to the homepage"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Manage your profile settings",
+      "pageTitle": "Profile Settings",
+      "pageDescription": "Manage your account settings",
+      "personalInfo": "Personal Information",
+      "settings": "Settings",
+      "security": "Security",
+      "name": "Name",
+      "email": "Email",
+      "saveChanges": "Save Changes",
+      "password": "Password",
+      "changePassword": "Change",
+      "twoFactorAuth": "Two-Factor Auth",
+      "enableTwoFactor": "Enable",
+      "preferences": "Preferences",
+      "emailNotifications": "Email Notifications",
+      "marketingEmails": "Marketing Emails",
+      "dangerZone": "Danger Zone",
+      "logout": "Logout"
+    },
+    "showcase": {
+      "title": "Showcase",
+      "description": "Explore our features and capabilities",
+      "subtitle": "Component library and interactive examples",
+      "features": "Features",
+      "examples": "Examples",
+      "components": {
+        "buttons": {
+          "title": "Button Components",
+          "description": "Various button styles and states",
+          "variants": "Button Variants",
+          "sizes": "Button Sizes",
+          "states": "Interactive States",
+          "default": "Default",
+          "destructive": "Destructive",
+          "outline": "Outline",
+          "secondary": "Secondary",
+          "ghost": "Ghost",
+          "link": "Link",
+          "small": "Small",
+          "large": "Large",
+          "disabled": "Disabled",
+          "loadingDemo": "Click for Loading Demo",
+          "loading": "Loading...",
+          "showToast": "Show Toast",
+          "buttonClicked": "Button clicked!"
+        },
+        "badges": {
+          "title": "Badge Components",
+          "description": "Status indicators and labels",
+          "default": "Default",
+          "secondary": "Secondary",
+          "destructive": "Destructive",
+          "outline": "Outline"
+        },
+        "forms": {
+          "title": "Form Components",
+          "description": "Input fields and form controls",
+          "name": "Name",
+          "namePlaceholder": "Enter your name",
+          "email": "Email Address",
+          "emailPlaceholder": "Enter your email",
+          "priority": "Priority",
+          "priorityPlaceholder": "Select priority",
+          "priorityLow": "Low",
+          "priorityMedium": "Medium",
+          "priorityHigh": "High",
+          "priorityCritical": "Critical",
+          "message": "Message",
+          "messagePlaceholder": "Enter your message"
+        }
+      },
+      "toast": {
+        "loadingCompleted": "Loading completed successfully!",
+        "formSubmitted": "Form submitted successfully!"
+      }
+    },
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "The page you're looking for doesn't exist",
+      "backHome": "Go back home"
+    }
+  }
+}

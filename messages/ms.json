@@ -1,0 +1,289 @@
+{
+  "common": {
+    "navigation": {
+      "home": "Laman Utama",
+      "profile": "Profil",
+      "showcase": "Pameran",
+      "login": "Log Masuk",
+      "register": "Daftar",
+      "logout": "Log Keluar"
+    },
+    "actions": {
+      "submit": "Hantar",
+      "cancel": "Batal",
+      "save": "Simpan",
+      "edit": "Edit",
+      "delete": "Padam",
+      "confirm": "Sahkan",
+      "continue": "Teruskan",
+      "back": "Kembali",
+      "next": "Seterusnya",
+      "previous": "Sebelumnya",
+      "loading": "Memuatkan...",
+      "search": "Cari",
+      "filter": "Tapis",
+      "clear": "Kosongkan",
+      "close": "Tutup"
+    },
+    "status": {
+      "success": "Berjaya",
+      "error": "Ralat",
+      "warning": "Amaran",
+      "info": "Maklumat",
+      "pending": "Menunggu",
+      "completed": "Selesai",
+      "failed": "Gagal"
+    },
+    "theme": {
+      "light": "Terang",
+      "dark": "Gelap",
+      "system": "Sistem",
+      "toggleTheme": "Tukar tema"
+    },
+    "language": {
+      "english": "English",
+      "chinese": "中文简体",
+      "malay": "Bahasa Melayu",
+      "switchLanguage": "Tukar bahasa"
+    },
+    "brand": {
+      "name": "Pemula Pejabat Belakang",
+      "welcome": "Selamat datang ke platform kami",
+      "description": "Pemula Next.js moden dengan ciri-ciri gred perusahaan, keselamatan, dan pengoptimuman prestasi."
+    },
+    "footer": {
+      "builtWith": "Dibina dengan teknologi web moden untuk aplikasi perusahaan.",
+      "termsOfService": "Terma Perkhidmatan",
+      "privacyPolicy": "Dasar Privasi"
+    },
+    "techStack": {
+      "title": "Tumpukan Teknologi",
+      "nextjs": {
+        "name": "Next.js 15",
+        "description": "Rangka kerja React dengan App Router & Turbopack"
+      },
+      "tailwind": {
+        "name": "Tailwind CSS v4",
+        "description": "CSS utiliti-pertama dengan konfigurasi CSS-pertama baharu"
+      },
+      "typescript": {
+        "name": "TypeScript",
+        "description": "Pembangunan selamat-jenis dengan JavaScript moden"
+      },
+      "tooling": {
+        "name": "Peralatan Moden",
+        "description": "ESLint, Prettier, Husky, dan persediaan ujian"
+      }
+    },
+    "errors": {
+      "somethingWrong": "Sesuatu telah berlaku",
+      "unexpectedError": "Ralat yang tidak dijangka telah berlaku.",
+      "tryAgainOrReload": "Anda boleh cuba lagi atau muat semula halaman.",
+      "reloadOrContact": "Sila muat semula halaman atau hubungi sokongan.",
+      "errorId": "ID Ralat:",
+      "errorDetails": "Butiran Ralat",
+      "errorMessage": "Mesej Ralat:",
+      "stackTrace": "Jejak Tumpukan:",
+      "retryAttempts": "Percubaan semula:",
+      "tryAgain": "Cuba Lagi",
+      "left": "tinggal",
+      "reloadPage": "Muat Semula Halaman",
+      "feedbackSent": "Maklum Balas Dihantar",
+      "reportError": "Laporkan Ralat",
+      "showErrorDetails": "Tunjukkan Butiran Ralat",
+      "sectionError": "Ralat Bahagian",
+      "sectionErrorMessage": "Bahagian ini menghadapi ralat dan tidak dapat dipaparkan."
+    }
+  },
+  "auth": {
+    "welcome": "Selamat Kembali",
+    "email": "E-mel",
+    "password": "Kata Laluan",
+    "signIn": "Log Masuk",
+    "login": {
+      "title": "Log Masuk",
+      "description": "Masukkan bukti kelayakan anda untuk mengakses akaun anda",
+      "signInToContinue": "Log masuk untuk teruskan ke akaun anda",
+      "signInToAccess": "Sila log masuk untuk mengakses halaman ini",
+      "enterCredentials": "Masukkan bukti kelayakan anda untuk mengakses akaun anda",
+      "demoCredentials": "Bukti Kelayakan Demo",
+      "clickUseDemoCredentials": "Klik untuk gunakan bukti kelayakan demo",
+      "enterYourEmail": "Masukkan e-mel anda",
+      "enterYourPassword": "Masukkan kata laluan anda",
+      "signingIn": "Sedang log masuk...",
+      "dontHaveAccount": "Tiada akaun?",
+      "createOneHere": "Buat satu di sini",
+      "forgotYourPassword": "Lupa kata laluan anda?",
+      "needSignInAccess": "Anda perlu log masuk untuk mengakses:",
+      "email": "E-mel",
+      "password": "Kata Laluan",
+      "rememberMe": "Ingat saya",
+      "forgotPassword": "Lupa kata laluan anda?",
+      "signIn": "Log Masuk",
+      "noAccount": "Tiada akaun?",
+      "signUp": "Daftar",
+      "demo": "Log Masuk Demo",
+      "demoHint": "Gunakan demo@example.com / password untuk akses pantas"
+    },
+    "register": {
+      "title": "Buat Akaun",
+      "description": "Buat akaun baharu untuk bermula",
+      "pageTitle": "Buat akaun anda",
+      "pageDescription": "Mulakan dengan akaun percuma anda hari ini",
+      "joinDescription": "Sertai kami untuk memulakan projek anda",
+      "name": "Nama Penuh",
+      "namePlaceholder": "Ahmad Bin Ali",
+      "email": "E-mel",
+      "emailPlaceholder": "ahmad@example.com",
+      "password": "Kata Laluan",
+      "confirmPassword": "Sahkan Kata Laluan",
+      "passwordPlaceholder": "••••••••",
+      "agreeTerms": "Saya bersetuju dengan Terma Perkhidmatan dan Dasar Privasi (English)",
+      "termsOfService": "Terma Perkhidmatan",
+      "privacyPolicy": "Dasar Privasi",
+      "viewFullTerms": "Lihat Terma Penuh",
+      "viewFullPrivacy": "Lihat Dasar Privasi Penuh",
+      "legalNotice": "Dokumen undang-undang hanya disediakan dalam Bahasa Inggeris",
+      "createAccount": "Buat Akaun",
+      "creatingAccount": "Membuat akaun...",
+      "hasAccount": "Sudah ada akaun?",
+      "signIn": "Log masuk",
+      "successMessage": "Akaun berjaya dibuat! Selamat datang!"
+    },
+    "forgotPassword": {
+      "title": "Set Semula Kata Laluan",
+      "description": "Masukkan e-mel anda untuk menerima pautan set semula kata laluan",
+      "pageTitle": "Lupa kata laluan?",
+      "pageDescription": "Tidak mengapa, kami akan hantar arahan set semula",
+      "resetTitle": "Set semula kata laluan anda",
+      "resetDescription": "Masukkan alamat e-mel anda dan kami akan hantar pautan set semula",
+      "email": "E-mel",
+      "emailAddress": "Alamat e-mel",
+      "emailPlaceholder": "Masukkan alamat e-mel anda",
+      "sendReset": "Hantar pautan set semula",
+      "sendingReset": "Menghantar pautan set semula...",
+      "backToLogin": "← Kembali ke log masuk",
+      "checkEmail": "Semak e-mel anda untuk arahan set semula",
+      "checkEmailTitle": "Semak e-mel anda",
+      "checkEmailDescription": "Kami telah hantar pautan set semula kata laluan ke",
+      "emailSentTitle": "E-mel berjaya dihantar",
+      "emailSentDescription": "Ikuti arahan dalam e-mel untuk set semula kata laluan anda.",
+      "didntReceive": "Tidak menerima e-mel?",
+      "tryAgain": "Cuba lagi",
+      "enterEmailError": "Sila masukkan alamat e-mel anda",
+      "invalidEmailError": "Sila masukkan alamat e-mel yang sah",
+      "resetSuccessMessage": "E-mel set semula kata laluan berjaya dihantar!",
+      "resetErrorMessage": "Gagal menghantar e-mel set semula. Sila cuba lagi."
+    },
+    "logout": {
+      "confirm": "Adakah anda pasti mahu log keluar?",
+      "yes": "Ya, log keluar",
+      "cancel": "Batal",
+      "signingOut": "Sedang log keluar..."
+    },
+    "profile": {
+      "title": "Profil",
+      "settings": "Tetapan",
+      "signOut": "Log Keluar"
+    },
+    "errors": {
+      "invalidCredentials": "E-mel atau kata laluan tidak sah",
+      "emailRequired": "E-mel diperlukan",
+      "passwordRequired": "Kata laluan diperlukan",
+      "emailInvalid": "Sila masukkan e-mel yang sah",
+      "passwordTooShort": "Kata laluan mestilah sekurang-kurangnya 8 aksara",
+      "passwordMismatch": "Kata laluan tidak sepadan",
+      "nameRequired": "Nama penuh diperlukan",
+      "termsRequired": "Anda mesti bersetuju dengan terma"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Laman Utama",
+      "description": "Selamat datang ke laman utama"
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Urus tetapan profil anda",
+      "pageTitle": "Tetapan Profil",
+      "pageDescription": "Urus tetapan akaun anda",
+      "personalInfo": "Maklumat Peribadi",
+      "settings": "Tetapan",
+      "security": "Keselamatan",
+      "name": "Nama",
+      "email": "E-mel",
+      "saveChanges": "Simpan Perubahan",
+      "password": "Kata Laluan",
+      "changePassword": "Tukar",
+      "twoFactorAuth": "Pengesahan Dua Faktor",
+      "enableTwoFactor": "Aktifkan",
+      "preferences": "Keutamaan",
+      "emailNotifications": "Pemberitahuan E-mel",
+      "marketingEmails": "E-mel Pemasaran",
+      "dangerZone": "Zon Bahaya",
+      "logout": "Log Keluar"
+    },
+    "showcase": {
+      "title": "Pameran",
+      "description": "Terokai ciri dan keupayaan kami",
+      "subtitle": "Perpustakaan komponen dan contoh interaktif",
+      "features": "Ciri-ciri",
+      "examples": "Contoh",
+      "components": {
+        "buttons": {
+          "title": "Komponen Butang",
+          "description": "Pelbagai gaya dan keadaan butang",
+          "variants": "Varian Butang",
+          "sizes": "Saiz Butang",
+          "states": "Keadaan Interaktif",
+          "default": "Lalai",
+          "destructive": "Memusnah",
+          "outline": "Garis Luar",
+          "secondary": "Sekunder",
+          "ghost": "Hantu",
+          "link": "Pautan",
+          "small": "Kecil",
+          "large": "Besar",
+          "disabled": "Dilumpuhkan",
+          "loadingDemo": "Klik untuk Demo Memuatkan",
+          "loading": "Memuatkan...",
+          "showToast": "Tunjuk Makluman",
+          "buttonClicked": "Butang diklik!"
+        },
+        "badges": {
+          "title": "Komponen Lencana",
+          "description": "Penunjuk status dan label",
+          "default": "Lalai",
+          "secondary": "Sekunder",
+          "destructive": "Memusnah",
+          "outline": "Garis Luar"
+        },
+        "forms": {
+          "title": "Komponen Borang",
+          "description": "Medan input dan kawalan borang",
+          "name": "Nama",
+          "namePlaceholder": "Masukkan nama anda",
+          "email": "Alamat E-mel",
+          "emailPlaceholder": "Masukkan e-mel anda",
+          "priority": "Keutamaan",
+          "priorityPlaceholder": "Pilih keutamaan",
+          "priorityLow": "Rendah",
+          "priorityMedium": "Sederhana",
+          "priorityHigh": "Tinggi",
+          "priorityCritical": "Kritikal",
+          "message": "Mesej",
+          "messagePlaceholder": "Masukkan mesej anda"
+        }
+      },
+      "toast": {
+        "loadingCompleted": "Pemuatan selesai dengan jayanya!",
+        "formSubmitted": "Borang berjaya dihantar!"
+      }
+    },
+    "notFound": {
+      "title": "Halaman Tidak Dijumpai",
+      "description": "Halaman yang anda cari tidak wujud",
+      "backHome": "Kembali ke laman utama"
+    }
+  }
+}

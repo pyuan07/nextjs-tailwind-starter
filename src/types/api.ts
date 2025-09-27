@@ -118,6 +118,7 @@ export interface User {
   name: string
   avatar?: string | null
   role: 'user' | 'admin' | 'moderator'
+  lang: 'en' | 'zh' | 'ms'
   isEmailVerified: boolean
   createdAt: string
   updatedAt: string

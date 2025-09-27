@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import {
   Button,
@@ -20,17 +21,18 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const { toast } = useToast()
+  const t = useTranslations('auth.forgotPassword')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!email.trim()) {
-      toast.error('Please enter your email address')
+      toast.error(t('enterEmailError'))
       return
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      toast.error('Please enter a valid email address')
+      toast.error(t('invalidEmailError'))
       return
     }
 
@@ -39,9 +41,9 @@ export default function ForgotPasswordPage() {
       // Simulate API call for demo
       await new Promise(resolve => setTimeout(resolve, 2000))
       setIsSubmitted(true)
-      toast.success('Password reset email sent successfully!')
+      toast.success(t('resetSuccessMessage'))
     } catch (_error) {
-      toast.error('Failed to send reset email. Please try again.')
+      toast.error(t('resetErrorMessage'))
     } finally {
       setIsLoading(false)
     }
@@ -51,9 +53,9 @@ export default function ForgotPasswordPage() {
     return (
       <div className='space-y-6'>
         <div className='text-center space-y-2'>
-          <h1 className='text-3xl font-bold'>Check your email</h1>
+          <h1 className='text-3xl font-bold'>{t('checkEmailTitle')}</h1>
           <p className='text-muted-foreground'>
-            We've sent a password reset link to <strong>{email}</strong>
+            {t('checkEmailDescription')} <strong>{email}</strong>
           </p>
         </div>
 
@@ -63,9 +65,9 @@ export default function ForgotPasswordPage() {
               ✓
             </div>
             <div>
-              <h3 className='font-medium'>Email sent successfully</h3>
+              <h3 className='font-medium'>{t('emailSentTitle')}</h3>
               <p className='text-sm text-muted-foreground mt-2'>
-                Follow the instructions in the email to reset your password.
+                {t('emailSentDescription')}
               </p>
             </div>
           </CardContent>
@@ -73,14 +75,12 @@ export default function ForgotPasswordPage() {
 
         <div className='text-center text-sm space-y-4'>
           <div>
-            <span className='text-muted-foreground'>
-              Didn't receive the email?
-            </span>
+            <span className='text-muted-foreground'>{t('didntReceive')}</span>
             <button
               onClick={() => setIsSubmitted(false)}
               className='ml-2 font-medium text-primary hover:underline'
             >
-              Try again
+              {t('tryAgain')}
             </button>
           </div>
 
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
             href='/login'
             className='inline-flex items-center gap-2 text-primary hover:underline'
           >
-            ← Back to login
+            {t('backToLogin')}
           </Link>
         </div>
       </div>
@@ -98,30 +98,26 @@ export default function ForgotPasswordPage() {
   return (
     <div className='space-y-6'>
       <div className='text-center space-y-2'>
-        <h1 className='text-3xl font-bold'>Forgot password?</h1>
-        <p className='text-muted-foreground'>
-          No worries, we'll send you reset instructions
-        </p>
+        <h1 className='text-3xl font-bold'>{t('pageTitle')}</h1>
+        <p className='text-muted-foreground'>{t('pageDescription')}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Reset your password</CardTitle>
-          <CardDescription>
-            Enter your email address and we'll send you a reset link
-          </CardDescription>
+          <CardTitle>{t('resetTitle')}</CardTitle>
+          <CardDescription>{t('resetDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className='space-y-4'>
             <div className='space-y-2'>
-              <Label htmlFor='email'>Email address</Label>
+              <Label htmlFor='email'>{t('emailAddress')}</Label>
               <Input
                 id='email'
                 type='email'
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 disabled={isLoading}
-                placeholder='Enter your email address'
+                placeholder={t('emailPlaceholder')}
               />
             </div>
 
@@ -129,10 +125,10 @@ export default function ForgotPasswordPage() {
               {isLoading ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Sending reset link...
+                  {t('sendingReset')}
                 </>
               ) : (
-                'Send reset link'
+                t('sendReset')
               )}
             </Button>
           </form>
@@ -144,7 +140,7 @@ export default function ForgotPasswordPage() {
           href='/login'
           className='inline-flex items-center gap-2 text-primary hover:underline'
         >
-          ← Back to login
+          {t('backToLogin')}
         </Link>
       </div>
     </div>

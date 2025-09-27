@@ -1,4 +1,4 @@
-import type en from '../../messages/en/index'
+import type en from '../../messages/en.json'
 
 type Messages = typeof en
 

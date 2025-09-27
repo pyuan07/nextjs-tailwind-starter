@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/hooks'
 import {
   Button,
@@ -26,6 +27,8 @@ interface RegisterFormProps {
 
 function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
   const { register: registerUser, isLoading, error } = useAuth()
+  const tRegister = useTranslations('auth.register')
+  const tErrors = useTranslations('auth.errors')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -38,18 +41,18 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
   const validateForm = () => {
     const errors: Record<string, string> = {}
 
-    if (!formData.name.trim()) errors.name = 'Name is required'
-    if (!formData.email.trim()) errors.email = 'Email is required'
-    if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid'
-    if (!formData.password) errors.password = 'Password is required'
-    if (formData.password.length < 6)
-      errors.password = 'Password must be at least 6 characters'
+    if (!formData.name.trim()) errors.name = tErrors('nameRequired')
+    if (!formData.email.trim()) errors.email = tErrors('emailRequired')
+    if (!/\S+@\S+\.\S+/.test(formData.email))
+      errors.email = tErrors('emailInvalid')
+    if (!formData.password) errors.password = tErrors('passwordRequired')
+    if (formData.password.length < 8)
+      errors.password = tErrors('passwordTooShort')
     if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match'
+      errors.confirmPassword = tErrors('passwordMismatch')
     }
     if (!formData.acceptTerms) {
-      errors.acceptTerms =
-        'You must accept the Terms of Service and Privacy Policy'
+      errors.acceptTerms = tErrors('termsRequired')
     }
 
     setFormErrors(errors)
@@ -82,10 +85,8 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Create Account</CardTitle>
-        <CardDescription>
-          Join us to get started with your projects
-        </CardDescription>
+        <CardTitle>{tRegister('title')}</CardTitle>
+        <CardDescription>{tRegister('joinDescription')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className='space-y-4'>
@@ -97,13 +98,13 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
 
           <div className='space-y-4'>
             <div className='space-y-2'>
-              <Label htmlFor='name'>Full Name</Label>
+              <Label htmlFor='name'>{tRegister('name')}</Label>
               <Input
                 id='name'
                 type='text'
                 value={formData.name}
                 onChange={handleChange('name')}
-                placeholder='John Doe'
+                placeholder={tRegister('namePlaceholder')}
                 disabled={isLoading}
               />
               {formErrors.name && (
@@ -114,13 +115,13 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='email'>Email</Label>
+              <Label htmlFor='email'>{tRegister('email')}</Label>
               <Input
                 id='email'
                 type='email'
                 value={formData.email}
                 onChange={handleChange('email')}
-                placeholder='john@example.com'
+                placeholder={tRegister('emailPlaceholder')}
                 disabled={isLoading}
               />
               {formErrors.email && (
@@ -131,13 +132,13 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='password'>Password</Label>
+              <Label htmlFor='password'>{tRegister('password')}</Label>
               <Input
                 id='password'
                 type='password'
                 value={formData.password}
                 onChange={handleChange('password')}
-                placeholder='••••••••'
+                placeholder={tRegister('passwordPlaceholder')}
                 disabled={isLoading}
               />
               {formErrors.password && (
@@ -148,13 +149,15 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='confirmPassword'>Confirm Password</Label>
+              <Label htmlFor='confirmPassword'>
+                {tRegister('confirmPassword')}
+              </Label>
               <Input
                 id='confirmPassword'
                 type='password'
                 value={formData.confirmPassword}
                 onChange={handleChange('confirmPassword')}
-                placeholder='••••••••'
+                placeholder={tRegister('passwordPlaceholder')}
                 disabled={isLoading}
               />
               {formErrors.confirmPassword && (
@@ -166,7 +169,7 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
           </div>
 
           <div className='space-y-3'>
-            <div className='flex items-start space-x-3'>
+            <div className='flex items-center space-x-3'>
               <Checkbox
                 id='acceptTerms'
                 checked={formData.acceptTerms}
@@ -177,32 +180,34 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
                   }))
                 }
                 disabled={isLoading}
-                className='mt-1'
+                className='flex-shrink-0'
               />
               <Label
                 htmlFor='acceptTerms'
-                className='text-sm text-muted-foreground leading-relaxed'
+                className='text-sm text-muted-foreground leading-normal cursor-pointer flex-1'
               >
                 I agree to the{' '}
                 <Link
                   href='/terms'
-                  className='text-primary hover:underline'
                   target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-primary hover:underline font-medium'
                 >
-                  Terms of Service
+                  {tRegister('termsOfService')}
                 </Link>{' '}
                 and{' '}
                 <Link
                   href='/privacy'
-                  className='text-primary hover:underline'
                   target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-primary hover:underline font-medium'
                 >
-                  Privacy Policy
+                  {tRegister('privacyPolicy')}
                 </Link>
               </Label>
             </div>
             {formErrors.acceptTerms && (
-              <p className='text-sm text-destructive'>
+              <p className='text-sm text-destructive mt-1 ml-6'>
                 {formErrors.acceptTerms}
               </p>
             )}
@@ -216,10 +221,10 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
             {isLoading ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Creating account...
+                {tRegister('creatingAccount')}
               </>
             ) : (
-              'Create Account'
+              tRegister('createAccount')
             )}
           </Button>
         </form>
