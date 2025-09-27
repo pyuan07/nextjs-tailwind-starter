@@ -43,11 +43,22 @@ function LocaleSwitcherContent({
 
   const handleLocaleChange = useCallback(
     (newLocale: Locale) => {
+      if (newLocale === currentLocale) return
+
       startTransition(() => {
-        router.replace(pathname, { locale: newLocale })
+        // Standard next-intl navigation - preserve search params and hash
+        const url = new URL(window.location.href)
+        router.replace(
+          {
+            pathname,
+            query: Object.fromEntries(url.searchParams.entries()),
+            hash: url.hash,
+          },
+          { locale: newLocale }
+        )
       })
     },
-    [router, pathname]
+    [router, pathname, currentLocale]
   )
 
   if (variant === 'select') {

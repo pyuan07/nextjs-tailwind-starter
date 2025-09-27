@@ -28,6 +28,7 @@ const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
   localePrefix: 'always',
+  localeDetection: true,
 })
 
 // Security utilities
@@ -206,17 +207,27 @@ function handleAuthentication(
   request: NextRequest,
   pathname: string
 ): NextResponse | null {
-  const localeMatch = pathname.match(/^\/([a-z]{2})\/(.*)$/)
-  const localePath = localeMatch ? `/${localeMatch[2]}` : pathname
-  const locale = localeMatch ? localeMatch[1] : defaultLocale
-  const url = pathname + request.nextUrl.search
+  // Extract locale from pathname using next-intl pattern
+  const segments = pathname.split('/').filter(Boolean)
+  const potentialLocale = segments[0]
+  const isValidLocale = locales.includes(potentialLocale as any)
 
+  const locale = isValidLocale ? potentialLocale : defaultLocale
+  const pathWithoutLocale = isValidLocale
+    ? `/${segments.slice(1).join('/')}`
+    : pathname
+
+  const url = pathname + request.nextUrl.search
   const isUserAuth = isAuthenticated(request)
+
+  // Check if current path is protected or auth route
   const isProtected = PROTECTED_ROUTES.some(
-    route => localePath.startsWith(route) || localePath === route
+    route =>
+      pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`)
   )
   const isAuth = AUTH_ROUTES.some(
-    route => localePath.startsWith(route) || localePath === route
+    route =>
+      pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`)
   )
 
   // Redirect unauthenticated users from protected routes
@@ -274,7 +285,7 @@ export function middleware(request: NextRequest) {
   // Apply i18n middleware
   const intlResponse = intlMiddleware(request)
 
-  // Handle i18n redirects
+  // Handle i18n redirects - let next-intl handle them properly
   if (intlResponse?.status === 307 || intlResponse?.status === 308) {
     return addSecurityHeaders(intlResponse)
   }
