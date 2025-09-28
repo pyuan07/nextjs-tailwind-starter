@@ -4,6 +4,7 @@ import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
 import { ConditionalNavbar } from '@/components/features/common/ConditionalNavbar'
+import { PWAInstallPrompt, OfflineIndicator } from '@/components/features/pwa'
 
 interface LocaleLayoutProps {
   children: ReactNode
@@ -32,6 +33,8 @@ export default async function LocaleLayout({
     <NextIntlClientProvider locale={locale} messages={messages}>
       <ConditionalNavbar />
       {children}
+      <PWAInstallPrompt />
+      <OfflineIndicator />
     </NextIntlClientProvider>
   )
 }

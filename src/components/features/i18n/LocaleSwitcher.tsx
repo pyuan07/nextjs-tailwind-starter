@@ -46,13 +46,12 @@ function LocaleSwitcherContent({
       if (newLocale === currentLocale) return
 
       startTransition(() => {
-        // Standard next-intl navigation - preserve search params and hash
+        // Standard next-intl navigation - preserve search params
         const url = new URL(window.location.href)
         router.replace(
           {
             pathname,
             query: Object.fromEntries(url.searchParams.entries()),
-            hash: url.hash,
           },
           { locale: newLocale }
         )

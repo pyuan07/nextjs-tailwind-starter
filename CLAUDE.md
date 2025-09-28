@@ -65,19 +65,34 @@ src/
 
 #### 3. Translation Usage in Components
 
+**Client Components:**
+
 ```tsx
-// In any component
+// In any client component
 import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 
 const t = useTranslations('common.navigation')
-return <span>{t('home')}</span>
-
-// Namespace examples:
-// - common.navigation.home
-// - common.actions.submit
-// - auth.login.title
-// - pages.home.title
+return <Link href='/showcase'>{t('showcase')}</Link>
 ```
+
+**Server Components:**
+
+```tsx
+// In server components (pages, layouts)
+import { getTranslations } from 'next-intl/server'
+
+const t = await getTranslations('common.navigation')
+// Simple locale interpolation
+return <a href={`/${locale}/showcase`}>{t('showcase')}</a>
+```
+
+**Namespace examples:**
+
+- common.navigation.home
+- common.actions.submit
+- auth.login.title
+- pages.home.title
 
 #### 4. Type Safety
 
@@ -109,6 +124,10 @@ Each locale has consistent JSON structure:
 3. **Consistent namespacing**: Follow the established namespace pattern
 4. **All three languages**: When adding new text, ensure all 3 locales are updated
 5. **TypeScript**: Translation keys are type-safe, use autocompletion
+6. **Navigation Pattern**:
+   - **Client Components**: Use `Link` from `@/i18n/navigation` and `usePathname` from `@/i18n/navigation`
+   - **Server Components**: Use `<a href={`/${locale}/path`}>` with locale interpolation
+   - **Mixed approach breaks locale routing**: Never mix client and server patterns
 
 ### Adding New Translations
 
@@ -132,6 +151,191 @@ The project has a complete authentication system:
 - **Theme System**: Light/dark mode with system preference
 - **Responsive Design**: Mobile-first with Tailwind CSS v4
 - **State Management**: Zustand for global state
+
+## 📱 Mobile-First Development Guidelines
+
+**CRITICAL**: This project is now optimized for mobile + PWA. ALL new features must consider mobile experience first.
+
+### Mobile-First Principles
+
+1. **Touch-First Design**: Design for fingers, not mouse cursors
+2. **Performance**: Mobile users have slower connections and devices
+3. **Native App Feel**: Should feel like a native mobile app
+4. **Progressive Web App**: Installable and works offline
+
+### Mobile Development Requirements
+
+#### 🎯 Touch Interactions
+
+- **Minimum touch targets**: 44px × 44px (Apple/Google guideline)
+- **Spacing**: 8px minimum between interactive elements
+- **No hover-only actions**: All interactions must work with touch
+- **Touch feedback**: Visual feedback for all interactive elements
+
+#### 📐 Responsive Design Standards
+
+- **Mobile-first breakpoints**:
+  - `sm: 640px` - Small tablets
+  - `md: 768px` - Tablets
+  - `lg: 1024px` - Small laptops
+  - `xl: 1280px` - Desktop
+- **Native app viewport**: `user-scalable=no` for app-like experience
+- **Test on real devices**: Not just browser dev tools
+
+#### 🧭 Navigation Patterns
+
+- **Mobile**: Hamburger menu + bottom navigation for key actions
+- **Tablet**: Collapsible sidebar or expanded navigation
+- **Desktop**: Full navigation menu
+
+#### 🚀 Performance Requirements
+
+- **Core Web Vitals**: LCP < 2.5s, FID < 100ms, CLS < 0.1
+- **Progressive loading**: Critical content first, enhanced features second
+- **Offline support**: Basic functionality without internet
+- **PWA features**: Installable, push notifications (optional)
+
+### Implementation Checklist for New Features
+
+When adding any new feature, ensure:
+
+- [ ] **Mobile layout designed first** (then scale up)
+- [ ] **Touch targets ≥ 44px** for all interactive elements
+- [ ] **Works without JavaScript** (progressive enhancement)
+- [ ] **Proper input types** for mobile keyboards (`tel`, `email`, `number`)
+- [ ] **Loading states** for slow connections
+- [ ] **Error states** with retry actions
+- [ ] **Offline behavior** defined and implemented
+- [ ] **Tested on real mobile devices** (iOS Safari, Android Chrome)
+
+### PWA Implementation Status
+
+#### ✅ Completed:
+
+- **Manifest file** (`public/manifest.json`) with advanced PWA features
+- **Service worker** ready with comprehensive caching strategies
+- **App icons** complete set: 16px, 32px, 180px, 192px, 512px, maskable versions
+- **iOS Splash Screens** for all device sizes (iPhone, iPad, iPad Pro)
+- **Native app viewport** settings with no zoom
+- **PWA Install Prompt** with iOS and Android support
+- **Offline indicator** with connection status
+- **Windows tile support** (browserconfig.xml)
+- **Apple PWA meta tags** for iOS Safari
+- **App shortcuts** in manifest for quick actions
+
+#### 🔄 Future Enhancements:
+
+- Push notifications
+- Background sync
+- Advanced caching strategies
+- Install prompt optimization
+
+### PWA Development Guidelines
+
+#### 🛠️ **Generating PWA Assets:**
+
+```bash
+# Generate all PWA icons from SVG
+node scripts/generate-pwa-icons.js
+
+# Generate iOS splash screens
+node scripts/generate-splash-screens.js
+```
+
+#### 📱 **PWA Components:**
+
+**Install Prompt**: Automatically shows after 3 seconds on supported browsers
+
+```tsx
+import { PWAInstallPrompt } from '@/components/features/pwa'
+;<PWAInstallPrompt />
+```
+
+**Offline Indicator**: Shows connection status
+
+```tsx
+import { OfflineIndicator } from '@/components/features/pwa'
+;<OfflineIndicator />
+```
+
+#### 🎯 **PWA Best Practices:**
+
+1. **Icons**: Always generate from `public/icon-base.svg` for consistency
+2. **Splash Screens**: Generated for all iOS device sizes automatically
+3. **Install Prompt**: Smart timing - shows after user engagement
+4. **Offline Support**: Service worker caches essential resources
+5. **Native Feel**: Viewport settings prevent zoom, full-screen mode
+
+#### ⚠️ Development Middleware Issues:
+
+**Problem**: Middleware routing conflicts can cause root path errors during development.
+
+**Symptoms**:
+
+- Root path (`http://localhost:3000/`) errors requiring hard refresh
+- i18n middleware changes not taking effect immediately
+
+**Industry Standard Solution**:
+
+1. **Proper Middleware Matcher**: Excludes PWA files (`sw.js`, `workbox-*`, `manifest.json`)
+2. **Clean Route Separation**: next-intl handles locale routing first, then custom logic
+3. **PWA Integration**: next-pwa disabled in development, enabled in production
+
+**Key Implementation**:
+
+- Root path gets immediate next-intl processing
+- Middleware matcher excludes service worker files
+- Production PWA functionality preserved
+
+### Mobile Testing Workflow
+
+1. **Chrome DevTools Device Emulation**: Initial testing
+2. **Real Device Testing**: iOS Safari, Android Chrome
+3. **PWA Installation**: Test app install flow
+4. **Network Throttling**: Test on slow connections
+5. **Lighthouse Audit**: Target 90+ scores for Performance, PWA, Accessibility
+
+### Common Mobile Patterns to Use
+
+#### Navigation:
+
+```tsx
+// Mobile: Hamburger + Bottom Nav
+<MobileNav /> {/* Hidden on md+ */}
+<BottomNav /> {/* Visible on mobile only */}
+
+// Desktop: Full Navigation
+<DesktopNav /> {/* Hidden on mobile */}
+```
+
+#### Forms:
+
+```tsx
+// Mobile-optimized inputs
+<input
+  type='email'
+  inputMode='email'
+  autoComplete='email'
+  className='text-base' // Prevents zoom on iOS
+/>
+```
+
+#### Touch Targets:
+
+```tsx
+// Minimum 44px touch targets
+<button className='min-h-11 min-w-11 p-3'>
+  <Icon className='h-5 w-5' />
+</button>
+```
+
+### Important Notes for AI Helpers
+
+1. **Mobile-First Always**: Start with mobile design, then enhance for larger screens
+2. **Real Device Testing**: Emulators aren't enough, test on actual devices
+3. **Performance Budget**: Every feature must justify its performance cost
+4. **Progressive Enhancement**: Core functionality without JavaScript
+5. **Accessibility**: Mobile users include those with disabilities
 
 ## 📁 Key Directories
 

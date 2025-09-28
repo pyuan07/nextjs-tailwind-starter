@@ -65,38 +65,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
-  // TODO: Add dynamic routes here
-  // Example: Blog posts, products, user profiles, etc.
-  /*
-  const dynamicRoutes = await Promise.all([
-    getBlogPosts(),
-    getProducts(),
-    getCategories(),
-  ]).then(([posts, products, categories]) => {
-    const blogRoutes = posts.map(post => ({
-      url: `${baseUrl}/blog/${post.slug}`,
-      lastModified: post.updatedAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    }))
-
-    const productRoutes = products.map(product => ({
-      url: `${baseUrl}/products/${product.slug}`,
-      lastModified: product.updatedAt,
-      changeFrequency: 'daily' as const,
-      priority: 0.8,
-    }))
-
-    const categoryRoutes = categories.map(category => ({
-      url: `${baseUrl}/category/${category.slug}`,
-      lastModified: category.updatedAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    }))
-
-    return [...blogRoutes, ...productRoutes, ...categoryRoutes]
-  })
-  */
+  // Dynamic routes: Add when you implement dynamic content
+  // When ready, uncomment and implement the functions below
+  // const dynamicRoutes = await Promise.all([
+  //   getBlogPosts(),
+  //   getProducts(),
+  //   getCategories(),
+  // ]).then(([posts, products, categories]) => [
+  //   ...posts.map(post => ({
+  //     url: `${baseUrl}/blog/${post.slug}`,
+  //     lastModified: post.updatedAt,
+  //     changeFrequency: 'weekly' as const,
+  //     priority: 0.7,
+  //   })),
+  //   ...products.map(product => ({
+  //     url: `${baseUrl}/products/${product.slug}`,
+  //     lastModified: product.updatedAt,
+  //     changeFrequency: 'daily' as const,
+  //     priority: 0.8,
+  //   })),
+  //   ...categories.map(category => ({
+  //     url: `${baseUrl}/category/${category.slug}`,
+  //     lastModified: category.updatedAt,
+  //     changeFrequency: 'weekly' as const,
+  //     priority: 0.6,
+  //   }))
+  // ])
 
   return [
     ...staticRoutes,

@@ -1,8 +1,8 @@
 'use client'
 
-import { memo, useMemo } from 'react'
+import { memo } from 'react'
 import { Link } from '@/i18n/navigation'
-import { usePathname } from 'next/navigation'
+import { usePathname } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks'
 import { UserDropdown } from '@/components/features'
@@ -22,27 +22,41 @@ export const AuthNavLinks = memo(function AuthNavLinks() {
   const { isAuthenticated, isLoading } = useAuth()
   const t = useTranslations('common.navigation')
 
-  const linkClassName = useMemo(
-    () =>
-      cn(
-        navigationMenuTriggerStyle(),
-        pathname === '/profile' && 'bg-accent text-accent-foreground'
-      ),
-    [pathname]
-  )
-
   if (isLoading || !isAuthenticated) {
     return null
   }
 
   return (
-    <NavigationMenuItem>
-      <NavigationMenuLink asChild>
-        <Link href='/profile' className={linkClassName}>
-          {t('profile')}
-        </Link>
-      </NavigationMenuLink>
-    </NavigationMenuItem>
+    <>
+      <NavigationMenuItem>
+        <NavigationMenuLink asChild>
+          <Link
+            href='/showcase'
+            className={cn(
+              navigationMenuTriggerStyle(),
+              'min-h-11', // Touch-friendly height
+              pathname === '/showcase' && 'bg-accent text-accent-foreground'
+            )}
+          >
+            {t('showcase')}
+          </Link>
+        </NavigationMenuLink>
+      </NavigationMenuItem>
+      <NavigationMenuItem>
+        <NavigationMenuLink asChild>
+          <Link
+            href='/profile'
+            className={cn(
+              navigationMenuTriggerStyle(),
+              'min-h-11', // Touch-friendly height
+              pathname === '/profile' && 'bg-accent text-accent-foreground'
+            )}
+          >
+            {t('profile')}
+          </Link>
+        </NavigationMenuLink>
+      </NavigationMenuItem>
+    </>
   )
 })
 
@@ -67,14 +81,16 @@ const AuthNavActions = memo(function AuthNavActions() {
       {isAuthenticated && user ? (
         <UserDropdown user={user} />
       ) : (
-        <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-2'>
           <Link href='/login'>
-            <Button variant='outline' size='sm'>
+            <Button variant='outline' size='sm' className='min-h-11'>
               {t('login')}
             </Button>
           </Link>
           <Link href='/register'>
-            <Button size='sm'>{t('register')}</Button>
+            <Button size='sm' className='min-h-11'>
+              {t('register')}
+            </Button>
           </Link>
         </div>
       )}

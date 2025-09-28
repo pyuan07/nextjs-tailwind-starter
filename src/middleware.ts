@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import { env } from '@/config/env'
 import { generateSecureToken, rateLimiter } from '@/utils/security'
 import createMiddleware from 'next-intl/middleware'
-import { locales, defaultLocale } from '@/i18n/config'
+import { locales, defaultLocale, type Locale } from '@/i18n/config'
 
 /**
  * Optimized middleware following industry best practices
@@ -210,7 +210,7 @@ function handleAuthentication(
   // Extract locale from pathname using next-intl pattern
   const segments = pathname.split('/').filter(Boolean)
   const potentialLocale = segments[0]
-  const isValidLocale = locales.includes(potentialLocale as any)
+  const isValidLocale = locales.includes(potentialLocale as Locale)
 
   const locale = isValidLocale ? potentialLocale : defaultLocale
   const pathWithoutLocale = isValidLocale
@@ -254,7 +254,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Handle legal documents first
+  // Handle legal documents first (these don't need i18n)
   const legalResponse = handleLegalRoutes(request, pathname)
   if (legalResponse) return legalResponse
 
@@ -269,7 +269,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Security checks for non-API routes
+  // For root path, let next-intl handle the redirect immediately
+  if (pathname === '/') {
+    // Apply minimal security checks for root
+    if (isSuspiciousRequest(request)) {
+      return new NextResponse('Forbidden', { status: 403 })
+    }
+
+    const intlResponse = intlMiddleware(request)
+    return addSecurityHeaders(intlResponse)
+  }
+
+  // Security checks for other routes
   if (isSuspiciousRequest(request)) {
     console.warn(
       `Suspicious request blocked: ${getClientIP(request)} - ${pathname}`
@@ -285,12 +296,17 @@ export function middleware(request: NextRequest) {
   // Apply i18n middleware
   const intlResponse = intlMiddleware(request)
 
-  // Handle i18n redirects - let next-intl handle them properly
-  if (intlResponse?.status === 307 || intlResponse?.status === 308) {
+  // Handle i18n redirects
+  if (
+    intlResponse &&
+    (intlResponse.status === 307 ||
+      intlResponse.status === 308 ||
+      intlResponse.status === 302)
+  ) {
     return addSecurityHeaders(intlResponse)
   }
 
-  // Handle authentication
+  // Handle authentication after i18n processing
   const authResponse = handleAuthentication(request, pathname)
   if (authResponse) return authResponse
 
@@ -301,6 +317,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Match all paths except Next.js internals and static files
+    '/((?!_next/static|_next/image|favicon.ico|sw.js|workbox-.*|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

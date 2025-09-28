@@ -6,7 +6,8 @@
       "showcase": "Pameran",
       "login": "Log Masuk",
       "register": "Daftar",
-      "logout": "Log Keluar"
+      "logout": "Log Keluar",
+      "menu": "Menu"
     },
     "actions": {
       "submit": "Hantar",
@@ -55,6 +56,15 @@
       "builtWith": "Dibina dengan teknologi web moden untuk aplikasi perusahaan.",
       "termsOfService": "Terma Perkhidmatan",
       "privacyPolicy": "Dasar Privasi"
+    },
+    "pwa": {
+      "install": "Pasang Aplikasi",
+      "installPrompt": "Pasang aplikasi ini untuk pengalaman yang lebih baik",
+      "addToHomeScreen": "Tambah ke Skrin Utama",
+      "iosInstructions": "Ketik butang Kongsi dan pilih 'Tambah ke Skrin Utama'",
+      "notNow": "Tidak sekarang",
+      "offline": "Anda sedang luar talian",
+      "backOnline": "Kembali dalam talian"
     },
     "techStack": {
       "title": "Tumpukan Teknologi",

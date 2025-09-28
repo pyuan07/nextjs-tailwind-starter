@@ -1,6 +1,7 @@
 'use client'
 
 import { Link } from '@/i18n/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks'
 import { Button } from '@/components/ui'
@@ -21,11 +22,17 @@ interface UserDropdownProps {
 
 export function UserDropdown({ user }: UserDropdownProps) {
   const { logout, isLoading: isLoggingOut } = useAuth()
+  const router = useRouter()
   const tAuth = useTranslations('auth')
 
   const handleLogout = async () => {
     try {
       await logout()
+      // Redirect to login page with locale preservation
+      // Small delay to ensure logout completes
+      setTimeout(() => {
+        router.push('/login')
+      }, 100)
     } catch (_error) {
       // Error is handled by the hook
     }

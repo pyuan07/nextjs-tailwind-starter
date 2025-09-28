@@ -6,7 +6,8 @@
       "showcase": "Showcase",
       "login": "Login",
       "register": "Register",
-      "logout": "Logout"
+      "logout": "Logout",
+      "menu": "Menu"
     },
     "actions": {
       "submit": "Submit",
@@ -55,6 +56,15 @@
       "builtWith": "Built with modern web technologies for enterprise applications.",
       "termsOfService": "Terms of Service",
       "privacyPolicy": "Privacy Policy"
+    },
+    "pwa": {
+      "install": "Install App",
+      "installPrompt": "Install this app for a better experience",
+      "addToHomeScreen": "Add to Home Screen",
+      "iosInstructions": "Tap the Share button and select 'Add to Home Screen'",
+      "notNow": "Not now",
+      "offline": "You're offline",
+      "backOnline": "Back online"
     },
     "techStack": {
       "title": "Technology Stack",

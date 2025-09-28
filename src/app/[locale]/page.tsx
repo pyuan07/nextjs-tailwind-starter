@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui'
-import { Link } from '@/i18n/navigation'
 import { type Locale } from '@/i18n/config'
 
 interface HomeProps {
@@ -61,14 +60,14 @@ export default async function Home({ params }: HomeProps) {
             {tCommon('brand.description')}
           </p>
           <div className='flex gap-4 justify-center'>
-            <Link href='/showcase'>
+            <a href={`/${locale}/showcase`}>
               <Button size='lg'>{tNav('showcase')} →</Button>
-            </Link>
-            <Link href='/login'>
+            </a>
+            <a href={`/${locale}/login`}>
               <Button variant='outline' size='lg'>
                 {tNav('login')}
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
 

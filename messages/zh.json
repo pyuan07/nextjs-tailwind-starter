@@ -6,7 +6,8 @@
       "showcase": "展示",
       "login": "登录",
       "register": "注册",
-      "logout": "退出登录"
+      "logout": "退出登录",
+      "menu": "菜单"
     },
     "actions": {
       "submit": "提交",
@@ -55,6 +56,15 @@
       "builtWith": "使用现代网络技术构建的企业应用程序。",
       "termsOfService": "服务条款",
       "privacyPolicy": "隐私政策"
+    },
+    "pwa": {
+      "install": "安装应用",
+      "installPrompt": "安装此应用以获得更好的体验",
+      "addToHomeScreen": "添加到主屏幕",
+      "iosInstructions": "点击分享按钮并选择\"添加到主屏幕\"",
+      "notNow": "稍后",
+      "offline": "您已离线",
+      "backOnline": "重新联机"
     },
     "techStack": {
       "title": "技术栈",

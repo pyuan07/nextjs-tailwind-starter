@@ -18,7 +18,7 @@ import { Loader2 } from 'lucide-react'
 import { Icon } from '@/lib/icons'
 
 function LoginContent() {
-  const _router = useRouter()
+  const router = useRouter()
   const searchParams = useSearchParams()
   const { login, isLoading, error } = useAuth()
   const t = useTranslations()
@@ -29,7 +29,23 @@ function LoginContent() {
     password: '',
   })
 
-  const redirectTo = searchParams.get('redirect') || '/showcase'
+  // Get redirect path and ensure it's locale-aware
+  const redirectParam = searchParams.get('redirect')
+  const defaultRedirect = '/showcase'
+
+  // If redirect param contains locale, extract just the path
+  const getPathWithoutLocale = (path: string) => {
+    const segments = path.split('/').filter(Boolean)
+    const locales = ['en', 'zh', 'ms'] // Match your supported locales
+    if (locales.includes(segments[0])) {
+      return `/${segments.slice(1).join('/')}`
+    }
+    return path
+  }
+
+  const redirectTo = redirectParam
+    ? getPathWithoutLocale(redirectParam)
+    : defaultRedirect
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,10 +53,10 @@ function LoginContent() {
     try {
       await login(formData)
 
-      // Wait for auth state to fully update before redirect
-      // Also force a page reload to ensure auth state is properly initialized
+      // Use locale-aware router navigation instead of window.location
+      // This preserves the current locale context
       setTimeout(() => {
-        window.location.href = redirectTo
+        router.push(redirectTo)
       }, 500)
     } catch (_err) {
       // Error is handled by the auth hook
