@@ -46,20 +46,26 @@ A modern, production-ready Next.js starter template built with the latest techno
 
 ### 🔐 Authentication System
 
-- **Demo Login** - Pre-configured with demo credentials (`demo@example.com` / `password`)
-- **Route Protection** - Middleware-based auth with automatic redirects
-- **Auth Context** - Global authentication state management with Zustand
-- **Protected Pages** - Showcase and profile pages require authentication
-- **Complete Auth Flow** - Login, register, and forgot password pages with validation
+- **Demo Login** - Try it now: `demo@example.com` / `password`
+- **Route Protection** - Secure pages with automatic redirects
+- **Complete Auth Flow** - Login, register, and password recovery
 
 ### 🌐 Internationalization (i18n)
 
 - **Multi-language Support** - English, Chinese Simplified, and Bahasa Melayu
 - **Type-safe Translations** - Full TypeScript support with autocompletion
-- **Locale-based Routing** - URLs automatically prefixed with language codes (`/en`, `/zh`, `/ms`)
-- **Language Switcher** - Multiple UI variants (dropdown, select, buttons) with flags
-- **SEO Optimized** - Proper hreflang attributes and locale-specific meta tags
-- **next-intl Integration** - Industry-standard i18n solution for Next.js
+- **Locale-based Routing** - SEO-friendly URLs (`/en`, `/zh`, `/ms`)
+- **Smart Language Switcher** - Multiple UI variants with flag indicators
+
+### 📱 Progressive Web App (PWA)
+
+- **Complete PWA Support** - Installable on mobile and desktop with native app experience
+- **Offline Functionality** - Service worker with comprehensive caching strategies
+- **App Icons & Splash Screens** - Complete icon set including maskable icons and iOS splash screens
+- **Install Prompts** - Smart install prompts for iOS and Android with user engagement tracking
+- **Offline Indicator** - Real-time connection status with smooth animations
+- **Native Performance** - Viewport settings and touch optimizations for app-like feel
+- **PWA Asset Generation** - Automated scripts to generate icons and splash screens from SVG
 
 ### 🎨 Modern UI/UX
 
@@ -80,133 +86,33 @@ A modern, production-ready Next.js starter template built with the latest techno
 
 ### 🛡️ Security & Production
 
-- **Security Headers** - Comprehensive middleware with CSP, XSS protection
-- **Environment Management** - Secure environment variable handling
-- **Production Build** - Optimized builds with bundle analysis
-- **SEO Ready** - Metadata configuration and semantic HTML
+- **Enterprise Security** - Multi-layer security with CSP headers, XSS protection
+- **Production Ready** - Optimized builds with advanced monitoring
+- **SEO Optimized** - Semantic HTML with proper metadata
 
 ## 📁 Project Structure
 
+This project follows a feature-driven architecture with clear separation of concerns:
+
 ```
 src/
-├── app/                           # Next.js App Router (Pages)
-│   ├── [locale]/                 # Locale-based routing (i18n)
-│   │   ├── (auth)/               # Authentication route group
-│   │   │   ├── login/            # Login page with form validation
-│   │   │   ├── register/         # Registration page
-│   │   │   ├── forgot-password/  # Password recovery
-│   │   │   └── layout.tsx        # Auth-specific layout
-│   │   ├── showcase/             # Protected component showcase page
-│   │   ├── profile/              # User profile management
-│   │   ├── privacy/              # Privacy policy page
-│   │   ├── terms/                # Terms of service page
-│   │   ├── layout.tsx            # Locale layout with i18n providers
-│   │   └── page.tsx              # Landing page with translations
-│   ├── api/                      # API routes
-│   │   └── health/               # Health check endpoint
-│   ├── layout.tsx                # Root layout
-│   └── globals.css               # Global styles with Tailwind v4
-├── i18n/
-│   └── config.ts                 # i18n configuration with next-intl
-├── messages/                     # Translation files
-│   ├── en/                       # English translations (default)
-│   │   ├── common.json           # Navigation, actions, theme, language
-│   │   ├── auth.json             # Authentication flows
-│   │   ├── pages.json            # Page-specific content
-│   │   └── index.ts              # Export all translations
-│   ├── zh/                       # Chinese Simplified translations
-│   │   ├── common.json
-│   │   ├── auth.json
-│   │   ├── pages.json
-│   │   └── index.ts
-│   └── ms/                       # Bahasa Melayu translations
-│       ├── common.json
-│       ├── auth.json
-│       ├── pages.json
-│       └── index.ts
-├── components/                   # React components
-│   ├── ui/                       # shadcn/ui base components
-│   │   ├── button.tsx            # Button with multiple variants
-│   │   ├── card.tsx              # Card container components
-│   │   ├── form.tsx              # Form components with validation
-│   │   ├── input.tsx             # Input components
-│   │   ├── loading.tsx           # Loading spinners and skeletons
-│   │   ├── dialog.tsx            # Modal/dialog components
-│   │   ├── dropdown-menu.tsx     # Dropdown menu components
-│   │   ├── navigation-menu.tsx   # Navigation components
-│   │   ├── sonner.tsx            # Toast notification setup
-│   │   ├── error-boundary.tsx    # Error handling wrapper
-│   │   └── [20+ more components] # Complete UI library
-│   ├── features/                 # Feature-specific components
-│   │   ├── auth/                 # Authentication components
-│   │   │   ├── AuthGuard.tsx     # Route protection wrapper
-│   │   │   ├── LoginForm.tsx     # Login form with validation
-│   │   │   └── RegisterForm.tsx  # Registration form
-│   │   ├── common/               # Shared feature components
-│   │   │   ├── Navbar.tsx        # Navigation bar with language switcher
-│   │   │   ├── ThemeToggle.tsx   # Dark/light mode switcher
-│   │   │   └── UserDropdown.tsx  # User menu dropdown
-│   │   ├── i18n/                 # Internationalization components
-│   │   │   ├── LocaleSwitcher.tsx # Language switching component
-│   │   │   └── index.ts          # i18n exports
-│   │   └── user/                 # User management components
-│   │       ├── UserProfile.tsx   # Profile management UI
-│   │       └── UsersList.tsx     # User listing component
-│   └── providers/                # Context providers
-│       ├── auth-initializer.tsx  # Authentication initialization
-│       └── theme-provider.tsx    # Theme context provider
-├── hooks/                        # Custom React hooks
-│   ├── api/                      # API-related hooks
-│   │   ├── useApi.ts             # Generic API hook
-│   │   └── __tests__/            # Hook tests
-│   ├── use-auth.ts               # Authentication hook
-│   ├── use-theme.ts              # Theme management hook
-│   └── use-toast.ts              # Toast notifications hook
-├── lib/                          # Utility libraries
-│   ├── utils.ts                  # General utilities and cn() helper
-│   ├── icons.tsx                 # Icon components (Lucide React)
-│   └── logger.ts                 # Logging utilities
-├── utils/                        # Helper functions
-│   ├── api/                      # API utilities
-│   │   ├── client.ts             # HTTP client configuration
-│   │   └── helpers.ts            # API helper functions
-│   ├── auth/                     # Authentication utilities
-│   │   └── tokenManager.ts      # Token management
-│   ├── security.ts               # Security utilities
-│   └── validation.ts             # Validation helpers
-├── types/                        # TypeScript type definitions
-│   ├── api/                      # API-related types
-│   │   ├── auth.ts               # Authentication types
-│   │   ├── users.ts              # User types
-│   │   └── common.ts             # Common API types
-│   ├── entities/                 # Domain entity types
-│   │   └── user.ts               # User entity definitions
-│   ├── ui/                       # UI-related types
-│   │   └── theme.ts              # Theme types
-│   ├── i18n.ts                   # i18n type definitions and translation keys
-│   └── common/                   # Common utility types
-├── services/                     # External services
-│   ├── authService.ts            # Authentication API service
-│   └── userService.ts            # User management service
-├── stores/                       # Zustand state stores
-│   └── auth-store.ts             # Authentication state management
-├── config/                       # Configuration
-│   └── env.ts                    # Environment variables
-├── constants/                    # Application constants
-│   └── api.ts                    # API constants
-├── test/                         # Test configuration
-│   └── setup.ts                  # Jest setup file
-└── middleware.ts                 # Next.js middleware for auth & security
+├── app/                     # Next.js App Router
+│   ├── [locale]/           # Internationalized routes
+│   ├── api/                # API endpoints
+│   └── layout.tsx          # Root application layout
+├── components/
+│   ├── ui/                 # shadcn/ui components
+│   ├── features/           # Feature-specific components
+│   └── providers/          # React context providers
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utility libraries
+├── services/               # External API services
+├── stores/                 # Zustand state management
+├── types/                  # TypeScript definitions
+└── middleware.ts           # Security & routing middleware
 ```
 
-### Key Files & Their Purposes:
-
-**🔐 Authentication & Security**
-
-- **`middleware.ts`** - Route protection, auth redirects, security headers
-- **`(auth)/*`** - Authentication pages with form validation
-- **`stores/auth-store.ts`** - Authentication state management with Zustand
-- **`components/features/auth/`** - Authentication components and forms
+> 📖 **See [GUIDE.md#folder-structure](./GUIDE.md#-folder-structure-deep-dive) for detailed project organization**
 
 **🎨 UI & Components**
 
@@ -313,6 +219,9 @@ The application includes a demo authentication system:
 | `npm run format:check`  | Check formatting without fixing                          |
 | `npm run typecheck`     | Run TypeScript type checking                             |
 | `npm run analyze`       | Analyze bundle size                                      |
+| `npm run pwa:icons`     | Generate PWA icons from SVG                              |
+| `npm run pwa:splash`    | Generate iOS splash screens                              |
+| `npm run pwa:assets`    | Generate both icons and splash screens                   |
 | `npm run clean`         | Clean build outputs                                      |
 | `npm run clean:modules` | Clean and reinstall node modules                         |
 | `npm run check-all`     | Run all quality checks (lint, type)                      |
@@ -430,37 +339,17 @@ Domain-specific components in `src/components/features/`:
 - **Common** - Shared components like navbar, theme toggle
 - **User Management** - Profile and user list components
 
-## 🌐 Internationalization Usage
+## 📚 Documentation
 
-### Using Translations in Components
+- **[Developer Guide](./GUIDE.md)** - Comprehensive tutorials and implementation details
+- **[AI Assistant Guidelines](./CLAUDE.md)** - Guidelines for AI helpers working on this project
 
-```tsx
-import { useTranslations } from 'next-intl'
+### Quick References
 
-function MyComponent() {
-  const t = useTranslations('common.navigation')
-  return <span>{t('home')}</span> // Returns: "Home" | "首页" | "Utama"
-}
-
-// Namespace examples:
-// - common.navigation.home
-// - common.actions.submit
-// - auth.login.title
-// - pages.home.title
-```
-
-### Translation File Structure
-
-- **`messages/en/common.json`** - Navigation, actions, status, theme, language
-- **`messages/en/auth.json`** - Login, register, forgot password, logout
-- **`messages/en/pages.json`** - Home, profile, showcase, privacy, terms, 404
-
-### Adding New Languages
-
-1. Create new folder in `messages/` (e.g., `messages/fr/`)
-2. Add locale to `src/i18n/config.ts`
-3. Update `LocaleSwitcher` component with new language
-4. Create translation files matching the existing structure
+- **i18n Implementation** → [GUIDE.md#internationalization](./GUIDE.md#-internationalization-guide)
+- **PWA Features** → [GUIDE.md#pwa-mobile](./GUIDE.md#-pwa--mobile-features)
+- **Authentication System** → [GUIDE.md#authentication](./GUIDE.md#-authentication-system)
+- **Component Development** → [GUIDE.md#ui-components](./GUIDE.md#-ui-components)
 
 ## 🌙 Theme System
 
@@ -514,100 +403,84 @@ export const useAuthStore = create<AuthState>(set => ({
 - **Environment Variables** - Secure configuration management
 - **Input Validation** - Zod schema validation throughout
 
-## 🧪 Testing Strategy
+## 🛠️ Development
 
-**Backend/Business Logic Focus** (High ROI approach):
+### System Requirements
 
-- **Authentication Services** - Login, token management, security validation (90% coverage goal)
-- **Utility Functions** - Security, validation, API helpers (85% coverage goal)
-- **Token Management** - JWT refresh, storage, security patterns
-- **Environment Configuration** - Config validation and type safety
-- **API Integration** - Service layer and error handling
+- **Node.js 18+** (LTS recommended)
+- **npm 9+** or **pnpm 8+**
+- **Git** for version control
 
-**Why Skip UI Testing:** Lower maintenance cost, focus on critical business logic first
+### Quick Commands
+
+| Command              | Purpose                              |
+| -------------------- | ------------------------------------ |
+| `npm run dev`        | Start development server (Turbopack) |
+| `npm run build`      | Production build                     |
+| `npm run typecheck`  | TypeScript validation                |
+| `npm run lint`       | Code quality check                   |
+| `npm run pwa:assets` | Generate PWA icons & splash screens  |
+
+> 📖 **See [complete scripts reference](./README.md#-available-scripts)**
+
+### Quick Theme Customization
+
+```tsx
+// Toggle between light/dark themes
+import { ThemeToggle } from '@/components/features/common/ThemeToggle'
+;<ThemeToggle />
+
+// Language switching
+import { LocaleSwitcher } from '@/components/features/i18n/LocaleSwitcher'
+;<LocaleSwitcher variant='dropdown' />
+```
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Quick Deploy
 
-1. Push your code to GitHub/GitLab/Bitbucket
-2. Import your repository on [Vercel](https://vercel.com)
-3. Deploy with zero configuration
-
-### Other Platforms
-
-Works with any platform supporting Next.js:
-
-- Netlify
-- Cloudflare Pages
-- AWS Amplify
-- Railway
-- DigitalOcean App Platform
+- **[Vercel](https://vercel.com)** - Zero-config deployment (recommended)
+- **Netlify, Cloudflare Pages** - Works with any Next.js platform
 
 ### Build Optimization
 
-- **Bundle Analysis** - `npm run analyze` for bundle insights
-- **Turbopack** - Faster builds and development
-- **Tree Shaking** - Automatic dead code elimination
-- **Code Splitting** - Automatic route-based splitting
+- **Bundle Analysis** - `npm run analyze` for insights
+- **Turbopack** - Lightning-fast development builds
 
-## 🤝 Contributing
+> 📖 **See [deployment guide](./GUIDE.md#-deployment) for detailed instructions**
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## 🎯 Getting Help
 
-## 📝 License
+### Community Resources
+
+- **GitHub Issues** - [Report bugs or request features](https://github.com/your-repo/issues)
+- **Documentation** - [Complete guides](./GUIDE.md) | [AI Guidelines](./CLAUDE.md)
+- **Examples** - Check `/src/app/showcase` for component demos
+
+### Common Questions
+
+**Q: How do I add a new language?**
+A: See [GUIDE.md#adding-new-locales](./GUIDE.md#-how-to-add-new-locales)
+
+**Q: How do I add new UI components?**
+A: Use `npx shadcn@latest add [component-name]` - [Details](./GUIDE.md#-ui-components)
+
+**Q: How do I deploy this?**
+A: See [deployment guide](./GUIDE.md#-deployment) for Vercel, Netlify, and Docker options
+
+## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
 
-## 🙏 Acknowledgments
-
-Built with these amazing technologies:
-
-- [Next.js](https://nextjs.org/) - The React Framework
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
-- [shadcn/ui](https://ui.shadcn.com/) - Component library
-- [next-intl](https://next-intl-docs.vercel.app/) - Internationalization
-- [Zustand](https://zustand.docs.pmnd.rs/) - State management
-- [React Hook Form](https://react-hook-form.com/) - Form handling
-- [Zod](https://zod.dev/) - Schema validation
-- [TypeScript](https://www.typescriptlang.org/) - Type safety
-
 ---
 
-## 📊 Project Status
+<div align="center">
 
-### ✅ Current State (December 2024)
+**⭐ Star this repo if it helped you build something awesome!**
 
-- **✅ Build Status**: Development server working (use webpack fallback on Windows)
-- **✅ Type Safety**: All TypeScript checks passing (89 TypeScript files)
-- **✅ Code Quality**: ESLint passing with 18 minor warnings (mostly 'any' types)
-- **✅ Dependencies**: All packages up-to-date with 0 vulnerabilities
-- **✅ Error Handling**: Industry-standard error boundary system implemented
-- **✅ Security**: Enterprise-grade security with advanced middleware
-- **✅ Authentication**: Production-ready token management with auto-refresh
-- **✅ Performance**: Optimized with Next.js 15 and advanced patterns
-- **✅ SEO**: Advanced metadata and structured data implementation
+[🚀 Getting Started](#-getting-started) • [📖 Full Documentation](./GUIDE.md) • [🤖 AI Guidelines](./CLAUDE.md)
 
-### 🔧 Recent Enhancements
-
-- **✅ Error Boundary System**: Comprehensive error handling with recovery and reporting
-- **✅ Advanced Security**: Rate limiting, input sanitization, and security monitoring
-- **✅ Token Management**: Industry-standard JWT handling with auto-refresh
-- **✅ Performance Monitoring**: Built-in logging and error tracking
-- **✅ Type Safety**: Reduced 'any' usage and improved TypeScript patterns
-- **✅ Production Readiness**: Enhanced middleware and security headers
-- **✅ Testing Strategy**: Focus on high-value backend/business logic testing
-- **✅ Documentation**: Comprehensive guides and implementation details
-
-### ⚠️ Known Issues
-
-- Turbopack permission issues on Windows (use webpack fallback)
-- Some TypeScript `any` types that could be more specific (18 ESLint warnings, non-breaking)
-- Mock authentication service (ready for real API integration)
+</div>
 
 ### 🎯 Quality Score: **8.5/10**
 

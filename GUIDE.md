@@ -1,26 +1,28 @@
 # Next.js Tailwind Starter - Developer Guide
 
-This comprehensive guide will help you understand and effectively use this Next.js starter template. It covers everything from project structure to advanced patterns and best practices.
+This comprehensive guide helps developers understand and effectively use this Next.js starter template. It covers implementation patterns, best practices, and step-by-step workflows for building modern web applications.
 
 ## Table of Contents
 
-1. [Getting Started](#getting-started)
-2. [Project Architecture](#project-architecture)
-3. [Folder Structure Deep Dive](#folder-structure-deep-dive)
-4. [Error Boundary System](#error-boundary-system)
-5. [Advanced Security Features](#advanced-security-features)
-6. [Core Technologies](#core-technologies)
-7. [Authentication System](#authentication-system)
-8. [UI Components](#ui-components)
-9. [State Management](#state-management)
-10. [Styling & Theming](#styling--theming)
-11. [Development Workflow](#development-workflow)
-12. [Testing Strategy](#testing-strategy)
-13. [Performance Optimization](#performance-optimization)
-14. [Deployment](#deployment)
-15. [Customization Guide](#customization-guide)
-16. [Best Practices](#best-practices)
-17. [Troubleshooting](#troubleshooting)
+1. [🚀 Getting Started](#-getting-started)
+2. [🏗️ Project Architecture](#️-project-architecture)
+3. [📁 Folder Structure Deep Dive](#-folder-structure-deep-dive)
+4. [🌐 Internationalization Guide](#-internationalization-guide)
+5. [🛡️ Error Boundary System](#️-error-boundary-system)
+6. [🔐 Advanced Security Features](#-advanced-security-features)
+7. [⚛️ Core Technologies](#️-core-technologies)
+8. [🔒 Authentication System](#-authentication-system)
+9. [🎨 UI Components](#-ui-components)
+10. [📱 PWA & Mobile Features](#-pwa--mobile-features)
+11. [🗄️ State Management](#️-state-management)
+12. [🎨 Styling & Theming](#-styling--theming)
+13. [⚡ Development Workflow](#-development-workflow)
+14. [🧪 Testing Strategy](#-testing-strategy)
+15. [🚀 Performance Optimization](#-performance-optimization)
+16. [📦 Deployment](#-deployment)
+17. [🔧 Customization Guide](#-customization-guide)
+18. [✅ Best Practices](#-best-practices)
+19. [🚨 Troubleshooting](#-troubleshooting)
 
 ---
 
@@ -425,7 +427,258 @@ export const config = {
 
 ---
 
-## Error Boundary System
+## 🌐 Internationalization Guide
+
+The project implements a complete internationalization system using `next-intl` with support for multiple languages.
+
+### Current Implementation
+
+#### Supported Languages
+
+- **English (en)** - Default locale
+- **Chinese Simplified (zh)** - 中文简体
+- **Malay (ms)** - Bahasa Melayu
+
+#### Translation Structure (Updated)
+
+The project now uses **FLAT JSON structure** instead of nested folders:
+
+```
+messages/
+├── en.json           # English translations (all namespaces)
+├── zh.json          # Chinese Simplified translations
+└── ms.json          # Malay translations
+```
+
+Each JSON file contains all namespaces:
+
+```json
+{
+  "common": {
+    "navigation": { "home": "Home", "profile": "Profile" },
+    "actions": { "submit": "Submit", "cancel": "Cancel" },
+    "status": { "success": "Success", "error": "Error" },
+    "theme": { "light": "Light", "dark": "Dark" },
+    "language": { "english": "English", "chinese": "中文简体" }
+  },
+  "auth": {
+    "login": { "title": "Login", "email": "Email" },
+    "register": { "title": "Register" },
+    "forgotPassword": { "title": "Forgot Password" }
+  },
+  "pages": {
+    "home": { "title": "Welcome", "subtitle": "Next.js Starter" },
+    "profile": { "title": "Profile", "settings": "Settings" },
+    "showcase": { "title": "Component Showcase" }
+  }
+}
+```
+
+### Using Translations in Components
+
+#### Client Components
+
+```tsx
+'use client'
+
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
+
+export function MyComponent() {
+  const t = useTranslations('common.navigation')
+
+  return (
+    <nav>
+      <Link href='/showcase'>{t('showcase')}</Link>
+      <Link href='/profile'>{t('profile')}</Link>
+    </nav>
+  )
+}
+```
+
+#### Server Components
+
+```tsx
+import { getTranslations } from 'next-intl/server'
+
+interface PageProps {
+  params: { locale: string }
+}
+
+export default async function HomePage({ params: { locale } }: PageProps) {
+  const t = await getTranslations('pages.home')
+
+  return (
+    <div>
+      <h1>{t('title')}</h1>
+      <p>{t('subtitle')}</p>
+    </div>
+  )
+}
+```
+
+### Translation Key Patterns
+
+Follow these namespace conventions:
+
+- **`common.*`** - Shared UI elements
+  - `common.navigation.*` - Navigation links
+  - `common.actions.*` - Buttons and actions
+  - `common.status.*` - Status messages
+  - `common.theme.*` - Theme-related text
+  - `common.language.*` - Language switcher
+
+- **`auth.*`** - Authentication flows
+  - `auth.login.*` - Login form
+  - `auth.register.*` - Registration form
+  - `auth.forgotPassword.*` - Password recovery
+
+- **`pages.*`** - Page-specific content
+  - `pages.home.*` - Homepage content
+  - `pages.profile.*` - Profile page
+  - `pages.showcase.*` - Component showcase
+
+### Adding New Languages
+
+#### Step 1: Create Translation File
+
+Create `messages/fr.json` (example for French):
+
+```json
+{
+  "common": {
+    "navigation": {
+      "home": "Accueil",
+      "profile": "Profil",
+      "showcase": "Vitrine"
+    },
+    "actions": {
+      "submit": "Soumettre",
+      "cancel": "Annuler"
+    },
+    "language": {
+      "french": "Français"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Bienvenue"
+    }
+  }
+}
+```
+
+#### Step 2: Update Configuration
+
+Update `src/i18n/config.ts`:
+
+```typescript
+export type Locale = 'en' | 'zh' | 'ms' | 'fr' // Add new locale
+
+export const locales: readonly Locale[] = ['en', 'zh', 'ms', 'fr'] as const
+export const defaultLocale: Locale = 'en'
+
+export const localeNames: Record<Locale, string> = {
+  en: 'English',
+  zh: '中文简体',
+  ms: 'Bahasa Melayu',
+  fr: 'Français', // Add new language
+}
+```
+
+#### Step 3: Update LocaleSwitcher
+
+Update `src/components/features/i18n/LocaleSwitcher.tsx`:
+
+```tsx
+const languages = [
+  { code: 'en', name: t('english'), flag: '🇺🇸' },
+  { code: 'zh', name: t('chinese'), flag: '🇨🇳' },
+  { code: 'ms', name: t('malay'), flag: '🇲🇾' },
+  { code: 'fr', name: t('french'), flag: '🇫🇷' }, // Add this
+]
+```
+
+#### Step 4: Update Middleware
+
+Update `src/middleware.ts`:
+
+```typescript
+const intlMiddleware = createIntlMiddleware({
+  locales: ['en', 'zh', 'ms', 'fr'], // Add new locale
+  defaultLocale: 'en',
+  localePrefix: 'always',
+})
+```
+
+### Language Switcher Component
+
+The `LocaleSwitcher` component supports multiple variants:
+
+```tsx
+// Dropdown variant (default)
+<LocaleSwitcher variant="dropdown" size="sm" />
+
+// Select variant with label
+<LocaleSwitcher variant="select" showLabel />
+
+// Button variant
+<LocaleSwitcher variant="buttons" />
+
+// Custom styling
+<LocaleSwitcher
+  variant="dropdown"
+  size="lg"
+  className="custom-styles"
+/>
+```
+
+### Best Practices for i18n
+
+1. **Always use translations** - Never hardcode text strings
+2. **Check existing keys** - Before adding new text, verify if a key already exists
+3. **Consistent namespacing** - Follow the established patterns
+4. **All languages supported** - When adding new text, update all language files
+5. **Context-aware keys** - Use descriptive key names that indicate usage context
+
+#### ❌ Bad Examples
+
+```tsx
+// Hardcoded text
+<button>Submit</button>
+
+// Unclear key names
+const t = useTranslations()
+<span>{t('text1')}</span>
+```
+
+#### ✅ Good Examples
+
+```tsx
+// Using translations
+const t = useTranslations('common.actions')
+<button>{t('submit')}</button>
+
+// Clear, contextual key names
+const t = useTranslations('auth.login')
+<h1>{t('title')}</h1>
+```
+
+### Testing Internationalization
+
+1. **Test all languages**: Navigate to `/en`, `/zh`, `/ms` to verify translations
+2. **Check text overflow**: Ensure UI adapts to different text lengths
+3. **Verify navigation**: Confirm locale switching works correctly
+4. **Test missing keys**: Check fallback behavior for missing translations
+
+---
+
+## 🛡️ Error Boundary System
 
 ### Industry-Standard Implementation
 
@@ -921,7 +1174,300 @@ export function FeatureCard({ title, description, icon, href }: FeatureCardProps
 
 ---
 
-## State Management
+## 📱 PWA & Mobile Features
+
+The project includes comprehensive Progressive Web App (PWA) features and mobile-first development patterns.
+
+### PWA Implementation Status
+
+#### ✅ Completed Features
+
+- **Manifest file** (`public/manifest.json`) with advanced PWA configuration
+- **Service worker** ready for production with caching strategies
+- **App icons** complete set: 16px, 32px, 180px, 192px, 512px, and maskable versions
+- **iOS Splash Screens** for all device sizes (iPhone, iPad, iPad Pro)
+- **Native app viewport** settings with no zoom capability
+- **PWA Install Prompt** with iOS and Android support
+- **Offline indicator** showing connection status
+- **Windows tile support** (browserconfig.xml)
+- **Apple PWA meta tags** for iOS Safari optimization
+- **App shortcuts** in manifest for quick actions
+
+### PWA Components
+
+#### Install Prompt Component
+
+The `PWAInstallPrompt` component automatically shows after user engagement:
+
+```tsx
+import { PWAInstallPrompt } from '@/components/features/pwa'
+
+export function Layout() {
+  return (
+    <div>
+      {/* Your app content */}
+      <PWAInstallPrompt />
+    </div>
+  )
+}
+```
+
+Features:
+
+- Smart timing (shows after 3 seconds of user engagement)
+- Platform-specific install instructions
+- Dismissible with local storage memory
+- iOS Safari special handling
+
+#### Offline Indicator Component
+
+Shows connection status to users:
+
+```tsx
+import { OfflineIndicator } from '@/components/features/pwa'
+
+export function Navbar() {
+  return (
+    <nav>
+      <OfflineIndicator />
+      {/* Navigation items */}
+    </nav>
+  )
+}
+```
+
+Features:
+
+- Real-time connection monitoring
+- Smooth animations
+- Customizable styling
+- Accessibility support
+
+### PWA Asset Generation
+
+#### Generating Icons
+
+```bash
+# Generate all PWA icons from SVG
+npm run pwa:icons
+
+# This generates:
+# - favicon.ico
+# - favicon-16x16.png, favicon-32x32.png
+# - apple-touch-icon.png (180x180)
+# - icon-192.png, icon-512.png
+# - icon-192-maskable.png, icon-512-maskable.png
+```
+
+#### Generating Splash Screens
+
+```bash
+# Generate iOS splash screens
+npm run pwa:splash
+
+# This generates splash screens for:
+# - iPhone 5, 6, 6 Plus, XR, X, 12, 12 Pro Max
+# - iPad, iPad Pro 10", iPad Pro 12"
+```
+
+#### Generate All Assets
+
+```bash
+# Generate both icons and splash screens
+npm run pwa:assets
+```
+
+### Mobile-First Development Guidelines
+
+#### Touch Targets
+
+```tsx
+// ✅ Minimum 44px touch targets
+<button className="min-h-11 min-w-11 p-3 touch-manipulation">
+  <Icon className="h-5 w-5" />
+</button>
+
+// ❌ Too small for mobile
+<button className="p-1">
+  <Icon className="h-3 w-3" />
+</button>
+```
+
+#### Mobile-Optimized Forms
+
+```tsx
+// ✅ Mobile-friendly input
+<input
+  type="email"
+  inputMode="email"
+  autoComplete="email"
+  className="text-base" // Prevents zoom on iOS
+/>
+
+// ✅ Telephone input
+<input
+  type="tel"
+  inputMode="tel"
+  autoComplete="tel"
+  pattern="[0-9]*"
+/>
+
+// ✅ Number input
+<input
+  type="number"
+  inputMode="numeric"
+  pattern="[0-9]*"
+/>
+```
+
+#### Responsive Navigation
+
+```tsx
+// Mobile navigation pattern
+function ResponsiveNav() {
+  return (
+    <>
+      {/* Mobile hamburger menu */}
+      <div className='md:hidden'>
+        <MobileNav />
+      </div>
+
+      {/* Desktop navigation */}
+      <div className='hidden md:block'>
+        <DesktopNav />
+      </div>
+    </>
+  )
+}
+```
+
+### PWA Configuration
+
+#### Manifest.json Structure
+
+```json
+{
+  "name": "Next.js Tailwind Starter",
+  "short_name": "NextJS Starter",
+  "description": "A modern Next.js starter with PWA support",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Profile",
+      "url": "/profile",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
+```
+
+### Performance Considerations
+
+#### Core Web Vitals Targets
+
+- **Largest Contentful Paint (LCP)**: < 2.5s
+- **First Input Delay (FID)**: < 100ms
+- **Cumulative Layout Shift (CLS)**: < 0.1
+
+#### Mobile Performance Tips
+
+```tsx
+// ✅ Lazy load images
+import Image from 'next/image'
+
+;<Image
+  src='/hero-image.jpg'
+  alt='Hero'
+  width={800}
+  height={600}
+  priority // For above-the-fold images
+  placeholder='blur'
+  blurDataURL='data:image/jpeg;base64,...'
+/>
+
+// ✅ Lazy load components
+import { lazy, Suspense } from 'react'
+
+const HeavyComponent = lazy(() => import('./HeavyComponent'))
+
+function App() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HeavyComponent />
+    </Suspense>
+  )
+}
+```
+
+### Testing PWA Features
+
+#### Manual Testing Checklist
+
+1. **Install Prompt**
+   - Visit site on mobile browser
+   - Verify install prompt appears
+   - Test installation process
+   - Confirm app launches in standalone mode
+
+2. **Offline Functionality**
+   - Turn off network connection
+   - Verify offline indicator appears
+   - Test basic navigation works
+   - Confirm cached content loads
+
+3. **Touch Interactions**
+   - Test all buttons are easily tappable
+   - Verify no accidental zooming occurs
+   - Check touch feedback is responsive
+
+4. **iOS Safari Testing**
+   - Verify "Add to Home Screen" works
+   - Test splash screen displays
+   - Confirm app meta tags work
+
+#### Lighthouse PWA Audit
+
+```bash
+# Run Lighthouse PWA audit
+npx lighthouse http://localhost:3000 --view
+
+# Target scores:
+# Performance: 90+
+# Accessibility: 90+
+# Best Practices: 90+
+# SEO: 90+
+# PWA: 90+
+```
+
+### PWA Best Practices
+
+1. **Icons consistency** - Always generate from `public/icon-base.svg`
+2. **Splash screens** - Generated for all iOS device sizes
+3. **Install timing** - Smart prompt timing based on user engagement
+4. **Offline support** - Essential content cached for offline access
+5. **Native feel** - Viewport settings and navigation patterns match native apps
+
+---
+
+## 🗄️ State Management
 
 ### Zustand Philosophy
 
