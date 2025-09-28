@@ -61,9 +61,8 @@ export function MobileNav({ brandName }: MobileNavProps) {
         {/* Hamburger Button - Minimum 44px touch target */}
         <Button
           variant='ghost'
-          size='icon'
+          size='touch'
           onClick={toggleNav}
-          className='min-h-11 min-w-11 p-3'
           aria-label={isOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isOpen}
           aria-controls='mobile-navigation'
@@ -96,9 +95,8 @@ export function MobileNav({ brandName }: MobileNavProps) {
               <span className='text-lg font-semibold'>{t('menu')}</span>
               <Button
                 variant='ghost'
-                size='icon'
+                size='touch'
                 onClick={closeNav}
-                className='min-h-11 min-w-11 p-3'
                 aria-label='Close menu'
               >
                 <X className='h-5 w-5' />
@@ -147,7 +145,8 @@ export function MobileNav({ brandName }: MobileNavProps) {
                   </Link>
                   <Button
                     variant='outline'
-                    className='w-full min-h-11'
+                    size='touch'
+                    className='w-full'
                     onClick={async () => {
                       closeNav()
                       try {
@@ -167,10 +166,12 @@ export function MobileNav({ brandName }: MobileNavProps) {
               ) : (
                 <div className='space-y-2'>
                   <Link href='/login' onClick={closeNav}>
-                    <Button className='w-full min-h-11'>{t('login')}</Button>
+                    <Button size='touch' className='w-full'>
+                      {t('login')}
+                    </Button>
                   </Link>
                   <Link href='/register' onClick={closeNav}>
-                    <Button variant='outline' className='w-full min-h-11'>
+                    <Button variant='outline' size='touch' className='w-full'>
                       {t('register')}
                     </Button>
                   </Link>

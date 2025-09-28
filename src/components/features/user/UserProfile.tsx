@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, memo } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import { useAuth } from '@/hooks'
 import {
@@ -15,25 +15,25 @@ import {
 } from '@/components/ui'
 import { SectionErrorBoundary } from '@/components/ui/error-boundary'
 import { Loader2 } from 'lucide-react'
-import { createDynamicComponent } from '@/utils/dynamic-imports'
+import dynamic from 'next/dynamic'
 
-const LoginForm = createDynamicComponent(
-  () => import('../auth/LoginForm'),
-  // Custom skeleton for login form
-  <Card>
-    <CardContent className='p-6 space-y-4'>
-      <div className='space-y-2'>
-        <Skeleton className='h-6 w-24' />
-        <Skeleton className='h-4 w-48' />
-      </div>
-      <div className='space-y-4'>
+const LoginForm = dynamic(() => import('../auth/LoginForm'), {
+  loading: () => (
+    <Card>
+      <CardContent className='p-6 space-y-4'>
+        <div className='space-y-2'>
+          <Skeleton className='h-6 w-24' />
+          <Skeleton className='h-4 w-48' />
+        </div>
+        <div className='space-y-4'>
+          <Skeleton className='h-10 w-full' />
+          <Skeleton className='h-10 w-full' />
+        </div>
         <Skeleton className='h-10 w-full' />
-        <Skeleton className='h-10 w-full' />
-      </div>
-      <Skeleton className='h-10 w-full' />
-    </CardContent>
-  </Card>
-)
+      </CardContent>
+    </Card>
+  ),
+})
 
 function UserProfileContent() {
   const { user, isAuthenticated, isLoading, logout, updateProfile } = useAuth()
@@ -192,8 +192,6 @@ function UserProfileContent() {
   )
 }
 
-const MemoizedUserProfileContent = memo(UserProfileContent)
-
 export default function UserProfile() {
   return (
     <SectionErrorBoundary
@@ -201,7 +199,7 @@ export default function UserProfile() {
       title='Profile Error'
       description='The user profile encountered an error. Please refresh the page and try again.'
     >
-      <MemoizedUserProfileContent />
+      <UserProfileContent />
     </SectionErrorBoundary>
   )
 }

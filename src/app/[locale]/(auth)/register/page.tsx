@@ -3,14 +3,33 @@
 import { useEffect } from 'react'
 import { useRouter } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/hooks'
 import { Card, CardContent } from '@/components/ui'
 import { useToast } from '@/hooks/use-toast'
-import { createDynamicComponent } from '@/utils/dynamic-imports'
+import dynamic from 'next/dynamic'
+import { Skeleton } from '@/components/ui/skeleton'
 
-const RegisterForm = createDynamicComponent(
-  () => import('@/components/features/auth/RegisterForm')
+const RegisterForm = dynamic(
+  () => import('@/components/features/auth/RegisterForm'),
+  {
+    loading: () => (
+      <Card>
+        <CardContent className='p-6 space-y-4'>
+          <div className='space-y-2'>
+            <Skeleton className='h-6 w-32' />
+            <Skeleton className='h-4 w-48' />
+          </div>
+          <div className='space-y-4'>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className='h-10 w-full' />
+            ))}
+          </div>
+          <Skeleton className='h-10 w-full' />
+        </CardContent>
+      </Card>
+    ),
+  }
 )
 
 export default function RegisterPage() {

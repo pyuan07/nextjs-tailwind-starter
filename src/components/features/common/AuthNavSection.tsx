@@ -1,6 +1,6 @@
 'use client'
 
-import { memo } from 'react'
+import React from 'react'
 import { Link } from '@/i18n/navigation'
 import { usePathname } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 /**
  * Auth-dependent navigation links that go inside NavigationMenu
  */
-export const AuthNavLinks = memo(function AuthNavLinks() {
+export function AuthNavLinks() {
   const pathname = usePathname()
   const { isAuthenticated, isLoading } = useAuth()
   const t = useTranslations('common.navigation')
@@ -58,12 +58,12 @@ export const AuthNavLinks = memo(function AuthNavLinks() {
       </NavigationMenuItem>
     </>
   )
-})
+}
 
 /**
  * Auth-dependent actions (buttons, dropdown) for the right side
  */
-const AuthNavActions = memo(function AuthNavActions() {
+function AuthNavActions() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const t = useTranslations('common.navigation')
 
@@ -83,19 +83,17 @@ const AuthNavActions = memo(function AuthNavActions() {
       ) : (
         <div className='flex items-center gap-2'>
           <Link href='/login'>
-            <Button variant='outline' size='sm' className='min-h-11'>
+            <Button variant='outline' size='touch'>
               {t('login')}
             </Button>
           </Link>
           <Link href='/register'>
-            <Button size='sm' className='min-h-11'>
-              {t('register')}
-            </Button>
+            <Button size='touch'>{t('register')}</Button>
           </Link>
         </div>
       )}
     </>
   )
-})
+}
 
 export default AuthNavActions

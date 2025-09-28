@@ -78,7 +78,7 @@ export function Navbar() {
 
           {/* Desktop Right side actions */}
           <div className='flex items-center gap-3'>
-            <LocaleSwitcher variant='select' size='sm' />
+            <LocaleSwitcher size='sm' />
             <ThemeToggle />
             <AuthNavActions />
           </div>
