@@ -64,7 +64,10 @@ class Logger {
           typeof window !== 'undefined'
             ? window.navigator.userAgent
             : undefined,
-        url: typeof window !== 'undefined' ? window.location.href : undefined,
+        url:
+          typeof window !== 'undefined'
+            ? window.location.href.replace(/[?&]token=[^&]*/gi, '[REDACTED]')
+            : 'server',
         timestamp: new Date().toISOString(),
       },
       error,
@@ -72,20 +75,28 @@ class Logger {
     }
   }
 
-  private async sendToService(_logEntry: LogEntry): Promise<void> {
+  /**
+   * Send log entry to external service
+   * Promise handling improved - no unhandled rejections
+   */
+  private sendToService(_logEntry: LogEntry): void {
     // In production, send logs to external service (e.g., Sentry, LogRocket)
     if (!this.isDevelopment) {
-      try {
-        // Example: Send to external logging service
-        // await fetch('/api/logs', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(logEntry),
-        // })
-      } catch (error) {
-        // Fallback to console if external service fails
-        console.error('Failed to send log to service:', error)
-      }
+      // Use fire-and-forget pattern with proper error handling
+      Promise.resolve()
+        .then(async () => {
+          // Example: Send to external logging service
+          // await fetch('/api/logs', {
+          //   method: 'POST',
+          //   headers: { 'Content-Type': 'application/json' },
+          //   body: JSON.stringify(logEntry),
+          // })
+        })
+        .catch(error => {
+          // Fallback to console if external service fails
+          // Don't use logger.error here to avoid infinite recursion
+          console.error('Failed to send log to service:', error)
+        })
     }
   }
 

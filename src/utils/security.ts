@@ -3,6 +3,8 @@ import DOMPurify from 'dompurify'
 
 /**
  * DOMPurify configuration for different sanitization levels
+ * Note: Currently unused but kept for future XSS prevention needs
+ * These configurations are ready to use when rendering user-generated HTML content
  */
 export const SANITIZE_CONFIGS = {
   // Strict: Only allow basic text formatting
@@ -278,23 +280,12 @@ export const rateLimiter = new RateLimiter()
 
 /**
  * Generate secure random string
+ * Uses the global crypto API which works in browser, Node.js, and Edge Runtime
  */
 export function generateSecureToken(length: number = 32): string {
-  if (typeof window !== 'undefined' && window.crypto) {
-    const array = new Uint8Array(length)
-    window.crypto.getRandomValues(array)
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join(
-      ''
-    )
-  }
-
-  // Fallback for server-side
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let result = ''
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return result
+  const array = new Uint8Array(length)
+  crypto.getRandomValues(array)
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
 }
 
 /**
@@ -333,81 +324,6 @@ export function validateRedirectUrl(
 }
 
 /**
- * Content Security Policy headers
+ * Note: CSP and security headers are now configured in middleware.ts
+ * This centralizes security configuration in one place
  */
-export const CSP_DIRECTIVES = {
-  'default-src': ["'self'"],
-  'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-  'style-src': ["'self'", "'unsafe-inline'"],
-  'img-src': ["'self'", 'data:', 'https:'],
-  'font-src': ["'self'"],
-  'connect-src': ["'self'"],
-  'media-src': ["'self'"],
-  'object-src': ["'none'"],
-  'child-src': ["'self'"],
-  'worker-src': ["'self'"],
-  'frame-ancestors': ["'none'"],
-  'base-uri': ["'self'"],
-  'form-action': ["'self'"],
-}
-
-/**
- * Security headers for API responses
- */
-export const SECURITY_HEADERS = {
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block',
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-}
-
-/**
- * Validate file upload
- */
-export function validateFileUpload(
-  file: File,
-  allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/gif'],
-  maxSize: number = 5 * 1024 * 1024 // 5MB
-): { valid: boolean; error?: string } {
-  if (!allowedTypes.includes(file.type)) {
-    logger.securityEvent('Invalid file type uploaded', {
-      fileName: file.name,
-      fileType: file.type,
-      allowedTypes,
-    })
-    return { valid: false, error: 'Invalid file type' }
-  }
-
-  if (file.size > maxSize) {
-    logger.securityEvent('File size exceeds limit', {
-      fileName: file.name,
-      fileSize: file.size,
-      maxSize,
-    })
-    return { valid: false, error: 'File size too large' }
-  }
-
-  return { valid: true }
-}
-
-/**
- * Hash password client-side (for additional security layer)
- */
-export async function hashPassword(password: string): Promise<string> {
-  if (typeof window === 'undefined' || !window.crypto?.subtle) {
-    // Fallback - don't hash on server side
-    return password
-  }
-
-  try {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(password)
-    const hash = await window.crypto.subtle.digest('SHA-256', data)
-    const hashArray = Array.from(new Uint8Array(hash))
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-  } catch (error) {
-    logger.error('Failed to hash password', error as Error)
-    return password
-  }
-}

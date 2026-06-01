@@ -54,7 +54,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public static getDerivedStateFromError(error: Error): State {
-    const errorId = `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const uniquePart =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID().replace(/-/g, '').substring(0, 9)
+        : Math.random().toString(36).substring(2, 9)
+    const errorId = `err_${Date.now()}_${uniquePart}`
     return {
       hasError: true,
       error,

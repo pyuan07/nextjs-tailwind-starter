@@ -7,8 +7,9 @@ interface ApiState<T> {
   error: string | null
 }
 
-type ApiResponse<T> = { data?: T } | T
-type ApiFetcher<T> = () => Promise<ApiResponse<T>>
+// Accepts both plain values, objects with optional data, and ServiceResponse-shaped envelopes
+type FetcherResult<T> = { data?: T; success?: boolean; message?: string } | T
+type ApiFetcher<T> = () => Promise<FetcherResult<T>>
 
 /**
  * Simple, unified API hook for data fetching

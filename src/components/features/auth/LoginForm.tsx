@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks'
 import {
   Button,
@@ -10,14 +12,21 @@ import {
   CardHeader,
   CardTitle,
   Input,
-  Label,
   Checkbox,
   Alert,
   AlertDescription,
 } from '@/components/ui'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { SectionErrorBoundary } from '@/components/ui/error-boundary'
 import { Loader2 } from 'lucide-react'
-import type { LoginRequest } from '@/types/api'
+import { loginSchema, type LoginFormData } from '@/lib/validations/auth'
 
 interface LoginFormProps {
   onSuccess?: () => void
@@ -26,132 +35,160 @@ interface LoginFormProps {
 
 function LoginFormContent({ onSuccess, className }: LoginFormProps) {
   const { login, isLoading, error } = useAuth()
-  const [formData, setFormData] = useState<LoginRequest>({
-    email: '',
-    password: '',
-    remember: false,
+  const t = useTranslations('auth.login')
+  const tValidation = useTranslations('validation')
+
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '', remember: false },
   })
-  const [showDemo] = useState(true)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(formData)
+      await login({
+        email: data.email,
+        password: data.password,
+        remember: data.remember,
+      })
       onSuccess?.()
     } catch {
-      // Error is already handled by the hook
+      // Error is already handled by the hook and surfaced via `error`
     }
   }
 
   const handleDemoLogin = () => {
-    setFormData({
-      email: 'demo@example.com',
-      password: 'password',
-      remember: false,
-    })
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }))
+    form.setValue('email', 'demo@example.com')
+    form.setValue('password', 'password')
   }
 
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Sign In</CardTitle>
-        <CardDescription>
-          Enter your credentials to access your account
-        </CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
-        {showDemo && (
-          <div className='mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-md'>
-            <p className='text-sm text-blue-700 dark:text-blue-300 mb-2'>
-              Demo credentials:
-            </p>
-            <ul className='text-xs text-blue-600 dark:text-blue-400 space-y-1'>
-              <li>Email: demo@example.com</li>
-              <li>Password: password</li>
-            </ul>
-            <Button
-              type='button'
-              variant='ghost'
-              size='sm'
-              onClick={handleDemoLogin}
-              className='mt-2 text-blue-600 dark:text-blue-400'
-            >
-              Use Demo Credentials
-            </Button>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className='space-y-4'>
-          <div className='space-y-2'>
-            <Label htmlFor='email'>Email *</Label>
-            <Input
-              id='email'
-              name='email'
-              type='email'
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              disabled={isLoading}
-              placeholder='Enter your email'
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='password'>Password *</Label>
-            <Input
-              id='password'
-              name='password'
-              type='password'
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-              disabled={isLoading}
-              placeholder='Enter your password'
-            />
-          </div>
-
-          <div className='flex items-center space-x-2'>
-            <Checkbox
-              id='remember'
-              checked={formData.remember}
-              onCheckedChange={checked =>
-                setFormData(prev => ({ ...prev, remember: Boolean(checked) }))
-              }
-              disabled={isLoading}
-            />
-            <Label htmlFor='remember'>Remember me</Label>
-          </div>
-
-          {error && (
-            <Alert variant='destructive'>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
+        <div className='mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-md'>
+          <p className='text-sm text-blue-700 dark:text-blue-300 mb-2'>
+            {t('demoCredentials')}:
+          </p>
+          <ul className='text-xs text-blue-600 dark:text-blue-400 space-y-1'>
+            <li>Email: demo@example.com</li>
+            <li>Password: password</li>
+          </ul>
           <Button
-            type='submit'
-            disabled={isLoading || !formData.email || !formData.password}
-            className='w-full'
+            type='button'
+            variant='ghost'
+            size='sm'
+            onClick={handleDemoLogin}
+            className='mt-2 text-blue-600 dark:text-blue-400'
           >
-            {isLoading ? (
-              <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Signing in...
-              </>
-            ) : (
-              'Sign In'
-            )}
+            {t('clickUseDemoCredentials')}
           </Button>
-        </form>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+            <FormField
+              control={form.control}
+              name='email'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('email')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='email'
+                      inputMode='email'
+                      autoComplete='email'
+                      placeholder={t('enterYourEmail')}
+                      disabled={isLoading}
+                      className='min-h-11 text-base'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.email?.message
+                      ? tValidation(
+                          form.formState.errors.email.message as Parameters<
+                            typeof tValidation
+                          >[0]
+                        )
+                      : null}
+                  </FormMessage>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='password'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('password')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='password'
+                      autoComplete='current-password'
+                      placeholder={t('enterYourPassword')}
+                      disabled={isLoading}
+                      className='min-h-11 text-base'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.password?.message
+                      ? tValidation(
+                          form.formState.errors.password.message as Parameters<
+                            typeof tValidation
+                          >[0]
+                        )
+                      : null}
+                  </FormMessage>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='remember'
+              render={({ field }) => (
+                <FormItem className='flex items-center space-x-2 space-y-0'>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isLoading}
+                    />
+                  </FormControl>
+                  <FormLabel className='font-normal cursor-pointer'>
+                    {t('rememberMe')}
+                  </FormLabel>
+                </FormItem>
+              )}
+            />
+
+            {error && (
+              <Alert variant='destructive'>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <Button
+              type='submit'
+              disabled={isLoading}
+              className='w-full min-h-11'
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  {t('signingIn')}
+                </>
+              ) : (
+                t('signIn')
+              )}
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   )

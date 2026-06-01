@@ -160,10 +160,28 @@ npm run db:seed     # Seed with demo data
 
 ### **Production Deployment**
 
+#### Standard Deployment
+
 1. **API Server**: Deploy to Railway, Heroku, or AWS
 2. **Database**: PostgreSQL on Railway, Supabase, or AWS RDS
 3. **Frontend**: Deploy to Vercel, Netlify, or AWS Amplify
 4. **Environment**: Update production URLs
+
+#### Containerized Deployment (Docker)
+
+This repository is pre-configured with a secure, highly optimized multi-stage production `Dockerfile` leveraging Next.js trace-based standalone outputs (slashing final runner footprint down to **~150MB**).
+
+1. **Build the production Docker image**:
+   ```bash
+   docker build -t nextjs-tailwind-starter .
+   ```
+2. **Run the production container locally or in a Kubernetes cluster/VPS**:
+   ```bash
+   docker run -p 3000:3000 --env NODE_ENV=production nextjs-tailwind-starter
+   ```
+3. **Container Features**:
+   - **Isolation**: Runs under a dedicated, non-privileged system user `nextjs` inside group `nodejs` (UID/GID 1001) for strict runtime isolation.
+   - **Layer Caching**: Leverages Alpine's `libc6-compat` and cached layers for `npm ci` so dependency builds are incredibly fast.
 
 ### **Additional Features**
 
@@ -177,19 +195,23 @@ npm run db:seed     # Seed with demo data
 ## 🔍 Key Files Created/Updated
 
 ```
-src/
-├── config/
-│   └── api.ts                 # API configuration
-├── lib/
-│   ├── api/
-│   │   ├── client.ts         # HTTP client
-│   │   └── responses.ts      # Response handlers
-│   └── validations/
-│       └── auth.ts           # Zod schemas
-├── services/
-│   └── authService.ts        # Updated for external API
-├── utils/auth/
-│   └── tokenManager.ts       # Enhanced token management
+.
+├── Dockerfile                  # Multi-stage production container build config
+├── .dockerignore              # Deployment exclusion rules
+├── next.config.ts             # ESM modernized Next.js configuration
+├── src/
+│   ├── config/
+│   │   └── api.ts             # API configuration
+│   ├── lib/
+│   │   ├── api/
+│   │   │   ├── client.ts     # HTTP client
+│   │   │   └── responses.ts  # Response handlers
+│   │   └── validations/
+│   │       └── auth.ts       # Zod schemas
+│   ├── services/
+│   │   └── authService.ts    # Updated for external API
+│   └── utils/auth/
+│       └── tokenManager.ts   # Enhanced token management
 └── .env.example              # Environment template
 ```
 

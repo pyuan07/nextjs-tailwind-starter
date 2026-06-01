@@ -1,6 +1,6 @@
 // Centralized services exports
 export { authService } from './auth.service'
-export { userService } from './userService'
+export { userService } from './user.service'
 
 // Export types for convenience
 export type {

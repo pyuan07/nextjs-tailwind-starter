@@ -39,7 +39,11 @@ class ErrorReportingService {
   }
 
   private generateSessionId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    const uuid =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+    return uuid
   }
 
   private initialize(): void {
@@ -146,7 +150,10 @@ class ErrorReportingService {
     const baseContext: ErrorContext = {
       sessionId: this.sessionId,
       userId: this.userId,
-      url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+      url:
+        typeof window !== 'undefined'
+          ? window.location.href.replace(/[?&]token=[^&]*/gi, '[REDACTED]')
+          : 'unknown',
       userAgent:
         typeof window !== 'undefined' ? navigator.userAgent : 'unknown',
       timestamp: Date.now(),
@@ -215,7 +222,11 @@ class ErrorReportingService {
     */
 
     if (env.isDevelopment) {
-      console.log('Sentry report (dev mode):', report)
+      logger.info('Sentry report (dev mode)', {
+        level: report.level,
+        error: report.error.message,
+        fingerprint: report.fingerprint?.join(','),
+      })
     }
   }
 

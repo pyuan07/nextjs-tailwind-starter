@@ -4,19 +4,53 @@
 // COMMON API TYPES
 // ============================================================================
 
-// Standard API response wrapper (for your TypeScript API server)
-export interface ApiResponse<T = unknown> {
-  data?: T
-  message?: string
-  success?: boolean
-}
+/**
+ * Standard API response wrapper (for your TypeScript API server)
+ * Uses discriminated union for type safety
+ */
+export type ApiResponse<T = unknown> =
+  | {
+      success: true
+      data: T
+      message?: string
+    }
+  | {
+      success: false
+      error: ApiError
+      message: string
+    }
 
-// API error structure
-export interface ApiError {
-  message: string
-  code?: string
-  status?: number
-}
+/**
+ * API error structure with discriminated types
+ */
+export type ApiError =
+  | {
+      type: 'validation'
+      message: string
+      field: string
+      code: string
+    }
+  | {
+      type: 'authentication'
+      message: string
+      code: 'UNAUTHORIZED' | 'TOKEN_EXPIRED' | 'INVALID_TOKEN'
+    }
+  | {
+      type: 'authorization'
+      message: string
+      code: 'FORBIDDEN' | 'INSUFFICIENT_PERMISSIONS'
+    }
+  | {
+      type: 'not_found'
+      message: string
+      resource: string
+    }
+  | {
+      type: 'server'
+      message: string
+      code?: string
+      status?: number
+    }
 
 // Pagination types
 export interface PaginationParams {
@@ -176,13 +210,48 @@ export interface UpdateProfileRequest {
 // UTILITY TYPES
 // ============================================================================
 
-// Generic service response format
-export interface ServiceResponse<T = unknown> {
-  success: boolean
-  message: string
-  data?: T
-  errors?: string[]
-}
+/**
+ * Discriminated union for service responses with data
+ * Provides better type safety - TypeScript knows data exists when success is true
+ *
+ * @example
+ * ```typescript
+ * const response = await authService.login(credentials)
+ * if (response.success) {
+ *   // TypeScript knows response.data exists here
+ *   console.log(response.data.user)
+ * } else {
+ *   // TypeScript knows response.errors exists here
+ *   console.error(response.errors)
+ * }
+ * ```
+ */
+export type ServiceResponse<T = unknown> =
+  | {
+      success: true
+      message: string
+      data: T
+    }
+  | {
+      success: false
+      message: string
+      errors: string[]
+    }
+
+/**
+ * Service response for operations that don't return data
+ * Use this for logout, delete, etc.
+ */
+export type VoidServiceResponse =
+  | {
+      success: true
+      message: string
+    }
+  | {
+      success: false
+      message: string
+      errors: string[]
+    }
 
 // API endpoint configuration
 export interface ApiEndpoint {
@@ -203,13 +272,35 @@ export interface RequestConfig extends Omit<RequestInit, 'body'> {
 // TYPE GUARDS
 // ============================================================================
 
+/**
+ * Type guard for API errors (discriminated union)
+ */
 export function isApiError(error: unknown): error is ApiError {
   return (
     typeof error === 'object' &&
     error !== null &&
+    'type' in error &&
     'message' in error &&
     typeof (error as { message: unknown }).message === 'string'
   )
+}
+
+/**
+ * Type guard for successful service response
+ */
+export function isSuccessResponse<T>(
+  response: ServiceResponse<T>
+): response is Extract<ServiceResponse<T>, { success: true }> {
+  return response.success === true
+}
+
+/**
+ * Type guard for error service response
+ */
+export function isErrorResponse<T>(
+  response: ServiceResponse<T>
+): response is Extract<ServiceResponse<T>, { success: false }> {
+  return response.success === false
 }
 
 export function isTokenPair(obj: unknown): obj is TokenPair {

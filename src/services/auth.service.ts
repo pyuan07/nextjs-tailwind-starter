@@ -1,7 +1,19 @@
-// Clean auth service using centralized API client
+/**
+ * Authentication Service
+ * Provides a unified interface for authentication operations
+ *
+ * SCOPE: Used for register, resetPassword, verifyEmail, updateProfile.
+ * Login / logout / session are handled via tokenManager -> /api/auth/* routes.
+ *
+ * CONFIGURATION:
+ * - Currently using MockAuthService for standalone operation
+ * - To use a real API server, replace MockAuthService with API calls
+ */
+
 import { api } from '@/lib/api'
 import { tokenManager } from '@/utils/auth/tokenManager'
 import { logger } from '@/lib/logger'
+import { MockAuthService } from './mock-auth.service'
 import type {
   LoginRequest,
   RegisterRequest,
@@ -12,8 +24,10 @@ import type {
   TokenPair,
   User,
   ServiceResponse,
+  VoidServiceResponse,
 } from '@/types/api'
 import { API_ENDPOINTS } from '@/types/api'
+import { USE_REAL_API_CLIENT as USE_REAL_API } from '@/constants/config'
 
 // Convert API token format to internal format
 function convertTokens(apiTokens: AuthTokens): TokenPair {
@@ -26,63 +40,47 @@ function convertTokens(apiTokens: AuthTokens): TokenPair {
   }
 }
 
-// Auth service using centralized API client
+// Auth service using centralized API client or mock
 export const authService = {
   /**
-   * User login - TEMPORARY HARDCODED FOR DEBUGGING
+   * User login
+   * Uses MockAuthService by default for standalone operation
    */
   async login(
     credentials: LoginRequest
   ): Promise<ServiceResponse<{ user: User; tokens: TokenPair }>> {
+    // Use mock service for standalone operation
+    if (!USE_REAL_API) {
+      return MockAuthService.login(credentials)
+    }
+
+    // Real API implementation
     try {
-      logger.info('Attempting login (HARDCODED)', { email: credentials.email })
+      logger.info('Attempting login', { email: credentials.email })
 
-      // Hardcoded validation for debugging
-      if (
-        credentials.email === 'demo@example.com' &&
-        credentials.password === 'password'
-      ) {
-        // Create mock tokens
-        const tokens: TokenPair = {
-          accessToken: 'mock-access-token-' + Date.now(),
-          refreshToken: 'mock-refresh-token-' + Date.now(),
-          accessTokenExpiry: Date.now() + 60 * 60 * 1000, // 1 hour
-          refreshTokenExpiry: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
-          tokenType: 'Bearer',
-        }
+      const response = await api.post<{ user: User; tokens: AuthTokens }>(
+        API_ENDPOINTS.auth.login,
+        credentials
+      )
 
-        // Mock user data
-        const user: User = {
-          id: 1,
-          email: 'demo@example.com',
-          name: 'Demo User',
-          isEmailVerified: true,
-          role: 'user',
-          lang: 'en',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
+      // Convert API tokens to internal format
+      const tokens = convertTokens(response.tokens)
 
-        // Store tokens securely
-        tokenManager.storeTokens(tokens)
+      // Store tokens securely
+      tokenManager.storeTokens(tokens)
 
-        logger.info('Login successful (HARDCODED)', { userId: String(user.id) })
+      logger.info('Login successful', { userId: String(response.user.id) })
 
-        return {
-          success: true,
-          message: 'Login successful (HARDCODED)',
-          data: {
-            user,
-            tokens,
-          },
-        }
-      } else {
-        throw new Error(
-          'Invalid credentials (only demo@example.com / password works)'
-        )
+      return {
+        success: true,
+        message: 'Login successful',
+        data: {
+          user: response.user,
+          tokens,
+        },
       }
     } catch (error) {
-      logger.error('Login failed (HARDCODED)', error as Error, {
+      logger.error('Login failed', error as Error, {
         email: credentials.email,
       })
       throw new Error(error instanceof Error ? error.message : 'Login failed')
@@ -95,6 +93,12 @@ export const authService = {
   async register(
     userData: RegisterRequest
   ): Promise<ServiceResponse<{ user: User; tokens: TokenPair }>> {
+    // Use mock service for standalone operation
+    if (!USE_REAL_API) {
+      return MockAuthService.register(userData)
+    }
+
+    // Real API implementation
     try {
       logger.info('Attempting registration', {
         email: userData.email,
@@ -137,15 +141,16 @@ export const authService = {
   /**
    * User logout
    */
-  async logout(): Promise<ServiceResponse> {
+  async logout(): Promise<VoidServiceResponse> {
+    // Use mock service for standalone operation
+    if (!USE_REAL_API) {
+      return MockAuthService.logout()
+    }
+
+    // Real API implementation
     try {
       // Get refresh token for server logout
-      const refreshToken =
-        (
-          tokenManager as unknown as {
-            getRefreshTokenFromCookie?: () => string | null
-          }
-        ).getRefreshTokenFromCookie?.() || localStorage.getItem('refresh_token')
+      const refreshToken = tokenManager.getRefreshTokenFromCookie()
 
       if (refreshToken) {
         logger.info('Attempting logout with server token invalidation')
@@ -178,39 +183,37 @@ export const authService = {
   },
 
   /**
-   * Get user profile - TEMPORARY HARDCODED FOR DEBUGGING
+   * Get user profile
    */
   async getProfile(): Promise<ServiceResponse<User>> {
+    // Use mock service for standalone operation
+    if (!USE_REAL_API) {
+      return MockAuthService.getProfile()
+    }
+
+    // Real API implementation
     try {
       if (!tokenManager.isAuthenticated()) {
         throw new Error('Not authenticated')
       }
 
-      logger.info('Fetching user profile (HARDCODED)')
+      logger.info('Fetching user profile')
 
-      // Mock user data
-      const user: User = {
-        id: 1,
-        email: 'demo@example.com',
-        name: 'Demo User',
-        lang: 'en',
-        isEmailVerified: true,
-        role: 'user',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
+      const response = await api.get<ProfileResponse>(
+        API_ENDPOINTS.users.profile
+      )
 
-      logger.info('Profile retrieved successfully (HARDCODED)', {
-        userId: String(user.id),
+      logger.info('Profile retrieved successfully', {
+        userId: String(response.user.id),
       })
 
       return {
         success: true,
-        message: 'Profile retrieved (HARDCODED)',
-        data: user,
+        message: 'Profile retrieved',
+        data: response.user,
       }
     } catch (error) {
-      logger.error('Failed to get profile (HARDCODED)', error as Error)
+      logger.error('Failed to get profile', error as Error)
       throw new Error(
         error instanceof Error ? error.message : 'Failed to get profile'
       )
@@ -223,6 +226,12 @@ export const authService = {
   async updateProfile(
     updates: UpdateUserRequest
   ): Promise<ServiceResponse<User>> {
+    // Use mock service for standalone operation
+    if (!USE_REAL_API) {
+      return MockAuthService.updateProfile(updates)
+    }
+
+    // Real API implementation
     try {
       if (!tokenManager.isAuthenticated()) {
         throw new Error('Not authenticated')
@@ -280,7 +289,7 @@ export const authService = {
   /**
    * Request password reset
    */
-  async forgotPassword(email: string): Promise<ServiceResponse> {
+  async forgotPassword(email: string): Promise<VoidServiceResponse> {
     try {
       logger.info('Requesting password reset', { email })
 
@@ -306,13 +315,11 @@ export const authService = {
   async resetPassword(
     token: string,
     password: string
-  ): Promise<ServiceResponse> {
+  ): Promise<VoidServiceResponse> {
     try {
       logger.info('Attempting password reset')
 
-      await api.post(`${API_ENDPOINTS.auth.resetPassword}?token=${token}`, {
-        password,
-      })
+      await api.post(API_ENDPOINTS.auth.resetPassword, { token, password })
 
       logger.info('Password reset successful')
 
@@ -331,7 +338,7 @@ export const authService = {
   /**
    * Send email verification
    */
-  async sendVerificationEmail(): Promise<ServiceResponse> {
+  async sendVerificationEmail(): Promise<VoidServiceResponse> {
     try {
       if (!tokenManager.isAuthenticated()) {
         throw new Error('Not authenticated')
@@ -360,11 +367,11 @@ export const authService = {
   /**
    * Verify email with token
    */
-  async verifyEmail(token: string): Promise<ServiceResponse> {
+  async verifyEmail(token: string): Promise<VoidServiceResponse> {
     try {
       logger.info('Attempting email verification')
 
-      await api.post(`${API_ENDPOINTS.auth.verifyEmail}?token=${token}`)
+      await api.post(API_ENDPOINTS.auth.verifyEmail, { token })
 
       logger.info('Email verification successful')
 

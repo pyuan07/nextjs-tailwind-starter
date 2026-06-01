@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { authService } from '@/services'
+import { tokenManager } from '@/utils/auth/tokenManager'
 import { getErrorMessage } from '@/utils/helpers'
 import type {
   LoginRequest,
@@ -7,6 +8,9 @@ import type {
   UpdateUserRequest,
   User,
 } from '@/types/api'
+
+// Deduplication guard: prevents concurrent refreshAuth calls
+let refreshPromise: Promise<void> | null = null
 
 interface AuthState {
   user: User | null
@@ -26,7 +30,7 @@ interface AuthActions {
 
 type AuthStore = AuthState & AuthActions
 
-export const useAuthStore = create<AuthStore>()((set, get) => ({
+export const useAuthStore = create<AuthStore>()(set => ({
   // State
   user: null,
   isAuthenticated: false,
@@ -38,61 +42,74 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     set({ error: null })
   },
 
+  /**
+   * Restore session from the HttpOnly cookie via GET /api/auth/session.
+   * Deduplicates concurrent calls so app-boot and route changes never
+   * race each other into issuing duplicate session requests.
+   */
   refreshAuth: async () => {
-    const currentState = get()
-
-    // Allow initial auth check, prevent concurrent calls otherwise
-    const isInitialCheck =
-      currentState.isLoading &&
-      !currentState.isAuthenticated &&
-      !currentState.user
-    if (currentState.isLoading && !isInitialCheck) {
-      return
+    if (refreshPromise) {
+      return refreshPromise
     }
 
-    try {
-      set({ isLoading: true, error: null })
+    refreshPromise = (async () => {
+      try {
+        set({ isLoading: true, error: null })
 
-      const isAuthenticatedCheck = authService.isAuthenticated()
+        // initSession() calls GET /api/auth/session and updates the
+        // in-memory currentUser cache. It catches internally and never throws.
+        await tokenManager.initSession()
 
-      if (isAuthenticatedCheck) {
-        const response = await authService.getProfile()
-        set({
-          user: response.data,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-        })
-      } else {
+        const user = tokenManager.getUser()
+
+        if (user !== null) {
+          set({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          })
+        } else {
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+          })
+        }
+      } catch (err) {
+        // Safety net: initSession() should never throw, but handle defensively.
+        const errorMessage = getErrorMessage(err)
         set({
           user: null,
           isAuthenticated: false,
           isLoading: false,
-          error: null,
+          error: errorMessage,
         })
+      } finally {
+        refreshPromise = null
       }
-    } catch (error) {
-      const errorMessage = getErrorMessage(error)
-      set({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: errorMessage,
-      })
-    }
+    })()
+
+    return refreshPromise
   },
 
+  /**
+   * Login via POST /api/auth/login (sets HttpOnly cookies).
+   * tokenManager.login() returns the server-authoritative User directly.
+   */
   login: async (credentials: LoginRequest) => {
     try {
       set({ isLoading: true, error: null })
 
-      const response = await authService.login(credentials)
+      const user = await tokenManager.login(credentials)
 
-      if (response.success) {
-        await get().refreshAuth()
-      } else {
-        throw new Error(response.message || 'Login failed')
-      }
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      })
     } catch (err) {
       const errorMessage = getErrorMessage(err)
       set({ error: errorMessage, isLoading: false })
@@ -100,21 +117,34 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     }
   },
 
+  /**
+   * Register via the mock/real authService, then establish an HttpOnly
+   * session cookie by calling tokenManager.login() so the cookie-based
+   * auth flow is connected from the moment of registration.
+   */
   register: async (userData: RegisterRequest) => {
     try {
       set({ isLoading: true, error: null })
 
-      if (userData.password !== userData.confirmPassword) {
-        throw new Error('Passwords do not match')
-      }
-
+      // Step 1: create the account (mock or real API)
       const response = await authService.register(userData)
 
-      if (response.success) {
-        await get().refreshAuth()
-      } else {
+      if (!response.success) {
         throw new Error(response.message || 'Registration failed')
       }
+
+      // Step 2: log in via the HttpOnly cookie route to establish the session
+      const user = await tokenManager.login({
+        email: userData.email,
+        password: userData.password,
+      })
+
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      })
     } catch (err) {
       const errorMessage = getErrorMessage(err)
       set({ error: errorMessage, isLoading: false })
@@ -122,11 +152,14 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     }
   },
 
+  /**
+   * Logout via POST /api/auth/logout (clears HttpOnly cookies).
+   */
   logout: async () => {
     try {
       set({ isLoading: true, error: null })
 
-      await authService.logout()
+      await tokenManager.logout()
 
       set({
         user: null,
@@ -134,6 +167,11 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
         isLoading: false,
         error: null,
       })
+
+      // Notify other tabs that this session has been invalidated
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth:logout'))
+      }
     } catch (err) {
       const errorMessage = getErrorMessage(err)
       set({ error: errorMessage, isLoading: false })
@@ -162,9 +200,16 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
   },
 }))
 
-// Listen for storage changes (multi-tab scenarios) without immediate initialization
+// Listen for cross-tab logout signals dispatched by the auth:logout CustomEvent.
+// Using a named CustomEvent rather than the 'storage' event keeps the listener
+// scoped to auth changes and avoids reacting to unrelated localStorage writes.
 if (typeof window !== 'undefined') {
-  window.addEventListener('storage', () => {
-    useAuthStore.getState().refreshAuth()
+  window.addEventListener('auth:logout', () => {
+    void useAuthStore
+      .getState()
+      .refreshAuth()
+      .catch(() => {
+        // refreshAuth is defensive internally, but guard here too
+      })
   })
 }

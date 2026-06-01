@@ -295,5 +295,22 @@
       "description": "The page you're looking for doesn't exist",
       "backHome": "Go back home"
     }
+  },
+  "validation": {
+    "email": {
+      "invalid": "Please enter a valid email address"
+    },
+    "password": {
+      "minLength": "Password must be at least 8 characters",
+      "mismatch": "Passwords do not match",
+      "uppercase": "Password must contain at least one uppercase letter",
+      "number": "Password must contain at least one number"
+    },
+    "name": {
+      "minLength": "Name must be at least 2 characters"
+    },
+    "terms": {
+      "required": "You must accept the terms and conditions"
+    }
   }
 }

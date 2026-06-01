@@ -1,128 +1,218 @@
-// Industry-standard secure token manager
-import { logger } from '@/lib/logger'
-import type { TokenPair, StoredTokenInfo, TokenValidation } from '@/types/api'
-
-// Constants following industry standards
-const ACCESS_TOKEN_KEY = 'access_token_info'
-const REFRESH_TOKEN_COOKIE = 'refresh_token'
-const TOKEN_REFRESH_THRESHOLD = 5 * 60 * 1000 // 5 minutes in milliseconds
-
 /**
- * Secure token manager following industry best practices:
- * - Access tokens: Short-lived (15-30 min), stored in memory/localStorage
- * - Refresh tokens: Long-lived (7-30 days), stored in httpOnly cookies
- * - Auto-refresh when access token expires soon
- * - Token rotation on refresh for security
+ * Client-side token manager - server-side auth edition.
+ *
+ * All auth tokens now live exclusively in HttpOnly cookies managed by the
+ * /api/auth/* route handlers. This module provides the client-facing API
+ * that the rest of the application (services, stores, API client) calls.
+ * It never reads or writes auth tokens directly; it delegates to the
+ * API routes and keeps only a lightweight in-memory user cache.
+ *
+ * Legacy shims retained for compatibility with auth.service.ts and
+ * mock-auth.service.ts (storeTokens, clearTokens, getRefreshTokenFromCookie).
+ * These are no-ops or delegates - the actual token storage is server-side.
  */
+
+import { logger } from '@/lib/logger'
+import type {
+  LoginRequest,
+  User,
+  TokenPair,
+  TokenValidation,
+} from '@/types/api'
+
+// In-memory state
+let currentUser: User | null = null
+let csrfToken: string | null = null
+let refreshInFlight: Promise<boolean> | null = null
+
+async function ensureCsrfToken(): Promise<string> {
+  if (csrfToken) return csrfToken
+  try {
+    const response = await fetch('/api/auth/csrf', { method: 'GET' })
+    if (!response.ok) {
+      throw new Error('CSRF fetch failed: ' + String(response.status))
+    }
+    const data = (await response.json()) as { data: { csrfToken: string } }
+    csrfToken = data.data.csrfToken
+    return csrfToken
+  } catch (err) {
+    logger.error('Failed to fetch CSRF token', err as Error)
+    // Don't cache a fallback — server won't recognize it
+    throw new Error('Failed to establish CSRF token. Please reload the page.')
+  }
+}
+
+function buildAuthHeaders(token: string): HeadersInit {
+  return {
+    'Content-Type': 'application/json',
+    'x-csrf-token': token,
+  }
+}
+
+async function callLogin(credentials: LoginRequest): Promise<{ user: User }> {
+  const token = await ensureCsrfToken()
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: buildAuthHeaders(token),
+    body: JSON.stringify(credentials),
+    credentials: 'same-origin',
+  })
+  const data = (await response.json()) as {
+    success: boolean
+    message: string
+    data?: { user: User }
+    errors?: string[]
+  }
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || 'Login failed')
+  }
+  if (!data.data) {
+    throw new Error('Malformed login response')
+  }
+  return data.data
+}
+
+async function callLogout(): Promise<void> {
+  const token = csrfToken ?? (await ensureCsrfToken())
+  const response = await fetch('/api/auth/logout', {
+    method: 'POST',
+    headers: buildAuthHeaders(token),
+    credentials: 'same-origin',
+  })
+  if (!response.ok) {
+    const data = (await response.json().catch(() => ({}))) as {
+      message?: string
+    }
+    throw new Error(data.message || 'Logout failed')
+  }
+}
+
+async function callRefresh(): Promise<boolean> {
+  const token = csrfToken ?? (await ensureCsrfToken())
+  const response = await fetch('/api/auth/refresh', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-csrf-token': token,
+    },
+    credentials: 'same-origin',
+  })
+  // Clear cached CSRF so ensureCsrfToken fetches a fresh one after token rotation
+  csrfToken = null
+  return response.ok
+}
+
+async function callSession(): Promise<User | null> {
+  const response = await fetch('/api/auth/session', {
+    method: 'GET',
+    credentials: 'same-origin',
+  })
+  if (!response.ok) return null
+  const data = (await response.json()) as {
+    success: boolean
+    data?: { user: User }
+  }
+  return data.success && data.data ? data.data.user : null
+}
+
 export class SecureTokenManager {
   private static instance: SecureTokenManager
-  private accessTokenInfo: StoredTokenInfo | null = null
-  private refreshPromise: Promise<TokenPair | null> | null = null
 
   static getInstance(): SecureTokenManager {
     if (!SecureTokenManager.instance) {
       SecureTokenManager.instance = new SecureTokenManager()
-      // Load tokens immediately when creating new instance
-      SecureTokenManager.instance.loadTokenInfoFromStorage()
     }
     return SecureTokenManager.instance
   }
 
   /**
-   * Store token pair securely
-   * Access token → localStorage + memory
-   * Refresh token → httpOnly cookie
+   * Initialise session on app boot.
+   * Calls /api/auth/session to restore in-memory state from the HttpOnly cookie.
    */
-  storeTokens(tokens: TokenPair): void {
+  async initSession(): Promise<void> {
     try {
-      // Store access token info in memory (most secure)
-      const accessTokenInfo: StoredTokenInfo = {
-        accessToken: tokens.accessToken,
-        accessTokenExpiry: tokens.accessTokenExpiry,
-      }
-
-      this.accessTokenInfo = accessTokenInfo
-
-      if (typeof window !== 'undefined') {
-        // Store in localStorage as backup (acceptable for demo/development)
-        localStorage.setItem(ACCESS_TOKEN_KEY, JSON.stringify(accessTokenInfo))
-
-        // Store refresh token as secure cookie (simulated HttpOnly for demo)
-        const refreshExpiryDate = new Date(tokens.refreshTokenExpiry)
-        const isSecure = location.protocol === 'https:'
-
-        document.cookie = [
-          `${REFRESH_TOKEN_COOKIE}=${tokens.refreshToken}`,
-          `expires=${refreshExpiryDate.toUTCString()}`,
-          'path=/',
-          'SameSite=Strict',
-          isSecure ? 'Secure' : '',
-        ]
-          .filter(Boolean)
-          .join('; ')
-
-        // Store access token cookie for middleware (temporary for demo)
-        const accessExpiryDate = new Date(tokens.accessTokenExpiry)
-        document.cookie = [
-          `auth_token=${tokens.accessToken}`,
-          `expires=${accessExpiryDate.toUTCString()}`,
-          'path=/',
-          'SameSite=Strict',
-          isSecure ? 'Secure' : '',
-        ]
-          .filter(Boolean)
-          .join('; ')
-      }
-
-      logger.info('Tokens stored with production-ready approach', {
-        accessExpiry: new Date(tokens.accessTokenExpiry),
-        refreshExpiry: new Date(tokens.refreshTokenExpiry),
-      })
-    } catch (error) {
-      logger.error('Failed to store tokens', error as Error)
-      throw error
+      const user = await callSession()
+      currentUser = user
+      logger.info('Session initialised', { authenticated: user !== null })
+    } catch (err) {
+      logger.error('Failed to initialise session', err as Error)
+      currentUser = null
     }
   }
 
   /**
-   * Get valid access token, auto-refresh if needed
+   * Attempt to refresh the access token using the HttpOnly refresh_token cookie.
+   * Returns true on success. Deduplicates concurrent calls.
    */
-  async getValidAccessToken(): Promise<string | null> {
-    try {
-      // Load token info if not in memory
-      if (!this.accessTokenInfo) {
-        this.loadTokenInfoFromStorage()
+  async refresh(): Promise<boolean> {
+    if (refreshInFlight) return refreshInFlight
+    refreshInFlight = (async () => {
+      try {
+        const ok = await callRefresh()
+        if (ok) {
+          currentUser = await callSession()
+        } else {
+          currentUser = null
+        }
+        return ok
+      } catch (err) {
+        logger.error('Token refresh failed', err as Error)
+        currentUser = null
+        return false
+      } finally {
+        refreshInFlight = null
       }
+    })()
+    return refreshInFlight
+  }
 
-      if (!this.accessTokenInfo) {
-        return null
-      }
+  /** Returns true when the in-memory user cache is populated. */
+  isAuthenticated(): boolean {
+    return currentUser !== null
+  }
 
-      const validation = this.validateAccessToken()
+  /** Returns the cached user or null. */
+  getUser(): User | null {
+    return currentUser
+  }
 
-      // Token is valid and not expiring soon
-      if (validation.isValid && !validation.needsRefresh) {
-        return this.accessTokenInfo.accessToken
-      }
+  // ── Legacy shims ─────────────────────────────────────────────────────────
+  // These methods are called by auth.service.ts and mock-auth.service.ts.
+  // They are kept as no-ops or thin delegates for backwards compatibility.
 
-      // Token is expired or expiring soon - refresh it
-      if (validation.needsRefresh || validation.isExpired) {
-        const refreshedTokens = await this.refreshAccessToken()
-        return refreshedTokens?.accessToken || null
-      }
+  /**
+   * No-op shim: tokens are stored in HttpOnly cookies by the login route handler.
+   */
+  storeTokens(_tokens: TokenPair): void {
+    logger.info(
+      'storeTokens called - tokens are managed server-side via HttpOnly cookies'
+    )
+  }
 
-      return this.accessTokenInfo.accessToken
-    } catch (error) {
-      logger.error('Failed to get valid access token', error as Error)
-      return null
+  /** Clears in-memory auth state. HttpOnly cookies are cleared by /api/auth/logout. */
+  clearTokens(): void {
+    currentUser = null
+    csrfToken = null
+    logger.info('In-memory auth state cleared')
+  }
+
+  /** Shim: delegates to refresh(). Returns a stub TokenPair for callers that expect one. */
+  async refreshAccessToken(): Promise<TokenPair | null> {
+    const ok = await this.refresh()
+    if (!ok) return null
+    const now = Date.now()
+    return {
+      accessToken: '__httponly__',
+      refreshToken: '__httponly__',
+      accessTokenExpiry: now + 15 * 60 * 1000,
+      refreshTokenExpiry: now + 7 * 24 * 60 * 60 * 1000,
+      tokenType: 'Bearer',
     }
   }
 
-  /**
-   * Validate current access token
-   */
+  /** Shim: returns a TokenValidation based on current in-memory state. */
   validateAccessToken(): TokenValidation {
-    if (!this.accessTokenInfo) {
+    if (currentUser === null) {
       return {
         isValid: false,
         isExpired: true,
@@ -130,245 +220,54 @@ export class SecureTokenManager {
         needsRefresh: true,
       }
     }
-
-    const now = Date.now()
-    const expiry = this.accessTokenInfo.accessTokenExpiry
-    const expiresInMs = expiry - now
-    const expiresInSeconds = Math.floor(expiresInMs / 1000)
-
     return {
-      isValid: expiresInMs > 0,
-      isExpired: expiresInMs <= 0,
-      expiresIn: Math.max(0, expiresInSeconds),
-      needsRefresh: expiresInMs <= TOKEN_REFRESH_THRESHOLD,
+      isValid: true,
+      isExpired: false,
+      expiresIn: 15 * 60,
+      needsRefresh: false,
     }
   }
 
   /**
-   * Refresh access token using refresh token
-   * Implements token rotation for security
+   * Shim: HttpOnly refresh token is not readable from JavaScript.
+   * Returns null so authService.logout() skips server-side revocation.
    */
-  async refreshAccessToken(): Promise<TokenPair | null> {
-    try {
-      // Prevent multiple concurrent refresh attempts
-      if (this.refreshPromise) {
-        logger.info('Token refresh already in progress, waiting...')
-        return await this.refreshPromise
-      }
-
-      logger.info('Refreshing access token...')
-
-      // Create refresh promise
-      this.refreshPromise = this.performTokenRefresh()
-      const newTokens = await this.refreshPromise
-
-      // Clear refresh promise
-      this.refreshPromise = null
-
-      if (newTokens) {
-        // Store new tokens (rotation - old refresh token is now invalid)
-        this.storeTokens(newTokens)
-        logger.info('Access token refreshed successfully')
-      }
-
-      return newTokens
-    } catch (error) {
-      this.refreshPromise = null
-      logger.error('Token refresh failed', error as Error)
-
-      // Clear invalid tokens
-      this.clearTokens()
-      throw error
-    }
+  getRefreshTokenFromCookie(): string | null {
+    return null
   }
 
-  /**
-   * Check if user is authenticated with valid tokens
-   */
-  isAuthenticated(): boolean {
-    // Always try to load from storage first
-    if (!this.accessTokenInfo) {
-      this.loadTokenInfoFromStorage()
-    }
-
-    const validation = this.validateAccessToken()
-    const hasRefreshToken = this.hasRefreshToken()
-
-    // User is authenticated if they have a valid access token OR a refresh token
-    return validation.isValid || hasRefreshToken
+  /** Shim: access tokens are opaque to the client. */
+  async getValidAccessToken(): Promise<string | null> {
+    return null
   }
 
-  /**
-   * Clear all tokens securely
-   */
-  clearTokens(): void {
-    try {
-      // Clear memory
-      this.accessTokenInfo = null
-      this.refreshPromise = null
-
-      if (typeof window !== 'undefined') {
-        // Clear localStorage
-        localStorage.removeItem(ACCESS_TOKEN_KEY)
-
-        // Clear auth token cookie (for middleware)
-        document.cookie = [
-          'auth_token=',
-          'expires=Thu, 01 Jan 1970 00:00:00 UTC',
-          'path=/',
-          'SameSite=Strict',
-        ].join('; ')
-
-        // Clear refresh token cookie
-        this.clearRefreshTokenCookie()
-      }
-
-      logger.info('All tokens cleared')
-    } catch (error) {
-      logger.error('Failed to clear tokens', error as Error)
-    }
-  }
-
-  /**
-   * Get current access token without validation (for debugging)
-   */
+  /** Shim: returns null - use getUser() for the current user. */
   getCurrentAccessToken(): string | null {
-    return this.accessTokenInfo?.accessToken || null
+    return null
   }
 
-  // Private methods
+  // ── High-level login/logout ───────────────────────────────────────────────
 
-  loadTokenInfoFromStorage(): void {
-    if (typeof window === 'undefined') return
+  /**
+   * Full login: POST /api/auth/login (sets HttpOnly cookies), then cache user.
+   */
+  async login(credentials: LoginRequest): Promise<User> {
+    const { user } = await callLogin(credentials)
+    currentUser = user
+    csrfToken = null
+    return user
+  }
 
+  /**
+   * Full logout: POST /api/auth/logout (clears HttpOnly cookies), then clear memory.
+   */
+  async logout(): Promise<void> {
     try {
-      const stored = localStorage.getItem(ACCESS_TOKEN_KEY)
-      if (stored) {
-        this.accessTokenInfo = JSON.parse(stored) as StoredTokenInfo
-        // Notify store of token discovery for state synchronization
-        this.notifyStoreOfTokenUpdate()
-      }
-    } catch (error) {
-      logger.error('Failed to load token info from storage', error as Error)
+      await callLogout()
+    } finally {
+      currentUser = null
+      csrfToken = null
     }
-  }
-
-  private notifyStoreOfTokenUpdate(): void {
-    // Async import to avoid circular dependency, then update store state
-    if (typeof window !== 'undefined') {
-      import('@/stores')
-        .then(({ useAuthStore }) => {
-          const store = useAuthStore.getState()
-          // Only refresh if we're not already authenticated in store
-          if (!store.isAuthenticated && this.isAuthenticated()) {
-            store.refreshAuth().catch(err => {
-              logger.error('Failed to refresh auth after token discovery', err)
-            })
-          }
-        })
-        .catch(err => {
-          logger.error('Failed to import auth store for notification', err)
-        })
-    }
-  }
-
-  private async performTokenRefresh(): Promise<TokenPair | null> {
-    const refreshToken = this.getRefreshTokenFromCookie()
-    if (!refreshToken) {
-      throw new Error('No refresh token available')
-    }
-
-    try {
-      // Dynamic import to avoid circular dependency
-      const { api } = await import('@/lib/api')
-      const { API_ENDPOINTS } = await import('@/types/api')
-
-      logger.info('Calling external API for token refresh')
-
-      const response = await api.post<{
-        access: { token: string; expires: string }
-        refresh: { token: string; expires: string }
-      }>(API_ENDPOINTS.auth.refresh, {
-        refreshToken,
-      })
-
-      // Convert API response to internal token format
-      const newTokens: TokenPair = {
-        accessToken: response.access.token,
-        refreshToken: response.refresh.token,
-        accessTokenExpiry: new Date(response.access.expires).getTime(),
-        refreshTokenExpiry: new Date(response.refresh.expires).getTime(),
-        tokenType: 'Bearer',
-      }
-
-      logger.info('External API token refresh successful')
-
-      return newTokens
-    } catch (error) {
-      logger.error('External API token refresh failed', error as Error)
-
-      // Fallback: If API is not available, generate demo tokens for development
-      if (process.env.NODE_ENV === 'development') {
-        logger.warn('Using demo tokens as fallback in development mode')
-
-        const now = Date.now()
-        const randomId = Math.random().toString(36).substr(2, 9)
-
-        return {
-          accessToken: `demo_access_${now}_${randomId}`,
-          refreshToken: `demo_refresh_${now}_${randomId}`,
-          accessTokenExpiry: now + 15 * 60 * 1000, // 15 minutes
-          refreshTokenExpiry: now + 7 * 24 * 60 * 60 * 1000, // 7 days
-          tokenType: 'Bearer',
-        }
-      }
-
-      throw error
-    }
-  }
-
-  private setRefreshTokenCookie(refreshToken: string, expiry: number): void {
-    if (typeof window === 'undefined') return
-
-    const expiryDate = new Date(expiry)
-    const isSecure = location.protocol === 'https:'
-
-    // Remove HttpOnly as it can't be set from JavaScript
-    document.cookie = [
-      `${REFRESH_TOKEN_COOKIE}=${refreshToken}`,
-      `expires=${expiryDate.toUTCString()}`,
-      'path=/',
-      'SameSite=Strict',
-      isSecure ? 'Secure' : '',
-    ]
-      .filter(Boolean)
-      .join('; ')
-  }
-
-  private getRefreshTokenFromCookie(): string | null {
-    if (typeof window === 'undefined') return null
-
-    try {
-      const cookies = document.cookie.split(';')
-      const refreshCookie = cookies.find(cookie =>
-        cookie.trim().startsWith(`${REFRESH_TOKEN_COOKIE}=`)
-      )
-
-      return refreshCookie ? refreshCookie.split('=')[1].trim() : null
-    } catch (error) {
-      logger.error('Failed to get refresh token from cookie', error as Error)
-      return null
-    }
-  }
-
-  private clearRefreshTokenCookie(): void {
-    if (typeof window === 'undefined') return
-
-    document.cookie = `${REFRESH_TOKEN_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict`
-  }
-
-  private hasRefreshToken(): boolean {
-    return !!this.getRefreshTokenFromCookie()
   }
 }
 

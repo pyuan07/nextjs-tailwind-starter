@@ -1,24 +1,50 @@
+import { useShallow } from 'zustand/react/shallow'
 import { useAuthStore } from '@/stores'
 
 /**
  * Simplified auth hook - use this instead of multiple hooks
  */
 export function useAuth() {
-  const store = useAuthStore()
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    error,
+    login,
+    register,
+    logout,
+    updateProfile,
+    clearError,
+    refreshAuth,
+  } = useAuthStore(
+    useShallow(state => ({
+      user: state.user,
+      isAuthenticated: state.isAuthenticated,
+      isLoading: state.isLoading,
+      error: state.error,
+      login: state.login,
+      register: state.register,
+      logout: state.logout,
+      updateProfile: state.updateProfile,
+      clearError: state.clearError,
+      refreshAuth: state.refreshAuth,
+    }))
+  )
+
   return {
     // State
-    user: store.user,
-    isAuthenticated: store.isAuthenticated,
-    isLoading: store.isLoading,
-    error: store.error,
+    user,
+    isAuthenticated,
+    isLoading,
+    error,
 
     // Actions
-    login: store.login,
-    register: store.register,
-    logout: store.logout,
-    updateProfile: store.updateProfile,
-    clearError: store.clearError,
-    refreshAuth: store.refreshAuth,
+    login,
+    register,
+    logout,
+    updateProfile,
+    clearError,
+    refreshAuth,
   }
 }
 

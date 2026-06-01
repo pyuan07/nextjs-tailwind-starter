@@ -295,5 +295,22 @@
       "description": "Halaman yang anda cari tidak wujud",
       "backHome": "Kembali ke laman utama"
     }
+  },
+  "validation": {
+    "email": {
+      "invalid": "Sila masukkan alamat e-mel yang sah"
+    },
+    "password": {
+      "minLength": "Kata laluan mestilah sekurang-kurangnya 8 aksara",
+      "mismatch": "Kata laluan tidak sepadan",
+      "uppercase": "Kata laluan mestilah mengandungi sekurang-kurangnya satu huruf besar",
+      "number": "Kata laluan mestilah mengandungi sekurang-kurangnya satu nombor"
+    },
+    "name": {
+      "minLength": "Nama mestilah sekurang-kurangnya 2 aksara"
+    },
+    "terms": {
+      "required": "Anda mesti menerima terma dan syarat"
+    }
   }
 }

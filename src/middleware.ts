@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { env } from '@/config/env'
 import { generateSecureToken, rateLimiter } from '@/utils/security'
+import { ROUTES, RATE_LIMITS, SECURITY_CONFIG } from '@/constants'
 import createMiddleware from 'next-intl/middleware'
 import { locales, defaultLocale, type Locale } from '@/i18n/config'
 
@@ -11,17 +12,13 @@ import { locales, defaultLocale, type Locale } from '@/i18n/config'
  * - Early returns for performance
  * - Proper composition pattern
  * - No code duplication
+ * - Constants extracted for maintainability
  */
 
-// Route configurations
-const PROTECTED_ROUTES = ['/showcase', '/profile', '/dashboard', '/admin']
-const AUTH_ROUTES = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-]
-const LEGAL_ROUTES = ['/terms', '/privacy']
+// Route configurations (from constants)
+const PROTECTED_ROUTES = ROUTES.PROTECTED
+const AUTH_ROUTES = ROUTES.AUTH
+const LEGAL_ROUTES = ROUTES.LEGAL
 
 // Create next-intl middleware
 const intlMiddleware = createMiddleware({
@@ -33,11 +30,12 @@ const intlMiddleware = createMiddleware({
 
 // Security utilities
 function getClientIP(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for') ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  )
+  const forwarded = request.headers.get('x-forwarded-for')
+  if (forwarded) {
+    const ips = forwarded.split(',').map(ip => ip.trim())
+    return ips[ips.length - 1] // rightmost = set by trusted proxy
+  }
+  return request.headers.get('x-real-ip') ?? 'unknown'
 }
 
 function isAuthenticated(request: NextRequest): boolean {
@@ -55,25 +53,7 @@ function shouldSkipMiddleware(pathname: string): boolean {
 }
 
 function isLegalDocument(pathname: string): boolean {
-  return LEGAL_ROUTES.includes(pathname)
-}
-
-function isSuspiciousRequest(request: NextRequest): boolean {
-  if (env.isDevelopment) return false
-
-  const userAgent = request.headers.get('user-agent') || ''
-
-  const suspiciousPatterns = [
-    /bot|crawler|spider|scraper/i,
-    /curl|wget|python|php/i,
-    /scanner|hack|exploit/i,
-  ]
-
-  return (
-    !userAgent ||
-    userAgent.length < 10 ||
-    suspiciousPatterns.some(pattern => pattern.test(userAgent))
-  )
+  return (LEGAL_ROUTES as readonly string[]).includes(pathname)
 }
 
 function applyRateLimit(request: NextRequest): boolean {
@@ -81,20 +61,42 @@ function applyRateLimit(request: NextRequest): boolean {
   const userAgent = request.headers.get('user-agent') || 'unknown'
   const { pathname } = request.nextUrl
 
-  // API routes have stricter limits
+  // Auth API routes have strictest limits to prevent brute force
+  if (pathname.startsWith('/api/auth/')) {
+    return rateLimiter.isRateLimited(
+      `auth:${clientIP}`,
+      RATE_LIMITS.AUTH.requests,
+      RATE_LIMITS.AUTH.windowMs
+    )
+  }
+
+  // Other API routes have stricter limits
   if (pathname.startsWith('/api/')) {
     return rateLimiter.isRateLimited(
       `api:${clientIP}`,
-      100, // 100 requests per 15 minutes
-      15 * 60 * 1000
+      RATE_LIMITS.API.requests,
+      RATE_LIMITS.API.windowMs
+    )
+  }
+
+  // Auth routes have strictest limits to prevent brute force
+  if (
+    pathname.includes('/login') ||
+    pathname.includes('/register') ||
+    pathname.includes('/forgot-password')
+  ) {
+    return rateLimiter.isRateLimited(
+      `auth:${clientIP}`,
+      RATE_LIMITS.AUTH.requests,
+      RATE_LIMITS.AUTH.windowMs
     )
   }
 
   // General routes
   return rateLimiter.isRateLimited(
     `general:${clientIP}:${userAgent}`,
-    300, // 300 requests per 15 minutes
-    15 * 60 * 1000
+    RATE_LIMITS.GENERAL.requests,
+    RATE_LIMITS.GENERAL.windowMs
   )
 }
 
@@ -133,7 +135,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   if (env.isProduction) {
     response.headers.set(
       'Strict-Transport-Security',
-      'max-age=31536000; includeSubDomains; preload'
+      `max-age=${SECURITY_CONFIG.HSTS_MAX_AGE}; includeSubDomains; preload`
     )
   }
 
@@ -232,14 +234,20 @@ function handleAuthentication(
 
   // Redirect unauthenticated users from protected routes
   if (isProtected && !isUserAuth) {
-    const loginUrl = new URL(`/${locale}/login`, request.url)
+    const loginUrl = new URL(
+      `/${locale}${ROUTES.DEFAULT_UNAUTHENTICATED}`,
+      request.url
+    )
     loginUrl.searchParams.set('redirect', url)
     return addSecurityHeaders(NextResponse.redirect(loginUrl))
   }
 
   // Redirect authenticated users from auth routes
   if (isAuth && isUserAuth) {
-    const showcaseUrl = new URL(`/${locale}/showcase`, request.url)
+    const showcaseUrl = new URL(
+      `/${locale}${ROUTES.DEFAULT_AUTHENTICATED}`,
+      request.url
+    )
     return addSecurityHeaders(NextResponse.redirect(showcaseUrl))
   }
 
@@ -259,6 +267,7 @@ export function middleware(request: NextRequest) {
   if (legalResponse) return legalResponse
 
   // API routes: rate limiting only
+  // Note: logger not used here — it references window.navigator which is unavailable in Edge Runtime
   if (pathname.startsWith('/api/')) {
     if (applyRateLimit(request)) {
       console.warn(
@@ -271,21 +280,8 @@ export function middleware(request: NextRequest) {
 
   // For root path, let next-intl handle the redirect immediately
   if (pathname === '/') {
-    // Apply minimal security checks for root
-    if (isSuspiciousRequest(request)) {
-      return new NextResponse('Forbidden', { status: 403 })
-    }
-
     const intlResponse = intlMiddleware(request)
     return addSecurityHeaders(intlResponse)
-  }
-
-  // Security checks for other routes
-  if (isSuspiciousRequest(request)) {
-    console.warn(
-      `Suspicious request blocked: ${getClientIP(request)} - ${pathname}`
-    )
-    return new NextResponse('Forbidden', { status: 403 })
   }
 
   if (applyRateLimit(request)) {

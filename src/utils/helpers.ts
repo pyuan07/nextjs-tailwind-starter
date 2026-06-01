@@ -1,4 +1,9 @@
-// Utility helper functions
+/**
+ * Utility helper functions
+ *
+ * Note: Some utilities (debounce, throttle, sleep) are kept for future use
+ * even though they're not currently used in the codebase.
+ */
 
 /**
  * Extract error message from various error types
@@ -21,6 +26,7 @@ export function getErrorMessage(error: unknown): string {
 
 /**
  * Format API error for display
+ * Note: Currently unused but kept for future API error formatting needs
  */
 export function formatApiError(error: unknown): string {
   const message = getErrorMessage(error)
@@ -34,6 +40,7 @@ export function formatApiError(error: unknown): string {
 
 /**
  * Check if error is a network error
+ * Note: Currently unused but kept for future network error detection needs
  */
 export function isNetworkError(error: unknown): boolean {
   if (error instanceof Error) {
@@ -50,6 +57,10 @@ export function isNetworkError(error: unknown): boolean {
 
 /**
  * Sleep utility for delays
+ * Note: Currently unused but commonly needed for testing and animations
+ *
+ * @example
+ * await sleep(1000) // Wait 1 second
  */
 export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -57,6 +68,12 @@ export function sleep(ms: number): Promise<void> {
 
 /**
  * Debounce function calls
+ * Note: Currently unused but commonly needed for search inputs and resize handlers
+ *
+ * @example
+ * const debouncedSearch = debounce((query: string) => {
+ *   // Perform search
+ * }, 300)
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
@@ -77,6 +94,12 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
 
 /**
  * Throttle function calls
+ * Note: Currently unused but commonly needed for scroll and resize events
+ *
+ * @example
+ * const throttledScroll = throttle(() => {
+ *   // Handle scroll
+ * }, 100)
  */
 export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,

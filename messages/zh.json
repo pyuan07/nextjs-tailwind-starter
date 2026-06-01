@@ -295,5 +295,22 @@
       "description": "您要查找的页面不存在",
       "backHome": "返回首页"
     }
+  },
+  "validation": {
+    "email": {
+      "invalid": "请输入有效的电子邮件地址"
+    },
+    "password": {
+      "minLength": "密码至少需要8个字符",
+      "mismatch": "两次输入的密码不匹配",
+      "uppercase": "密码必须包含至少一个大写字母",
+      "number": "密码必须包含至少一个数字"
+    },
+    "name": {
+      "minLength": "名称至少需要2个字符"
+    },
+    "terms": {
+      "required": "您必须接受条款和条件"
+    }
   }
 }

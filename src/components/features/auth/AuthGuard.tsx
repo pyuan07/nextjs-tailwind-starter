@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import { useAuthStatus } from '@/hooks'
+import { ROUTES } from '@/constants'
 import { Skeleton } from '@/components/ui'
 
 interface AuthGuardProps {
@@ -20,9 +21,9 @@ export function AuthGuard({
   const router = useRouter()
   const pathname = usePathname()
 
-  // Define route configurations
-  const protectedRoutes = ['/showcase', '/profile']
-  const authRoutes = ['/login', '/register', '/forgot-password']
+  // Route configuration sourced from constants — update src/constants/config.ts to add routes
+  const protectedRoutes = ROUTES.PROTECTED
+  const authRoutes = ROUTES.AUTH
 
   const isProtectedRoute = protectedRoutes.some(route =>
     pathname.startsWith(route)
@@ -41,7 +42,7 @@ export function AuthGuard({
 
     // Redirect authenticated users from auth routes to showcase
     if (isAuthRoute && isAuthenticated) {
-      router.push('/showcase')
+      router.push(ROUTES.DEFAULT_AUTHENTICATED)
       return
     }
   }, [

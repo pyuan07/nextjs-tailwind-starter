@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/hooks'
@@ -12,13 +13,21 @@ import {
   CardHeader,
   CardTitle,
   Input,
-  Label,
   Checkbox,
   Alert,
   AlertDescription,
 } from '@/components/ui'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { SectionErrorBoundary } from '@/components/ui/error-boundary'
 import { Loader2 } from 'lucide-react'
+import { registerSchema, type RegisterFormData } from '@/lib/validations/auth'
 
 interface RegisterFormProps {
   onSuccess?: () => void
@@ -28,206 +37,220 @@ interface RegisterFormProps {
 function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
   const { register: registerUser, isLoading, error } = useAuth()
   const tRegister = useTranslations('auth.register')
-  const tErrors = useTranslations('auth.errors')
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    acceptTerms: false,
+  const tValidation = useTranslations('validation')
+
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      acceptTerms: false,
+    },
   })
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
-  const validateForm = () => {
-    const errors: Record<string, string> = {}
-
-    if (!formData.name.trim()) errors.name = tErrors('nameRequired')
-    if (!formData.email.trim()) errors.email = tErrors('emailRequired')
-    if (!/\S+@\S+\.\S+/.test(formData.email))
-      errors.email = tErrors('emailInvalid')
-    if (!formData.password) errors.password = tErrors('passwordRequired')
-    if (formData.password.length < 8)
-      errors.password = tErrors('passwordTooShort')
-    if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = tErrors('passwordMismatch')
-    }
-    if (!formData.acceptTerms) {
-      errors.acceptTerms = tErrors('termsRequired')
-    }
-
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!validateForm()) return
-
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      await registerUser(formData)
+      await registerUser({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+      })
       onSuccess?.()
-    } catch (_err) {
-      // Error handled by hook
+    } catch {
+      // Error is already handled by the hook and surfaced via error
     }
   }
-
-  const handleChange =
-    (field: keyof typeof formData) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = field === 'acceptTerms' ? e.target.checked : e.target.value
-      setFormData(prev => ({ ...prev, [field]: value }))
-      if (formErrors[field]) {
-        setFormErrors(prev => ({ ...prev, [field]: '' }))
-      }
-    }
 
   return (
     <Card className={className}>
       <CardHeader>
         <CardTitle>{tRegister('title')}</CardTitle>
-        <CardDescription>{tRegister('joinDescription')}</CardDescription>
+        <CardDescription>{tRegister('description')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className='space-y-4'>
-          {error && (
-            <Alert variant='destructive'>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className='space-y-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='name'>{tRegister('name')}</Label>
-              <Input
-                id='name'
-                type='text'
-                value={formData.name}
-                onChange={handleChange('name')}
-                placeholder={tRegister('namePlaceholder')}
-                disabled={isLoading}
-              />
-              {formErrors.name && (
-                <p className='text-sm text-destructive mt-1'>
-                  {formErrors.name}
-                </p>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{tRegister('name')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='text'
+                      autoComplete='name'
+                      placeholder={tRegister('namePlaceholder')}
+                      disabled={isLoading}
+                      className='min-h-11 text-base'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.name?.message
+                      ? tValidation(
+                          form.formState.errors.name.message as Parameters<
+                            typeof tValidation
+                          >[0]
+                        )
+                      : null}
+                  </FormMessage>
+                </FormItem>
               )}
-            </div>
+            />
 
-            <div className='space-y-2'>
-              <Label htmlFor='email'>{tRegister('email')}</Label>
-              <Input
-                id='email'
-                type='email'
-                value={formData.email}
-                onChange={handleChange('email')}
-                placeholder={tRegister('emailPlaceholder')}
-                disabled={isLoading}
-              />
-              {formErrors.email && (
-                <p className='text-sm text-destructive mt-1'>
-                  {formErrors.email}
-                </p>
+            <FormField
+              control={form.control}
+              name='email'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{tRegister('email')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='email'
+                      inputMode='email'
+                      autoComplete='email'
+                      placeholder={tRegister('emailPlaceholder')}
+                      disabled={isLoading}
+                      className='min-h-11 text-base'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.email?.message
+                      ? tValidation(
+                          form.formState.errors.email.message as Parameters<
+                            typeof tValidation
+                          >[0]
+                        )
+                      : null}
+                  </FormMessage>
+                </FormItem>
               )}
-            </div>
+            />
 
-            <div className='space-y-2'>
-              <Label htmlFor='password'>{tRegister('password')}</Label>
-              <Input
-                id='password'
-                type='password'
-                value={formData.password}
-                onChange={handleChange('password')}
-                placeholder={tRegister('passwordPlaceholder')}
-                disabled={isLoading}
-              />
-              {formErrors.password && (
-                <p className='text-sm text-destructive mt-1'>
-                  {formErrors.password}
-                </p>
+            <FormField
+              control={form.control}
+              name='password'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{tRegister('password')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='password'
+                      autoComplete='new-password'
+                      placeholder={tRegister('passwordPlaceholder')}
+                      disabled={isLoading}
+                      className='min-h-11 text-base'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.password?.message
+                      ? tValidation(
+                          form.formState.errors.password.message as Parameters<
+                            typeof tValidation
+                          >[0]
+                        )
+                      : null}
+                  </FormMessage>
+                </FormItem>
               )}
-            </div>
+            />
 
-            <div className='space-y-2'>
-              <Label htmlFor='confirmPassword'>
-                {tRegister('confirmPassword')}
-              </Label>
-              <Input
-                id='confirmPassword'
-                type='password'
-                value={formData.confirmPassword}
-                onChange={handleChange('confirmPassword')}
-                placeholder={tRegister('passwordPlaceholder')}
-                disabled={isLoading}
-              />
-              {formErrors.confirmPassword && (
-                <p className='text-sm text-destructive mt-1'>
-                  {formErrors.confirmPassword}
-                </p>
+            <FormField
+              control={form.control}
+              name='confirmPassword'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{tRegister('confirmPassword')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='password'
+                      autoComplete='new-password'
+                      placeholder={tRegister('passwordPlaceholder')}
+                      disabled={isLoading}
+                      className='min-h-11 text-base'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.confirmPassword?.message
+                      ? tValidation(
+                          form.formState.errors.confirmPassword
+                            .message as Parameters<typeof tValidation>[0]
+                        )
+                      : null}
+                  </FormMessage>
+                </FormItem>
               )}
-            </div>
-          </div>
+            />
 
-          <div className='space-y-3'>
-            <div className='flex items-center space-x-3'>
-              <Checkbox
-                id='acceptTerms'
-                checked={formData.acceptTerms}
-                onCheckedChange={checked =>
-                  setFormData(prev => ({
-                    ...prev,
-                    acceptTerms: Boolean(checked),
-                  }))
-                }
-                disabled={isLoading}
-                className='flex-shrink-0'
-              />
-              <Label
-                htmlFor='acceptTerms'
-                className='text-sm text-muted-foreground leading-normal cursor-pointer flex-1'
+            <FormField
+              control={form.control}
+              name='acceptTerms'
+              render={({ field }) => (
+                <FormItem className='flex items-start space-x-2 space-y-0'>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isLoading}
+                      className='mt-0.5'
+                    />
+                  </FormControl>
+                  <div className='grid gap-1.5 leading-none'>
+                    <FormLabel className='font-normal cursor-pointer text-sm'>
+                      {tRegister('agreeTerms')}
+                    </FormLabel>
+                    <FormMessage>
+                      {form.formState.errors.acceptTerms?.message
+                        ? tValidation(
+                            form.formState.errors.acceptTerms
+                              .message as Parameters<typeof tValidation>[0]
+                          )
+                        : null}
+                    </FormMessage>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {error && (
+              <Alert variant='destructive'>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <Button
+              type='submit'
+              disabled={isLoading}
+              className='w-full min-h-11 touch-manipulation'
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  {tRegister('creatingAccount')}
+                </>
+              ) : (
+                tRegister('createAccount')
+              )}
+            </Button>
+
+            <p className='text-center text-sm text-muted-foreground'>
+              {tRegister('hasAccount')}{' '}
+              <Link
+                href='/login'
+                className='font-medium text-primary hover:underline'
               >
-                I agree to the{' '}
-                <Link
-                  href='/terms'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='text-primary hover:underline font-medium'
-                >
-                  {tRegister('termsOfService')}
-                </Link>{' '}
-                and{' '}
-                <Link
-                  href='/privacy'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='text-primary hover:underline font-medium'
-                >
-                  {tRegister('privacyPolicy')}
-                </Link>
-              </Label>
-            </div>
-            {formErrors.acceptTerms && (
-              <p className='text-sm text-destructive mt-1 ml-6'>
-                {formErrors.acceptTerms}
-              </p>
-            )}
-          </div>
-
-          <Button
-            type='submit'
-            className='w-full'
-            disabled={isLoading || !formData.acceptTerms}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                {tRegister('creatingAccount')}
-              </>
-            ) : (
-              tRegister('createAccount')
-            )}
-          </Button>
-        </form>
+                {tRegister('signIn')}
+              </Link>
+            </p>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   )
@@ -237,7 +260,7 @@ export default function RegisterForm(props: RegisterFormProps) {
   return (
     <SectionErrorBoundary
       componentName='RegisterForm'
-      title='Registration Error'
+      title='Register Error'
       description='The registration form encountered an error. Please refresh the page and try again.'
     >
       <RegisterFormContent {...props} />

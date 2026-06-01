@@ -2,6 +2,7 @@
 import { apiConfig, buildApiUrl } from '@/config/api'
 import { logger } from '@/lib/logger'
 import { tokenManager } from '@/utils/auth/tokenManager'
+import { defaultLocale } from '@/i18n/config'
 
 // Custom error class for API errors
 export class ApiError extends Error {
@@ -133,21 +134,45 @@ class ApiClient {
           success: response.ok,
         })
 
-        // Handle authentication errors with token refresh
+        // Handle authentication errors with token refresh — one retry only.
+        //
+        // attempt === 0: first request returned 401 — attempt token refresh.
+        // attempt > 0:   post-refresh retry returned 401 — session unrecoverable.
+        if (response.status === 401 && attempt > 0) {
+          // Refresh succeeded but the retried request is still unauthorised.
+          // The session is dead — redirect to login and abort immediately.
+          logger.warn(
+            '401 on post-refresh retry — session expired, redirecting to login'
+          )
+          tokenManager.clearTokens()
+          if (typeof window !== 'undefined') {
+            window.location.href = `/${defaultLocale}/login`
+          }
+          throw new ApiError('Session expired', 401, response)
+        }
+
         if (response.status === 401 && attempt === 0) {
           logger.warn('401 Unauthorized - attempting token refresh')
 
           try {
-            await tokenManager.refreshAccessToken()
+            const refreshed = await tokenManager.refresh()
+            if (!refreshed) {
+              throw new Error(
+                'Token refresh returned false — refresh token may be expired'
+              )
+            }
             attempt++
-            continue // Retry with new token
+            continue // Retry the original request with the refreshed session cookies
           } catch (refreshError) {
             logger.error('Token refresh failed', refreshError as Error)
             tokenManager.clearTokens()
 
             if (typeof window !== 'undefined') {
-              window.location.href = '/login'
+              window.location.href = `/${defaultLocale}/login`
             }
+            // Throw immediately — do NOT fall through to the success/error handlers
+            // which would misinterpret the 401 response as something retryable.
+            throw new ApiError('Session expired', 401, response)
           }
         }
 
@@ -210,12 +235,9 @@ class ApiClient {
           errorData
         )
 
-        // Don't retry client errors (4xx) except 401
-        if (
-          response.status >= 400 &&
-          response.status < 500 &&
-          response.status !== 401
-        ) {
+        // Don't retry client errors (4xx).
+        // 401s are handled above (refresh once, then throw) and never reach here.
+        if (response.status >= 400 && response.status < 500) {
           throw apiError
         }
 
