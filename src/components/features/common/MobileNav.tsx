@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { usePathname } from '@/i18n/navigation'
 import { useRouter } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
@@ -20,9 +20,30 @@ export function MobileNav({ brandName }: MobileNavProps) {
   const router = useRouter()
   const t = useTranslations('common.navigation')
   const { isAuthenticated, logout } = useAuth()
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const toggleButtonRef = useRef<HTMLButtonElement>(null)
 
-  const toggleNav = () => setIsOpen(!isOpen)
+  const toggleNav = () => setIsOpen(prev => !prev)
   const closeNav = () => setIsOpen(false)
+
+  // Escape key handler
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeNav()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen])
+
+  // Focus management: move focus into drawer when opened
+  useEffect(() => {
+    if (isOpen) {
+      closeButtonRef.current?.focus()
+    } else {
+      toggleButtonRef.current?.focus()
+    }
+  }, [isOpen])
 
   const navigationItems = [
     {
@@ -60,6 +81,7 @@ export function MobileNav({ brandName }: MobileNavProps) {
 
         {/* Hamburger Button - Minimum 44px touch target */}
         <Button
+          ref={toggleButtonRef}
           variant='ghost'
           size='touch'
           onClick={toggleNav}
@@ -84,6 +106,9 @@ export function MobileNav({ brandName }: MobileNavProps) {
           {/* Navigation Drawer */}
           <nav
             id='mobile-navigation'
+            role='dialog'
+            aria-modal='true'
+            aria-label='Navigation menu'
             className={cn(
               'fixed top-0 right-0 h-full w-80 max-w-[80vw] bg-background border-l z-50 md:hidden',
               'transform transition-transform duration-300 ease-in-out',
@@ -94,6 +119,7 @@ export function MobileNav({ brandName }: MobileNavProps) {
             <div className='flex items-center justify-between h-16 px-4 border-b'>
               <span className='text-lg font-semibold'>{t('menu')}</span>
               <Button
+                ref={closeButtonRef}
                 variant='ghost'
                 size='touch'
                 onClick={closeNav}
@@ -156,7 +182,7 @@ export function MobileNav({ brandName }: MobileNavProps) {
                           router.push('/login')
                         }, 100)
                       } catch (error) {
-                        console.error('Logout failed:', error)
+                        console.warn('Logout failed:', error)
                       }
                     }}
                   >

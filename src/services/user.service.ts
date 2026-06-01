@@ -73,9 +73,8 @@ export function resetMockUsers(): void {
 export const userService = {
   async getUsers(): Promise<ServiceResponse<User[]>> {
     if (USE_REAL_API) {
-      // When USE_REAL_API is true, replace with: return api.get<User[]>(API_ENDPOINTS.users.list)
-      logger.info(
-        'getUsers: USE_REAL_API=true but real endpoint not yet wired up'
+      throw new Error(
+        'Not implemented: connect to real API endpoint for getUsers'
       )
     }
     try {
@@ -100,8 +99,8 @@ export const userService = {
 
   async getUserById(id: number | string): Promise<ServiceResponse<User>> {
     if (USE_REAL_API) {
-      logger.info(
-        'getUserById: USE_REAL_API=true but real endpoint not yet wired up'
+      throw new Error(
+        'Not implemented: connect to real API endpoint for getUserById'
       )
     }
     try {
@@ -131,8 +130,8 @@ export const userService = {
 
   async createUser(input: CreateUserInput): Promise<ServiceResponse<User>> {
     if (USE_REAL_API) {
-      logger.info(
-        'createUser: USE_REAL_API=true but real endpoint not yet wired up'
+      throw new Error(
+        'Not implemented: connect to real API endpoint for createUser'
       )
     }
     try {
@@ -184,8 +183,8 @@ export const userService = {
     updates: Partial<User>
   ): Promise<ServiceResponse<User>> {
     if (USE_REAL_API) {
-      logger.info(
-        'updateUser: USE_REAL_API=true but real endpoint not yet wired up'
+      throw new Error(
+        'Not implemented: connect to real API endpoint for updateUser'
       )
     }
     try {
@@ -223,8 +222,8 @@ export const userService = {
 
   async deleteUser(id: number | string): Promise<VoidServiceResponse> {
     if (USE_REAL_API) {
-      logger.info(
-        'deleteUser: USE_REAL_API=true but real endpoint not yet wired up'
+      throw new Error(
+        'Not implemented: connect to real API endpoint for deleteUser'
       )
     }
     try {

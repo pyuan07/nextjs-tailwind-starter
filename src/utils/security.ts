@@ -173,30 +173,37 @@ export function sanitizeForReact(
  * Validate and sanitize user input
  */
 export function sanitizeInput(input: string): string {
-  if (typeof input !== 'string') {
-    logger.securityEvent('Invalid input type received', {
-      inputType: typeof input,
-    })
-    return ''
+  if (typeof input !== 'string') return ''
+  if (!input.trim()) return ''
+
+  // Strip dangerous protocols (javascript:, vbscript:, data:) to prevent XSS payloads
+  const stripped = input.replace(/^(?:javascript|vbscript|data):/gi, '')
+
+  // Use sanitizeHtml to neutralise markup and encoded payloads
+  let sanitized = sanitizeHtml(stripped)
+
+  // Attempt URL-decode once to catch percent-encoded payloads (e.g. %6aavascript:)
+  try {
+    const decoded = decodeURIComponent(sanitized)
+    if (decoded !== sanitized) {
+      sanitized = sanitizeHtml(
+        decoded.replace(/^(?:javascript|vbscript|data):/gi, '')
+      )
+    }
+  } catch {
+    // malformed URI sequence — current value is fine
   }
 
-  // Remove potentially dangerous characters
-  const sanitized = input
-    .trim()
-    .replace(/[<>]/g, '') // Remove angle brackets
-    .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
-    .replace(/data:/gi, '') // Remove data: protocol
-    .substring(0, 1000) // Limit length
+  const result = sanitized.trim().substring(0, 1000)
 
-  if (sanitized !== input) {
+  if (result !== input.trim().substring(0, 1000)) {
     logger.securityEvent('Input was sanitized', {
       original: input.substring(0, 100),
-      sanitized: sanitized.substring(0, 100),
+      sanitized: result.substring(0, 100),
     })
   }
 
-  return sanitized
+  return result
 }
 
 /**

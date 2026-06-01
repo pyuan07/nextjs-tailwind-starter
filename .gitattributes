@@ -1,0 +1,3 @@
+# Force LF line endings for husky hook scripts so they execute properly on Windows
+.husky/* text eol=lf
+.husky/_/* text eol=lf

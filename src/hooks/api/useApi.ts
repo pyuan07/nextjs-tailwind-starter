@@ -1,10 +1,11 @@
 // Simplified API hook - replaces complex useQuery/useUsers hooks
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface ApiState<T> {
   data: T | null
   loading: boolean
   error: string | null
+  refetch: () => void
 }
 
 // Accepts both plain values, objects with optional data, and ServiceResponse-shaped envelopes
@@ -13,14 +14,22 @@ type ApiFetcher<T> = () => Promise<FetcherResult<T>>
 
 /**
  * Simple, unified API hook for data fetching
- * Replaces the complex useQuery pattern with something easy to understand
+ * Replaces the complex useQuery pattern with something easy to understand.
+ * Pass `deps` to re-fetch when those values change, similar to useEffect deps.
  */
-export function useApi<T = unknown>(fetcher: ApiFetcher<T>): ApiState<T> {
-  const [state, setState] = useState<ApiState<T>>({
+export function useApi<T = unknown>(
+  fetcher: ApiFetcher<T>,
+  deps: unknown[] = []
+): ApiState<T> {
+  const [state, setState] = useState<Omit<ApiState<T>, 'refetch'>>({
     data: null,
     loading: true,
     error: null,
   })
+
+  // refreshKey allows callers to imperatively trigger a re-fetch
+  const [refreshKey, setRefreshKey] = useState(0)
+  const refetch = useCallback(() => setRefreshKey(k => k + 1), [])
 
   // Use ref to store the latest fetcher without causing re-renders
   const fetcherRef = useRef(fetcher)
@@ -61,9 +70,10 @@ export function useApi<T = unknown>(fetcher: ApiFetcher<T>): ApiState<T> {
     return () => {
       isCancelled = true
     }
-  }, []) // Empty dependency array - only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [...deps, refreshKey])
 
-  return state
+  return { ...state, refetch }
 }
 
 /**

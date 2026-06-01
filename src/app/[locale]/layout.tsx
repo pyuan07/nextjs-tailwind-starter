@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
+import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
 import { ConditionalNavbar } from '@/components/features/common/ConditionalNavbar'
@@ -25,6 +25,9 @@ export default async function LocaleLayout({
   if (!locales.includes(locale as Locale)) {
     notFound()
   }
+
+  // Enable static rendering for i18n routes
+  setRequestLocale(locale)
 
   // Get messages for the specific locale
   const messages = await getMessages({ locale })

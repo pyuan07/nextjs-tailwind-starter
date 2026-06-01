@@ -4,6 +4,7 @@ import { env } from '@/config/env'
 import { generateSecureToken, rateLimiter } from '@/utils/security'
 import { ROUTES, RATE_LIMITS, SECURITY_CONFIG } from '@/constants'
 import createMiddleware from 'next-intl/middleware'
+import { routing } from '@/i18n/routing'
 import { locales, defaultLocale, type Locale } from '@/i18n/config'
 
 /**
@@ -21,21 +22,17 @@ const AUTH_ROUTES = ROUTES.AUTH
 const LEGAL_ROUTES = ROUTES.LEGAL
 
 // Create next-intl middleware
-const intlMiddleware = createMiddleware({
-  locales,
-  defaultLocale,
-  localePrefix: 'always',
-  localeDetection: true,
-})
+const intlMiddleware = createMiddleware(routing)
 
 // Security utilities
 function getClientIP(request: NextRequest): string {
+  // request.ip is set by Vercel's trusted proxy; fall back to X-Forwarded-For
   const forwarded = request.headers.get('x-forwarded-for')
-  if (forwarded) {
-    const ips = forwarded.split(',').map(ip => ip.trim())
-    return ips[ips.length - 1] // rightmost = set by trusted proxy
-  }
-  return request.headers.get('x-real-ip') ?? 'unknown'
+  const clientIp =
+    (request as unknown as { ip?: string }).ip ??
+    forwarded?.split(',')[0]?.trim() ??
+    'unknown'
+  return clientIp
 }
 
 function isAuthenticated(request: NextRequest): boolean {
@@ -219,7 +216,6 @@ function handleAuthentication(
     ? `/${segments.slice(1).join('/')}`
     : pathname
 
-  const url = pathname + request.nextUrl.search
   const isUserAuth = isAuthenticated(request)
 
   // Check if current path is protected or auth route
@@ -238,7 +234,8 @@ function handleAuthentication(
       `/${locale}${ROUTES.DEFAULT_UNAUTHENTICATED}`,
       request.url
     )
-    loginUrl.searchParams.set('redirect', url)
+    // Store only path, not query string, to prevent open redirect
+    loginUrl.searchParams.set('redirect', pathname)
     return addSecurityHeaders(NextResponse.redirect(loginUrl))
   }
 

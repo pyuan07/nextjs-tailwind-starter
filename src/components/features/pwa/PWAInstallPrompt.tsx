@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { X, Download, Smartphone } from 'lucide-react'
@@ -15,13 +15,23 @@ interface NavigatorWithStandalone extends Navigator {
   standalone?: boolean
 }
 
+const DISMISS_STORAGE_KEY = 'pwa-install-dismissed-at'
+const DISMISS_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
+
 export function PWAInstallPrompt() {
   const t = useTranslations('common.pwa')
+  const tActions = useTranslations('common.actions')
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
   const [isStandalone, setIsStandalone] = useState(false)
+  const isStandaloneRef = useRef(false)
+
+  // Keep ref in sync with state to avoid stale closures in setTimeout
+  useEffect(() => {
+    isStandaloneRef.current = isStandalone
+  }, [isStandalone])
 
   useEffect(() => {
     // Check if running on iOS
@@ -34,6 +44,14 @@ export function PWAInstallPrompt() {
       (window.navigator as NavigatorWithStandalone).standalone ||
       document.referrer.includes('android-app://')
     setIsStandalone(standalone)
+    isStandaloneRef.current = !!standalone
+
+    // Check 30-day dismiss cooldown
+    const dismissedAt = localStorage.getItem(DISMISS_STORAGE_KEY)
+    const isDismissed =
+      !!dismissedAt && Date.now() - Number(dismissedAt) < DISMISS_COOLDOWN_MS
+
+    if (isDismissed) return
 
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -42,7 +60,7 @@ export function PWAInstallPrompt() {
 
       // Show the prompt after a delay (better UX)
       setTimeout(() => {
-        if (!standalone) {
+        if (!isStandaloneRef.current) {
           setShowPrompt(true)
         }
       }, 3000)
@@ -97,20 +115,13 @@ export function PWAInstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false)
-    // Remember user dismissed for this session
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('pwa-prompt-dismissed', 'true')
+      localStorage.setItem(DISMISS_STORAGE_KEY, Date.now().toString())
     }
   }
 
-  // Don't show if already installed, dismissed, or no install prompt available
-  if (
-    isStandalone ||
-    (typeof window !== 'undefined' &&
-      sessionStorage.getItem('pwa-prompt-dismissed')) ||
-    (!deferredPrompt && !isIOS) ||
-    !showPrompt
-  ) {
+  // Don't show if already installed, no install prompt available, or not triggered
+  if (isStandalone || (!deferredPrompt && !isIOS) || !showPrompt) {
     return null
   }
 
@@ -156,9 +167,10 @@ export function PWAInstallPrompt() {
             size='sm'
             variant='ghost'
             onClick={handleDismiss}
-            className='flex-shrink-0 h-6 w-6 p-0'
+            aria-label={tActions('close')}
+            className='flex-shrink-0 h-11 w-11 p-2'
           >
-            <X className='h-3 w-3' />
+            <X className='h-4 w-4' />
           </Button>
         </div>
       </div>

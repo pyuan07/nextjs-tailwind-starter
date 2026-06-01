@@ -3,6 +3,7 @@ import { apiConfig, buildApiUrl } from '@/config/api'
 import { logger } from '@/lib/logger'
 import { tokenManager } from '@/utils/auth/tokenManager'
 import { defaultLocale } from '@/i18n/config'
+import type { RequestConfig } from '@/types/api'
 
 // Custom error class for API errors
 export class ApiError extends Error {
@@ -22,14 +23,6 @@ export class ApiError extends Error {
     this.response = response
     this.data = data
   }
-}
-
-// Request configuration interface
-interface RequestConfig extends Omit<RequestInit, 'body'> {
-  timeout?: number
-  retries?: number
-  body?: unknown
-  params?: Record<string, string | number | boolean>
 }
 
 // Main API client class

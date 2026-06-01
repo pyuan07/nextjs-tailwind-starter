@@ -1,6 +1,7 @@
 // API Configuration for external TypeScript API server
 import { env } from './env'
 import { logger } from '@/lib/logger'
+import { API_CONFIG } from '@/constants/config'
 
 // API Configuration
 export const apiConfig = {
@@ -11,14 +12,10 @@ export const apiConfig = {
   version: '/api/v1',
 
   // Timeout configuration
-  timeout: 30000, // 30 seconds
+  timeout: API_CONFIG.TIMEOUT,
 
   // Retry configuration
-  retry: {
-    attempts: 3,
-    delay: 1000, // 1 second
-    backoff: 2, // Exponential backoff multiplier
-  },
+  retry: API_CONFIG.RETRY,
 
   // Request configuration
   headers: {
@@ -47,8 +44,8 @@ if (typeof window === 'undefined') {
 }
 
 // Development helpers
-export const isDevelopment = process.env.NODE_ENV === 'development'
-export const isProduction = process.env.NODE_ENV === 'production'
+export const isDevelopment = env.isDevelopment
+export const isProduction = env.isProduction
 
 // API health check endpoint
 export const healthCheckUrl = buildApiUrl('/health')

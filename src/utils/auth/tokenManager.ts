@@ -24,6 +24,16 @@ import type {
 let currentUser: User | null = null
 let csrfToken: string | null = null
 let refreshInFlight: Promise<boolean> | null = null
+let sessionStartTime: number | null = null
+const ACCESS_TOKEN_LIFETIME_MS = 15 * 60 * 1000 // 15 minutes
+
+function readCsrfCookie(): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrf_token='))
+  return match ? decodeURIComponent(match.split('=')[1]) : null
+}
 
 async function ensureCsrfToken(): Promise<string> {
   if (csrfToken) return csrfToken
@@ -32,8 +42,13 @@ async function ensureCsrfToken(): Promise<string> {
     if (!response.ok) {
       throw new Error('CSRF fetch failed: ' + String(response.status))
     }
-    const data = (await response.json()) as { data: { csrfToken: string } }
-    csrfToken = data.data.csrfToken
+    // Token is set as a JS-readable cookie by the server; read it from there.
+    await response.json() // consume body
+    const fromCookie = readCsrfCookie()
+    if (!fromCookie) {
+      throw new Error('CSRF cookie not set after fetch')
+    }
+    csrfToken = fromCookie
     return csrfToken
   } catch (err) {
     logger.error('Failed to fetch CSRF token', err as Error)
@@ -193,10 +208,14 @@ export class SecureTokenManager {
   clearTokens(): void {
     currentUser = null
     csrfToken = null
+    sessionStartTime = null
     logger.info('In-memory auth state cleared')
   }
 
-  /** Shim: delegates to refresh(). Returns a stub TokenPair for callers that expect one. */
+  /**
+   * Shim: delegates to refresh(). Returns a stub TokenPair for callers that expect one.
+   * // Tokens are stored in HttpOnly cookies; cannot be returned to JS callers. Future: change return type to Promise<null>.
+   */
   async refreshAccessToken(): Promise<TokenPair | null> {
     const ok = await this.refresh()
     if (!ok) return null
@@ -220,11 +239,17 @@ export class SecureTokenManager {
         needsRefresh: true,
       }
     }
+    const elapsed =
+      sessionStartTime !== null ? Date.now() - sessionStartTime : 0
+    const remainingMs = Math.max(0, ACCESS_TOKEN_LIFETIME_MS - elapsed)
+    const expiresIn = Math.floor(remainingMs / 1000)
+    const isExpired = remainingMs === 0
+    const needsRefresh = remainingMs <= 120 * 1000 // refresh when under 2 minutes remain
     return {
-      isValid: true,
-      isExpired: false,
-      expiresIn: 15 * 60,
-      needsRefresh: false,
+      isValid: !isExpired,
+      isExpired,
+      expiresIn,
+      needsRefresh,
     }
   }
 
@@ -252,6 +277,7 @@ export class SecureTokenManager {
    * Full login: POST /api/auth/login (sets HttpOnly cookies), then cache user.
    */
   async login(credentials: LoginRequest): Promise<User> {
+    sessionStartTime = Date.now()
     const { user } = await callLogin(credentials)
     currentUser = user
     csrfToken = null
@@ -267,6 +293,7 @@ export class SecureTokenManager {
     } finally {
       currentUser = null
       csrfToken = null
+      sessionStartTime = null
     }
   }
 }

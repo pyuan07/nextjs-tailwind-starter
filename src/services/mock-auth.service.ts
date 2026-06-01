@@ -117,6 +117,11 @@ export const MockAuthService = {
   async login(
     credentials: LoginRequest
   ): Promise<ServiceResponse<{ user: User; tokens: TokenPair }>> {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'MockAuthService is not available in production. Set USE_REAL_API=true.'
+      )
+    }
     await simulateNetworkDelay()
 
     try {
@@ -130,10 +135,11 @@ export const MockAuthService = {
       }
 
       // In a real app, you'd verify the password hash
-      // For mock: only demo user password works
+      // For mock: only the known demo password is accepted (kept out of shared config)
+      const DEMO_PASSWORD = 'password'
       if (
         credentials.email === DEMO_CONFIG.DEMO_USER.email &&
-        credentials.password !== DEMO_CONFIG.DEMO_USER.password
+        credentials.password !== DEMO_PASSWORD
       ) {
         throw new Error('Invalid password. Try: password')
       }
@@ -165,6 +171,11 @@ export const MockAuthService = {
   async register(
     userData: RegisterRequest
   ): Promise<ServiceResponse<{ user: User; tokens: TokenPair }>> {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'MockAuthService is not available in production. Set USE_REAL_API=true.'
+      )
+    }
     await simulateNetworkDelay()
 
     try {

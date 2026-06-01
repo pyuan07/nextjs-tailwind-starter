@@ -102,7 +102,11 @@
       "reportError": "Laporkan Ralat",
       "showErrorDetails": "Tunjukkan Butiran Ralat",
       "sectionError": "Ralat Bahagian",
-      "sectionErrorMessage": "Bahagian ini menghadapi ralat dan tidak dapat dipaparkan."
+      "sectionErrorMessage": "Bahagian ini menghadapi ralat dan tidak dapat dipaparkan.",
+      "loginError": "Ralat Log Masuk",
+      "registerError": "Ralat Pendaftaran",
+      "formError": "Ralat Borang",
+      "formErrorDesc": "Borang menghadapi ralat. Sila muat semula dan cuba lagi."
     }
   },
   "auth": {

@@ -195,11 +195,12 @@ function LoginFormContent({ onSuccess, className }: LoginFormProps) {
 }
 
 export default function LoginForm(props: LoginFormProps) {
+  const tErrors = useTranslations('common.errors')
   return (
     <SectionErrorBoundary
       componentName='LoginForm'
-      title='Login Error'
-      description='The login form encountered an error. Please refresh the page and try again.'
+      title={tErrors('loginError')}
+      description={tErrors('formErrorDesc')}
     >
       <LoginFormContent {...props} />
     </SectionErrorBoundary>

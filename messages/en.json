@@ -102,7 +102,11 @@
       "reportError": "Report Error",
       "showErrorDetails": "Show Error Details",
       "sectionError": "Section Error",
-      "sectionErrorMessage": "This section encountered an error and cannot be displayed."
+      "sectionErrorMessage": "This section encountered an error and cannot be displayed.",
+      "loginError": "Login Error",
+      "registerError": "Register Error",
+      "formError": "Form Error",
+      "formErrorDesc": "The form encountered an error. Please refresh and try again."
     }
   },
   "auth": {

@@ -102,7 +102,11 @@
       "reportError": "报告错误",
       "showErrorDetails": "显示错误详情",
       "sectionError": "部分错误",
-      "sectionErrorMessage": "此部分遇到错误，无法显示。"
+      "sectionErrorMessage": "此部分遇到错误，无法显示。",
+      "loginError": "登录错误",
+      "registerError": "注册错误",
+      "formError": "表单错误",
+      "formErrorDesc": "表单遇到错误，请刷新后重试。"
     }
   },
   "auth": {

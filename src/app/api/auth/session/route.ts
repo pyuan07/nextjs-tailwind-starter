@@ -47,8 +47,8 @@ export async function GET(request: Request): Promise<NextResponse> {
       user = validateMockToken(authToken)
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Invalid session'
-    return unauthorizedResponse(message)
+    console.error('[auth] session validation failed:', err)
+    return unauthorizedResponse('Session invalid')
   }
 
   return NextResponse.json(

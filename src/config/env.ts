@@ -55,9 +55,6 @@ export const env = {
   // App Configuration
   APP_NAME: validatedEnv.NEXT_PUBLIC_APP_NAME || 'React Tailwind Starter',
 
-  // Auth Configuration
-  AUTH_TOKEN_KEY: 'auth_token',
-
   // Environment Info
   NODE_ENV: validatedEnv.NODE_ENV,
   isDevelopment: validatedEnv.NODE_ENV === 'development',

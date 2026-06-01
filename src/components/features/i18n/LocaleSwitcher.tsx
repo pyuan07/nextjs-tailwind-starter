@@ -2,6 +2,7 @@
 
 import { useCallback, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import { useSearchParams } from 'next/navigation'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import { locales, type Locale, localeNames, localeFlags } from '@/i18n/config'
 import { Button } from '@/components/ui/button'
@@ -30,6 +31,7 @@ function LocaleSwitcherContent({
   const currentLocale = useLocale() as Locale
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
   const handleLocaleChange = useCallback(
@@ -37,18 +39,16 @@ function LocaleSwitcherContent({
       if (newLocale === currentLocale) return
 
       startTransition(() => {
-        // Standard next-intl navigation - preserve search params
-        const url = new URL(window.location.href)
         router.replace(
           {
             pathname,
-            query: Object.fromEntries(url.searchParams.entries()),
+            query: Object.fromEntries(searchParams.entries()),
           },
           { locale: newLocale }
         )
       })
     },
-    [router, pathname, currentLocale]
+    [router, pathname, searchParams, currentLocale]
   )
 
   return (

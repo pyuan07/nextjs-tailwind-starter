@@ -64,8 +64,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       newTokens = await refreshViaMock(refreshToken)
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Token refresh failed'
-    return errorResponse(message, 401)
+    console.error('[auth] refresh failed:', err)
+    return errorResponse('Token refresh failed', 401)
   }
 
   // ── Issue new cookies ────────────────────────────────────────────────────

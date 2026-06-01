@@ -41,10 +41,10 @@ function errorResponse(message: string, status: number): NextResponse {
 export async function POST(request: Request): Promise<NextResponse> {
   // ── CSRF double-submit validation ────────────────────────────────────────
   const cookieHeader = request.headers.get('cookie') ?? ''
-  const existingCsrf = parseCookieValue(cookieHeader, 'csrf_token')
-  const headerCsrf = request.headers.get('x-csrf-token')
+  const csrfCookie = parseCookieValue(cookieHeader, 'csrf_token')
+  const csrfHeader = request.headers.get('x-csrf-token')
 
-  if (existingCsrf && existingCsrf !== headerCsrf) {
+  if (!csrfHeader || csrfCookie !== csrfHeader) {
     return errorResponse('Invalid CSRF token', 403)
   }
 
@@ -83,8 +83,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       result = await MockAuthService.login(credentials)
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Authentication failed'
-    return errorResponse(message, 401)
+    console.error('[auth] login failed:', err)
+    return errorResponse('Authentication failed', 401)
   }
 
   if (!result.success) {

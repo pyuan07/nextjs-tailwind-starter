@@ -257,11 +257,12 @@ function RegisterFormContent({ onSuccess, className }: RegisterFormProps) {
 }
 
 export default function RegisterForm(props: RegisterFormProps) {
+  const tErrors = useTranslations('common.errors')
   return (
     <SectionErrorBoundary
       componentName='RegisterForm'
-      title='Register Error'
-      description='The registration form encountered an error. Please refresh the page and try again.'
+      title={tErrors('registerError')}
+      description={tErrors('formErrorDesc')}
     >
       <RegisterFormContent {...props} />
     </SectionErrorBoundary>

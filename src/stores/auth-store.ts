@@ -170,7 +170,7 @@ export const useAuthStore = create<AuthStore>()(set => ({
 
       // Notify other tabs that this session has been invalidated
       if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('auth:logout'))
+        localStorage.setItem('auth:logout', Date.now().toString())
       }
     } catch (err) {
       const errorMessage = getErrorMessage(err)
@@ -200,16 +200,14 @@ export const useAuthStore = create<AuthStore>()(set => ({
   },
 }))
 
-// Listen for cross-tab logout signals dispatched by the auth:logout CustomEvent.
-// Using a named CustomEvent rather than the 'storage' event keeps the listener
-// scoped to auth changes and avoids reacting to unrelated localStorage writes.
+// Cross-tab logout: 'storage' event propagates to other tabs; CustomEvent does not.
 if (typeof window !== 'undefined') {
-  window.addEventListener('auth:logout', () => {
-    void useAuthStore
-      .getState()
-      .refreshAuth()
-      .catch(() => {
-        // refreshAuth is defensive internally, but guard here too
-      })
+  window.addEventListener('storage', (event: StorageEvent) => {
+    if (event.key === 'auth:logout') {
+      void useAuthStore
+        .getState()
+        .refreshAuth()
+        .catch(() => {})
+    }
   })
 }

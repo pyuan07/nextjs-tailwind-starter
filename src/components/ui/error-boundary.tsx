@@ -28,6 +28,10 @@ interface Props {
   userId?: string
   resetOnPropsChange?: boolean
   isolate?: boolean
+  title?: string
+  description?: string
+  tryAgainLabel?: string
+  reloadLabel?: string
 }
 
 interface State {
@@ -187,6 +191,14 @@ export class ErrorBoundary extends Component<Props, State> {
 
       const canRetry = this.state.retryCount < this.maxRetries
       const errorMessage = this.state.error?.message || 'Unknown error occurred'
+      const titleText = this.props.title ?? 'Something went wrong'
+      const descriptionText =
+        this.props.description ??
+        (canRetry
+          ? 'An unexpected error occurred. You can try again or reload the page.'
+          : 'An unexpected error occurred. Please reload the page or contact support.')
+      const tryAgainText = this.props.tryAgainLabel ?? 'Try Again'
+      const reloadText = this.props.reloadLabel ?? 'Reload Page'
 
       return (
         <div
@@ -197,14 +209,9 @@ export class ErrorBoundary extends Component<Props, State> {
               <div className='mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10'>
                 <AlertTriangle className='h-6 w-6 text-destructive' />
               </div>
-              <CardTitle className='text-xl'>Something went wrong</CardTitle>
+              <CardTitle className='text-xl'>{titleText}</CardTitle>
               <CardDescription className='space-y-2'>
-                <p>
-                  An unexpected error occurred.{' '}
-                  {canRetry
-                    ? 'You can try again or reload the page.'
-                    : 'Please reload the page or contact support.'}
-                </p>
+                <p>{descriptionText}</p>
                 {this.state.errorId && (
                   <p className='text-xs text-muted-foreground'>
                     Error ID: {this.state.errorId}
@@ -271,7 +278,8 @@ export class ErrorBoundary extends Component<Props, State> {
                       size='sm'
                     >
                       <RefreshCw className='mr-2 h-4 w-4' />
-                      Try Again ({this.maxRetries - this.state.retryCount} left)
+                      {tryAgainText} ({this.maxRetries - this.state.retryCount}{' '}
+                      left)
                     </Button>
                   )}
                   <Button
@@ -280,7 +288,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     className='flex-1'
                     size='sm'
                   >
-                    Reload Page
+                    {reloadText}
                   </Button>
                 </div>
 

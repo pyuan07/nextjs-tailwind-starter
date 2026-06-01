@@ -177,12 +177,9 @@ export const ROUTES = {
 // ============================================================================
 
 export const DEMO_CONFIG = {
-  /** Demo user credentials */
+  /** Demo user profile data. Credentials (email/password) are handled separately in mock-auth.service.ts. */
   DEMO_USER: {
     email: 'demo@example.com',
-    // WARNING: Demo credentials only. Remove DEMO_CONFIG entirely before production deployment.
-    // Never use plaintext passwords in production — use bcrypt or argon2 hashing.
-    password: 'password',
     name: 'Demo User',
     id: 1,
     role: 'user' as const,

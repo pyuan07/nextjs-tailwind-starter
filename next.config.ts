@@ -204,13 +204,8 @@ const nextConfig: NextConfig = {
 
   // Performance optimizations
   experimental: {
-    optimizePackageImports: [
-      '@/components',
-      '@/utils',
-      '@/hooks',
-      'lucide-react',
-      'zustand',
-    ],
+    // Only node_modules packages are valid here — local @/ paths are not supported
+    optimizePackageImports: ['lucide-react', 'zustand'],
   },
 
   // Turbopack configuration
@@ -245,6 +240,7 @@ const nextConfig: NextConfig = {
     webpack: (config, { isServer }) => {
       // Add bundle analysis
       if (process.env.BUNDLE_ANALYZE) {
+        // Dynamic require needed because this ESM config file wraps a CJS plugin
         const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
         config.plugins.push(
           new BundleAnalyzerPlugin({
@@ -255,10 +251,11 @@ const nextConfig: NextConfig = {
         )
       }
 
-      // Tree shaking improvements (compatible with Next.js caching)
+      // Enable tree shaking of unused exports without overriding per-package
+      // sideEffects fields (which would incorrectly drop CSS from node_modules)
       config.optimization = {
         ...config.optimization,
-        sideEffects: false,
+        usedExports: true,
       }
 
       return config
