@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 
 // Mock @/lib/logger before importing security to avoid env validation side-effects
 vi.mock('@/lib/logger', () => ({

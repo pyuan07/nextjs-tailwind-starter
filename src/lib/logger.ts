@@ -19,8 +19,8 @@ interface LogContext {
 interface LogEntry {
   level: LogLevel
   message: string
-  context?: LogContext
-  error?: Error
+  context?: LogContext | undefined
+  error?: Error | undefined
   timestamp: string
 }
 
@@ -55,19 +55,20 @@ class Logger {
     context?: LogContext,
     error?: Error
   ): LogEntry {
+    const userAgent =
+      typeof window !== 'undefined' ? window.navigator.userAgent : undefined
+    const url =
+      typeof window !== 'undefined'
+        ? window.location.href.replace(/[?&]token=[^&]*/gi, '[REDACTED]')
+        : 'server'
+
     return {
       level,
       message,
       context: {
         ...context,
-        userAgent:
-          typeof window !== 'undefined'
-            ? window.navigator.userAgent
-            : undefined,
-        url:
-          typeof window !== 'undefined'
-            ? window.location.href.replace(/[?&]token=[^&]*/gi, '[REDACTED]')
-            : 'server',
+        ...(userAgent !== undefined ? { userAgent } : {}),
+        url,
         timestamp: new Date().toISOString(),
       },
       error,
@@ -104,6 +105,7 @@ class Logger {
     if (!this.shouldLog(LogLevel.DEBUG)) return
 
     const logEntry = this.createLogEntry(LogLevel.DEBUG, message, context)
+    // eslint-disable-next-line no-console
     console.debug(this.formatMessage(LogLevel.DEBUG, message, context))
     this.sendToService(logEntry)
   }
@@ -112,6 +114,7 @@ class Logger {
     if (!this.shouldLog(LogLevel.INFO)) return
 
     const logEntry = this.createLogEntry(LogLevel.INFO, message, context)
+    // eslint-disable-next-line no-console
     console.info(this.formatMessage(LogLevel.INFO, message, context))
     this.sendToService(logEntry)
   }

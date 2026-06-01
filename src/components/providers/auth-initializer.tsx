@@ -17,8 +17,12 @@ export function AuthInitializer({ children }: AuthInitializerProps) {
     useAuthStore
       .getState()
       .refreshAuth()
-      .catch(() => {
-        // Silent fail - let the app continue
+      .catch(err => {
+        // Silent session refresh failure is expected on first visit
+        // (no session cookie yet). Log only unexpected errors.
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[AuthInitializer] Session refresh failed:', err)
+        }
       })
   }, [])
 

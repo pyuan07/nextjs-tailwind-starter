@@ -40,7 +40,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         }
       >
-        <LoginRedirectHandler redirectParam={redirect} />
+        <LoginRedirectHandler
+          {...(redirect !== undefined ? { redirectParam: redirect } : {})}
+        />
       </Suspense>
 
       {/* Links */}

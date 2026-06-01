@@ -36,9 +36,9 @@ interface Props {
 
 interface State {
   hasError: boolean
-  error?: Error
-  errorInfo?: ErrorInfo
-  errorId?: string
+  error?: Error | undefined
+  errorInfo?: ErrorInfo | undefined
+  errorId?: string | undefined
   retryCount: number
   showDetails: boolean
   feedbackSent: boolean
@@ -79,9 +79,11 @@ export class ErrorBoundary extends Component<Props, State> {
     // Enhanced logging with more context
     logger.error('Error boundary caught an error:', error, {
       errorId,
-      componentStack: errorInfo.componentStack,
-      componentName: this.props.componentName,
-      userId: this.props.userId,
+      componentStack: errorInfo.componentStack ?? undefined,
+      ...(this.props.componentName !== undefined
+        ? { componentName: this.props.componentName }
+        : {}),
+      ...(this.props.userId !== undefined ? { userId: this.props.userId } : {}),
       retryCount: this.state.retryCount,
       timestamp: new Date().toISOString(),
     })
@@ -112,14 +114,14 @@ export class ErrorBoundary extends Component<Props, State> {
       this.state.hasError &&
       prevProps.children !== this.props.children
     ) {
-      this.setState({
-        hasError: false,
-        error: undefined,
-        errorInfo: undefined,
-        retryCount: 0,
-        showDetails: false,
-        feedbackSent: false,
-      })
+      this.setState(
+        (_prev): State => ({
+          hasError: false,
+          retryCount: 0,
+          showDetails: false,
+          feedbackSent: false,
+        })
+      )
     }
   }
 
@@ -132,14 +134,14 @@ export class ErrorBoundary extends Component<Props, State> {
       return
     }
 
-    this.setState(prevState => ({
-      hasError: false,
-      error: undefined,
-      errorInfo: undefined,
-      retryCount: prevState.retryCount + 1,
-      showDetails: false,
-      feedbackSent: false,
-    }))
+    this.setState(
+      (prevState): State => ({
+        hasError: false,
+        retryCount: prevState.retryCount + 1,
+        showDetails: false,
+        feedbackSent: false,
+      })
+    )
 
     logger.info('Error boundary retry attempted', {
       errorId: this.state.errorId,
@@ -340,14 +342,18 @@ export function withErrorBoundary<P extends object>(
     resetOnPropsChange?: boolean
   }
 ) {
+  const resolvedName =
+    options?.componentName || Component.displayName || Component.name
   const WrappedComponent = (props: P) => (
     <ErrorBoundary
-      fallback={options?.fallback}
-      componentName={
-        options?.componentName || Component.displayName || Component.name
-      }
-      isolate={options?.isolate}
-      resetOnPropsChange={options?.resetOnPropsChange}
+      {...(options?.fallback !== undefined
+        ? { fallback: options.fallback }
+        : {})}
+      {...(resolvedName !== undefined ? { componentName: resolvedName } : {})}
+      {...(options?.isolate !== undefined ? { isolate: options.isolate } : {})}
+      {...(options?.resetOnPropsChange !== undefined
+        ? { resetOnPropsChange: options.resetOnPropsChange }
+        : {})}
     >
       <Component {...props} />
     </ErrorBoundary>
@@ -388,7 +394,7 @@ export function SectionErrorBoundary({
 }) {
   return (
     <ErrorBoundary
-      componentName={componentName}
+      {...(componentName !== undefined ? { componentName } : {})}
       isolate
       fallback={
         <Card className='w-full'>
@@ -438,5 +444,9 @@ export function AsyncErrorBoundary({
     }
   }, [errorHandler])
 
-  return <ErrorBoundary componentName={componentName}>{children}</ErrorBoundary>
+  return (
+    <ErrorBoundary {...(componentName !== undefined ? { componentName } : {})}>
+      {children}
+    </ErrorBoundary>
+  )
 }

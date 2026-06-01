@@ -296,8 +296,8 @@
     },
     "notFound": {
       "title": "Halaman Tidak Dijumpai",
-      "description": "Halaman yang anda cari tidak wujud",
-      "backHome": "Kembali ke laman utama"
+      "description": "Halaman yang anda cari tidak wujud atau telah dipindahkan.",
+      "backHome": "Kembali ke Laman Utama"
     }
   },
   "validation": {

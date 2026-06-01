@@ -1,9 +1,19 @@
 import { MetadataRoute } from 'next'
 import { env } from '@/config/env'
 
+type SitemapLocale = 'en' | 'zh' | 'ms'
+
+const locales: SitemapLocale[] = ['en', 'zh', 'ms']
+
+interface RouteConfig {
+  path: string
+  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency']
+  priority: number
+}
+
 /**
  * Dynamic sitemap generation for Next.js 15
- * Automatically includes all static routes and can be extended with dynamic content
+ * Emits locale-prefixed URLs with hreflang alternates to avoid 308 redirects
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = env.isDevelopment
@@ -11,91 +21,42 @@ export default function sitemap(): MetadataRoute.Sitemap {
     : process.env.NEXT_PUBLIC_APP_URL || 'https://example.com'
 
   const now = new Date()
-  const lastModified = now.toISOString()
 
-  // Static routes configuration
-  const staticRoutes: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified,
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/login`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/register`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/forgot-password`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.2,
-    },
-    {
-      url: `${baseUrl}/showcase`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/profile`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified,
-      changeFrequency: 'yearly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified,
-      changeFrequency: 'yearly',
-      priority: 0.4,
-    },
+  // Route configurations (paths relative to locale prefix)
+  const routes: RouteConfig[] = [
+    { path: '', changeFrequency: 'daily', priority: 1.0 },
+    { path: '/login', changeFrequency: 'monthly', priority: 0.3 },
+    { path: '/register', changeFrequency: 'monthly', priority: 0.3 },
+    { path: '/forgot-password', changeFrequency: 'monthly', priority: 0.2 },
+    { path: '/showcase', changeFrequency: 'weekly', priority: 0.8 },
+    { path: '/profile', changeFrequency: 'monthly', priority: 0.6 },
+    { path: '/privacy', changeFrequency: 'yearly', priority: 0.4 },
+    { path: '/terms', changeFrequency: 'yearly', priority: 0.4 },
   ]
 
-  // Dynamic routes: Add when you implement dynamic content
-  // When ready, uncomment and implement the functions below
-  // const dynamicRoutes = await Promise.all([
-  //   getBlogPosts(),
-  //   getProducts(),
-  //   getCategories(),
-  // ]).then(([posts, products, categories]) => [
-  //   ...posts.map(post => ({
-  //     url: `${baseUrl}/blog/${post.slug}`,
-  //     lastModified: post.updatedAt,
-  //     changeFrequency: 'weekly' as const,
-  //     priority: 0.7,
-  //   })),
-  //   ...products.map(product => ({
-  //     url: `${baseUrl}/products/${product.slug}`,
-  //     lastModified: product.updatedAt,
-  //     changeFrequency: 'daily' as const,
-  //     priority: 0.8,
-  //   })),
-  //   ...categories.map(category => ({
-  //     url: `${baseUrl}/category/${category.slug}`,
-  //     lastModified: category.updatedAt,
-  //     changeFrequency: 'weekly' as const,
-  //     priority: 0.6,
-  //   }))
-  // ])
+  const entries: MetadataRoute.Sitemap = []
 
-  return [
-    ...staticRoutes,
-    // ...dynamicRoutes,
-  ]
+  for (const locale of locales) {
+    for (const route of routes) {
+      const localeUrl = `${baseUrl}/${locale}${route.path}`
+      const alternateLanguages: Record<string, string> = {}
+      for (const altLocale of locales) {
+        alternateLanguages[altLocale] = `${baseUrl}/${altLocale}${route.path}`
+      }
+
+      entries.push({
+        url: localeUrl,
+        lastModified: now,
+        changeFrequency: route.changeFrequency,
+        priority: route.priority,
+        alternates: {
+          languages: alternateLanguages,
+        },
+      })
+    }
+  }
+
+  return entries
 }
 
 /**

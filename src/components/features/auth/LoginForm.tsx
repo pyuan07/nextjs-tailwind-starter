@@ -48,7 +48,7 @@ function LoginFormContent({ onSuccess, className }: LoginFormProps) {
       await login({
         email: data.email,
         password: data.password,
-        remember: data.remember,
+        ...(data.remember !== undefined ? { remember: data.remember } : {}),
       })
       onSuccess?.()
     } catch {
@@ -155,7 +155,7 @@ function LoginFormContent({ onSuccess, className }: LoginFormProps) {
                 <FormItem className='flex items-center space-x-2 space-y-0'>
                   <FormControl>
                     <Checkbox
-                      checked={field.value}
+                      checked={field.value ?? false}
                       onCheckedChange={field.onChange}
                       disabled={isLoading}
                     />

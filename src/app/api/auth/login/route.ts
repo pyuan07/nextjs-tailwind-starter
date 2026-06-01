@@ -19,13 +19,9 @@ import {
   generateCsrfToken,
   parseCookieValue,
 } from '@/lib/auth-cookies'
-import type {
-  LoginRequest,
-  ServiceResponse,
-  User,
-  TokenPair,
-} from '@/types/api'
+import type { ServiceResponse, User, TokenPair } from '@/types/api'
 import { USE_REAL_API_SERVER } from '@/constants/config'
+import { loginSchema } from '@/lib/validations/auth'
 
 function errorResponse(message: string, status: number): NextResponse {
   return NextResponse.json(
@@ -56,19 +52,24 @@ export async function POST(request: Request): Promise<NextResponse> {
     return errorResponse('Invalid request body', 400)
   }
 
-  if (!isLoginRequest(body)) {
-    return errorResponse('email and password are required', 400)
+  const parsed = loginSchema.safeParse(body)
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors
+    const errors = Object.values(fieldErrors).flatMap(msgs => msgs ?? [])
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Invalid request data',
+        errors,
+      } satisfies ServiceResponse<never>,
+      { status: 400 }
+    )
   }
 
-  const remember =
-    typeof (body as Record<string, unknown>).remember === 'boolean'
-      ? ((body as Record<string, unknown>).remember as boolean)
-      : false
-
-  const credentials: LoginRequest = {
-    email: body.email.trim().toLowerCase(),
-    password: body.password,
-    remember,
+  const credentials = {
+    email: parsed.data.email.trim().toLowerCase(),
+    password: parsed.data.password,
+    remember: parsed.data.remember ?? false,
   }
 
   // ── Authenticate ─────────────────────────────────────────────────────────
@@ -114,21 +115,4 @@ export async function POST(request: Request): Promise<NextResponse> {
   setCsrfCookie(response, csrfToken)
 
   return response
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function isLoginRequest(
-  value: unknown
-): value is { email: string; password: string } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'email' in value &&
-    'password' in value &&
-    typeof (value as Record<string, unknown>).email === 'string' &&
-    typeof (value as Record<string, unknown>).password === 'string' &&
-    (value as Record<string, unknown>).email !== '' &&
-    (value as Record<string, unknown>).password !== ''
-  )
 }

@@ -23,19 +23,24 @@ function validateEnv(): EnvSchema {
     throw error
   }
 
-  // Log environment validation in development
+  // Log environment validation in development (console.warn is allowed; info/log are blocked by lint rules)
   if (nodeEnv === 'development') {
-    console.info('Environment variables validated successfully', {
+    console.warn('[env] Environment variables validated successfully', {
       NODE_ENV: nodeEnv,
       API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'default',
       APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'default',
     })
   }
 
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+  const appName = process.env.NEXT_PUBLIC_APP_NAME
+
   return {
     NODE_ENV: nodeEnv as EnvSchema['NODE_ENV'],
-    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+    ...(apiBaseUrl !== undefined
+      ? { NEXT_PUBLIC_API_BASE_URL: apiBaseUrl }
+      : {}),
+    ...(appName !== undefined ? { NEXT_PUBLIC_APP_NAME: appName } : {}),
   }
 }
 

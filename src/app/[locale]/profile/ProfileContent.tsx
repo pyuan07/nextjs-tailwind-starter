@@ -1,6 +1,8 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@/hooks'
 import { AuthGuard } from '@/components/features'
 import {
@@ -10,17 +12,49 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui'
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import { Icon } from '@/lib/icons'
+import { useToast } from '@/hooks/use-toast'
+import {
+  profileUpdateSchema,
+  type ProfileUpdateData,
+} from '@/lib/validations/auth'
 
 function ProfileContent() {
-  const { user, logout } = useAuth()
+  const { user, logout, updateProfile } = useAuth()
   const t = useTranslations('pages.profile')
+  const { toast } = useToast()
+
+  const form = useForm<ProfileUpdateData>({
+    resolver: zodResolver(profileUpdateSchema),
+    defaultValues: {
+      name: user?.name ?? '',
+      email: user?.email ?? '',
+    },
+  })
 
   const handleLogout = async () => {
     try {
       await logout()
     } catch (_error) {
       // Error is handled by the hook
+    }
+  }
+
+  const onSubmit = async (data: ProfileUpdateData) => {
+    try {
+      await updateProfile(data)
+      toast.success(t('saveChanges'))
+    } catch (_error) {
+      // Error is handled by the store
     }
   }
 
@@ -54,28 +88,49 @@ function ProfileContent() {
                   <p className='text-sm text-muted-foreground'>{user.email}</p>
                 </div>
 
-                <div className='space-y-3'>
-                  <div>
-                    <label className='text-sm font-medium'>{t('name')}</label>
-                    <input
-                      type='text'
-                      className='w-full px-3 py-2 border rounded-md'
-                      defaultValue={user.name}
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className='space-y-3'
+                  >
+                    <FormField
+                      control={form.control}
+                      name='name'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('name')}</FormLabel>
+                          <FormControl>
+                            <Input {...field} type='text' />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  <div>
-                    <label className='text-sm font-medium'>{t('email')}</label>
-                    <input
-                      type='email'
-                      className='w-full px-3 py-2 border rounded-md'
-                      defaultValue={user.email}
+
+                    <FormField
+                      control={form.control}
+                      name='email'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('email')}</FormLabel>
+                          <FormControl>
+                            <Input {...field} type='email' inputMode='email' />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  <Button className='w-full flex items-center gap-2'>
-                    <Icon name='save' size='sm' />
-                    {t('saveChanges')}
-                  </Button>
-                </div>
+
+                    <Button
+                      type='submit'
+                      className='w-full flex items-center gap-2'
+                      disabled={form.formState.isSubmitting}
+                    >
+                      <Icon name='save' size='sm' />
+                      {form.formState.isSubmitting ? '...' : t('saveChanges')}
+                    </Button>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
 

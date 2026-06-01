@@ -140,16 +140,18 @@ class ErrorReportingService {
   }
 
   clearUserId(): void {
-    this.userId = undefined
+    delete this.userId
     logger.info('User ID cleared for error reporting')
   }
 
   private createErrorContext(
     additionalContext?: Partial<ErrorContext>
   ): ErrorContext {
+    const buildId = process.env.NEXT_PUBLIC_BUILD_ID
+    const version = process.env.NEXT_PUBLIC_APP_VERSION
+
     const baseContext: ErrorContext = {
       sessionId: this.sessionId,
-      userId: this.userId,
       url:
         typeof window !== 'undefined'
           ? window.location.href.replace(/[?&]token=[^&]*/gi, '[REDACTED]')
@@ -158,8 +160,9 @@ class ErrorReportingService {
         typeof window !== 'undefined' ? navigator.userAgent : 'unknown',
       timestamp: Date.now(),
       environment: env.NODE_ENV,
-      buildId: process.env.NEXT_PUBLIC_BUILD_ID,
-      version: process.env.NEXT_PUBLIC_APP_VERSION,
+      ...(this.userId !== undefined ? { userId: this.userId } : {}),
+      ...(buildId !== undefined ? { buildId } : {}),
+      ...(version !== undefined ? { version } : {}),
     }
 
     return { ...baseContext, ...additionalContext }

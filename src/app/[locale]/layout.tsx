@@ -1,6 +1,11 @@
 import type { ReactNode } from 'react'
+import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, setRequestLocale } from 'next-intl/server'
+import {
+  getMessages,
+  getTranslations,
+  setRequestLocale,
+} from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
 import { ConditionalNavbar } from '@/components/features/common/ConditionalNavbar'
@@ -9,6 +14,19 @@ import { PWAInstallPrompt, OfflineIndicator } from '@/components/features/pwa'
 interface LocaleLayoutProps {
   children: ReactNode
   params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'common.brand' })
+  return {
+    title: { default: t('name'), template: `%s | ${t('name')}` },
+    description: t('description'),
+  }
 }
 
 export function generateStaticParams() {

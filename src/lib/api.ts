@@ -20,8 +20,8 @@ export class ApiError extends Error {
     super(message)
     this.name = 'ApiError'
     this.statusCode = statusCode
-    this.response = response
-    this.data = data
+    if (response !== undefined) this.response = response
+    if (data !== undefined) this.data = data
   }
 }
 
@@ -175,22 +175,7 @@ class ApiClient {
 
           if (contentType?.includes('application/json')) {
             const data = await response.json()
-
-            // Handle your TypeScript API response format
-            if (typeof data === 'object' && data !== null) {
-              // If it's a wrapped response with user/tokens
-              if ('user' in data && 'tokens' in data) {
-                return data
-              }
-              // If it's a single user response
-              if ('user' in data) {
-                return data.user
-              }
-              // Return as is for other responses
-              return data
-            }
-
-            return data
+            return data as T
           }
 
           return response.text() as unknown as T

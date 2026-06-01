@@ -25,5 +25,11 @@ export const registerSchema = z
     path: ['confirmPassword'],
   })
 
+export const profileUpdateSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+})
+
 export type LoginFormData = z.infer<typeof loginSchema>
 export type RegisterFormData = z.infer<typeof registerSchema>
+export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>

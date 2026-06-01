@@ -15,30 +15,42 @@ const eslintConfig = [
     ignores: [
       "node_modules/**",
       ".next/**",
+      ".claude/**",
       "out/**",
       "build/**",
       "next-env.d.ts",
-      "**/*.test.{ts,tsx}",
-      "**/test/**",
     ],
   },
   {
     rules: {
       // Allow unused variables that start with underscore
-      "@typescript-eslint/no-unused-vars": ["error", { 
+      "@typescript-eslint/no-unused-vars": ["error", {
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_",
         destructuredArrayIgnorePattern: "^_",
         caughtErrorsIgnorePattern: "^_"
       }],
-      // Allow any types in test files and utilities
-      "@typescript-eslint/no-explicit-any": ["warn", {
-        ignoreRestArgs: true
-      }],
+      // Disallow any types — use unknown and narrow safely
+      "@typescript-eslint/no-explicit-any": "error",
       // Allow unescaped entities in JSX (common in content)
       "react/no-unescaped-entities": "off",
-      // Allow require in configuration files
+      // Disallow raw console.log/info/debug in production code
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+    },
+  },
+  // Allow require() and console in config files and Node.js scripts
+  {
+    files: ["*.config.*", "**/*.config.*", "scripts/**"],
+    rules: {
       "@typescript-eslint/no-require-imports": "off",
+      "no-console": "off",
+    },
+  },
+  // Relaxed rules for test files
+  {
+    files: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "**/test/**"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
 ];

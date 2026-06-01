@@ -269,80 +269,6 @@ export interface RequestConfig extends Omit<RequestInit, 'body'> {
 }
 
 // ============================================================================
-// TYPE GUARDS
-// ============================================================================
-
-/**
- * Type guard for API errors (discriminated union)
- */
-export function isApiError(error: unknown): error is ApiError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'type' in error &&
-    'message' in error &&
-    typeof (error as { message: unknown }).message === 'string'
-  )
-}
-
-/**
- * Type guard for successful service response
- */
-export function isSuccessResponse<T>(
-  response: ServiceResponse<T>
-): response is Extract<ServiceResponse<T>, { success: true }> {
-  return response.success === true
-}
-
-/**
- * Type guard for error service response
- */
-export function isErrorResponse<T>(
-  response: ServiceResponse<T>
-): response is Extract<ServiceResponse<T>, { success: false }> {
-  return response.success === false
-}
-
-export function isTokenPair(obj: unknown): obj is TokenPair {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'accessToken' in obj &&
-    'refreshToken' in obj &&
-    'accessTokenExpiry' in obj &&
-    'refreshTokenExpiry' in obj &&
-    'tokenType' in obj
-  )
-}
-
-export function isUser(obj: unknown): obj is User {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'id' in obj &&
-    'email' in obj &&
-    'name' in obj &&
-    'role' in obj &&
-    'isEmailVerified' in obj
-  )
-}
-
-// ============================================================================
-// VALIDATION HELPERS
-// ============================================================================
-
-export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-export const PASSWORD_MIN_LENGTH = 8
-
-export function isValidEmail(email: string): boolean {
-  return EMAIL_REGEX.test(email)
-}
-
-export function isValidPassword(password: string): boolean {
-  return password.length >= PASSWORD_MIN_LENGTH
-}
-
-// ============================================================================
 // API ENDPOINTS (matching your TypeScript server routes)
 // ============================================================================
 
@@ -367,7 +293,3 @@ export const API_ENDPOINTS = {
   // Health check
   health: '/health',
 } as const
-
-// Extract endpoint keys for type safety
-export type AuthEndpoint = keyof typeof API_ENDPOINTS.auth
-export type UserEndpoint = keyof typeof API_ENDPOINTS.users

@@ -1,70 +1,10 @@
-'use client'
-
-import { useEffect } from 'react'
-import { useRouter } from '@/i18n/navigation'
-import { useTranslations } from 'next-intl'
+import { Suspense } from 'react'
+import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { useAuth } from '@/hooks'
-import { Card, CardContent } from '@/components/ui'
-import { useToast } from '@/hooks/use-toast'
-import dynamic from 'next/dynamic'
-import { Skeleton } from '@/components/ui/skeleton'
+import RegisterSuccessHandler from '@/components/features/auth/RegisterSuccessHandler'
 
-const RegisterForm = dynamic(
-  () => import('@/components/features/auth/RegisterForm'),
-  {
-    loading: () => (
-      <Card>
-        <CardContent className='p-6 space-y-4'>
-          <div className='space-y-2'>
-            <Skeleton className='h-6 w-32' />
-            <Skeleton className='h-4 w-48' />
-          </div>
-          <div className='space-y-4'>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className='h-10 w-full' />
-            ))}
-          </div>
-          <Skeleton className='h-10 w-full' />
-        </CardContent>
-      </Card>
-    ),
-  }
-)
-
-export default function RegisterPage() {
-  const router = useRouter()
-  const { isAuthenticated, isLoading } = useAuth()
-  const { toast } = useToast()
-  const t = useTranslations('auth.register')
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.push('/showcase')
-    }
-  }, [isAuthenticated, isLoading, router])
-
-  // Show loading while checking auth status
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className='flex items-center justify-center py-12'>
-          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  // Don't render if authenticated (will redirect)
-  if (isAuthenticated) {
-    return null
-  }
-
-  const handleRegisterSuccess = () => {
-    toast.success(t('successMessage'))
-    router.push('/showcase')
-  }
+export default async function RegisterPage() {
+  const t = await getTranslations('auth.register')
 
   return (
     <div className='space-y-6'>
@@ -74,8 +14,16 @@ export default function RegisterPage() {
         <p className='text-muted-foreground'>{t('pageDescription')}</p>
       </div>
 
-      {/* Register Form */}
-      <RegisterForm onSuccess={handleRegisterSuccess} />
+      {/* Register Form — handles credential state, validation, and submission */}
+      <Suspense
+        fallback={
+          <div className='flex items-center justify-center min-h-[200px]'>
+            Loading...
+          </div>
+        }
+      >
+        <RegisterSuccessHandler />
+      </Suspense>
 
       {/* Links */}
       <div className='text-center text-sm'>

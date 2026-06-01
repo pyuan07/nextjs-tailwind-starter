@@ -6,6 +6,9 @@ export { useAuth, useAuthStatus } from './use-auth'
 // Theme hooks
 export { useTheme } from './use-theme'
 
+// Toast hook
+export { useToast } from './use-toast'
+
 // API hooks
 export { useApi, useMutation } from './api/useApi'
 

@@ -1,9 +1,18 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 
-export const metadata: Metadata = {
-  title: 'Authentication - React Tailwind Starter',
-  description: 'Sign in to your account or create a new one',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'auth' })
+  return {
+    title: t('login.title'),
+    description: t('login.description'),
+  }
 }
 
 export default function AuthLayout({

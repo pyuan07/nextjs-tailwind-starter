@@ -98,7 +98,7 @@ async function refreshViaMock(currentRefreshToken: string): Promise<TokenPair> {
   // If the token has an encoded expiry that has passed, reject it
   const parts = currentRefreshToken.split('_')
   if (parts.length >= 3) {
-    const timestampStr = parts[2]
+    const timestampStr = parts[2] ?? ''
     const issuedAt = parseInt(timestampStr, 10)
     if (!isNaN(issuedAt)) {
       const REFRESH_TOKEN_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000

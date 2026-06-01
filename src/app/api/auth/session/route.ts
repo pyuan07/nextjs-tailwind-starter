@@ -72,7 +72,7 @@ function validateMockToken(token: string): User {
   // or the older demo_access_<issuedAtMs>_<randomId> fallback
   const parts = token.split('_')
   if (parts.length >= 3) {
-    const timestampStr = parts[2]
+    const timestampStr = parts[2] ?? ''
     const issuedAt = parseInt(timestampStr, 10)
     if (!isNaN(issuedAt) && Date.now() > issuedAt + ACCESS_TOKEN_LIFETIME_MS) {
       throw new Error('Access token expired')
