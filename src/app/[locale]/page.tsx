@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import {
   Button,
@@ -7,10 +8,25 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui'
+import { Link } from '@/i18n/navigation'
 import { type Locale } from '@/i18n/config'
 
 interface HomeProps {
   params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({
+  params,
+}: HomeProps): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({
+    locale: locale as Locale,
+    namespace: 'pages.home',
+  })
+  return {
+    title: t('title'),
+    description: t('description'),
+  }
 }
 
 export default async function Home({ params }: HomeProps) {
@@ -24,10 +40,7 @@ export default async function Home({ params }: HomeProps) {
     locale: locale as Locale,
     namespace: 'common',
   })
-  const _tHome = await getTranslations({
-    locale: locale as Locale,
-    namespace: 'pages.home',
-  })
+
   const techStack = [
     {
       name: tCommon('techStack.nextjs.name'),
@@ -49,8 +62,7 @@ export default async function Home({ params }: HomeProps) {
 
   return (
     <div className='min-h-screen bg-background text-foreground'>
-      {/* Main Content */}
-      <main className='container mx-auto px-4 py-16'>
+      <main id='main-content' className='container mx-auto px-4 py-16'>
         {/* Hero Section */}
         <div className='text-center mb-16'>
           <h2 className='text-4xl font-bold mb-4'>
@@ -60,14 +72,12 @@ export default async function Home({ params }: HomeProps) {
             {tCommon('brand.description')}
           </p>
           <div className='flex gap-4 justify-center'>
-            <a href={`/${locale}/showcase`}>
-              <Button size='lg'>{tNav('showcase')} →</Button>
-            </a>
-            <a href={`/${locale}/login`}>
-              <Button variant='outline' size='lg'>
-                {tNav('login')}
-              </Button>
-            </a>
+            <Button asChild size='lg'>
+              <Link href='/showcase'>{tNav('showcase')} →</Link>
+            </Button>
+            <Button asChild variant='outline' size='lg'>
+              <Link href='/login'>{tNav('login')}</Link>
+            </Button>
           </div>
         </div>
 
@@ -77,9 +87,9 @@ export default async function Home({ params }: HomeProps) {
             {tCommon('techStack.title')}
           </h3>
           <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6'>
-            {techStack.map((tech, i) => (
+            {techStack.map(tech => (
               <Card
-                key={i}
+                key={tech.name}
                 className='text-center hover:shadow-md transition-shadow'
               >
                 <CardHeader className='pb-3'>
@@ -93,27 +103,26 @@ export default async function Home({ params }: HomeProps) {
           </div>
         </div>
       </main>
+
       {/* Footer */}
       <footer className='border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-16'>
         <div className='container mx-auto px-4 py-6'>
           <div className='flex flex-col items-center gap-4'>
             <div className='flex gap-6 text-sm'>
-              <a
+              <Link
                 href='/terms'
-                target='_blank'
-                rel='noopener noreferrer'
                 className='text-muted-foreground hover:text-foreground transition-colors'
+                aria-label={`${tCommon('footer.termsOfService')} (opens in same tab)`}
               >
                 {tCommon('footer.termsOfService')}
-              </a>
-              <a
+              </Link>
+              <Link
                 href='/privacy'
-                target='_blank'
-                rel='noopener noreferrer'
                 className='text-muted-foreground hover:text-foreground transition-colors'
+                aria-label={`${tCommon('footer.privacyPolicy')} (opens in same tab)`}
               >
                 {tCommon('footer.privacyPolicy')}
-              </a>
+              </Link>
             </div>
             <p className='text-sm text-muted-foreground text-center'>
               {tCommon('footer.builtWith')}

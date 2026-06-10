@@ -1,214 +1,12 @@
-import { logger } from '@/lib/logger'
-import DOMPurify from 'dompurify'
-
 /**
- * DOMPurify configuration for different sanitization levels
- * Note: Currently unused but kept for future XSS prevention needs
- * These configurations are ready to use when rendering user-generated HTML content
+ * Edge-safe security utilities — no DOM or DOMPurify dependencies.
+ * Safe to import from middleware (Edge Runtime) and server-side code.
+ *
+ * For HTML sanitization (DOMPurify) use @/utils/sanitize instead.
  */
-export const SANITIZE_CONFIGS = {
-  // Strict: Only allow basic text formatting
-  strict: {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br'] as string[],
-    ALLOWED_ATTR: [] as string[],
-    KEEP_CONTENT: false,
-    RETURN_DOM: false,
-    RETURN_DOM_FRAGMENT: false,
-    RETURN_TRUSTED_TYPE: false,
-  },
 
-  // Basic: Allow common safe HTML elements
-  basic: {
-    ALLOWED_TAGS: [
-      'h1',
-      'h2',
-      'h3',
-      'h4',
-      'h5',
-      'h6',
-      'p',
-      'br',
-      'strong',
-      'b',
-      'em',
-      'i',
-      'u',
-      'ul',
-      'ol',
-      'li',
-      'blockquote',
-      'code',
-      'pre',
-    ] as string[],
-    ALLOWED_ATTR: ['class'] as string[],
-    KEEP_CONTENT: false,
-    RETURN_DOM: false,
-    RETURN_DOM_FRAGMENT: false,
-    RETURN_TRUSTED_TYPE: false,
-  },
+// ── Rate limiter ──────────────────────────────────────────────────────────────
 
-  // Rich: Allow more elements for rich content
-  rich: {
-    ALLOWED_TAGS: [
-      'h1',
-      'h2',
-      'h3',
-      'h4',
-      'h5',
-      'h6',
-      'p',
-      'br',
-      'strong',
-      'b',
-      'em',
-      'i',
-      'u',
-      's',
-      'del',
-      'ul',
-      'ol',
-      'li',
-      'blockquote',
-      'code',
-      'pre',
-      'a',
-      'img',
-      'table',
-      'thead',
-      'tbody',
-      'tr',
-      'th',
-      'td',
-      'div',
-      'span',
-    ] as string[],
-    ALLOWED_ATTR: [
-      'href',
-      'title',
-      'alt',
-      'src',
-      'width',
-      'height',
-      'class',
-      'id',
-      'target',
-      'rel',
-    ] as string[],
-    KEEP_CONTENT: false,
-    RETURN_DOM: false,
-    RETURN_DOM_FRAGMENT: false,
-    RETURN_TRUSTED_TYPE: false,
-  },
-}
-
-/**
- * Sanitize HTML to prevent XSS attacks using DOMPurify
- * @param dirty - The HTML string to sanitize
- * @param level - Sanitization level: 'strict' | 'basic' | 'rich'
- * @returns Sanitized HTML string
- */
-export function sanitizeHtml(
-  dirty: string,
-  level: keyof typeof SANITIZE_CONFIGS = 'basic'
-): string {
-  if (typeof dirty !== 'string') {
-    logger.securityEvent('Invalid HTML input type', { inputType: typeof dirty })
-    return ''
-  }
-
-  if (!dirty.trim()) {
-    return ''
-  }
-
-  try {
-    // Use DOMPurify with configuration for the specified level
-    const config = SANITIZE_CONFIGS[level]
-    const clean = DOMPurify.sanitize(dirty, config)
-
-    // Log if content was sanitized
-    if (clean !== dirty) {
-      logger.securityEvent('HTML was sanitized', {
-        level,
-        originalLength: dirty.length,
-        sanitizedLength: clean.length,
-        hasScript: dirty.toLowerCase().includes('<script'),
-        hasOnEvents: /\son\w+\s*=/i.test(dirty),
-        hasJavaScript: /javascript:/i.test(dirty),
-      })
-    }
-
-    return clean
-  } catch (error) {
-    logger.error('HTML sanitization failed', error as Error, {
-      inputLength: dirty.length,
-      level,
-    })
-
-    // Fallback to basic text sanitization
-    return dirty
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;')
-      .replace(/\//g, '&#x2F;')
-  }
-}
-
-/**
- * Sanitize HTML for safe display in React components
- * Returns an object compatible with dangerouslySetInnerHTML
- * @param dirty - The HTML string to sanitize
- * @param level - Sanitization level
- * @returns Object with __html property for dangerouslySetInnerHTML
- */
-export function sanitizeForReact(
-  dirty: string,
-  level: keyof typeof SANITIZE_CONFIGS = 'basic'
-): { __html: string } {
-  return { __html: sanitizeHtml(dirty, level) }
-}
-
-/**
- * Validate and sanitize user input
- */
-export function sanitizeInput(input: string): string {
-  if (typeof input !== 'string') return ''
-  if (!input.trim()) return ''
-
-  // Strip dangerous protocols (javascript:, vbscript:, data:) to prevent XSS payloads
-  const stripped = input.replace(/^(?:javascript|vbscript|data):/gi, '')
-
-  // Use sanitizeHtml to neutralise markup and encoded payloads
-  let sanitized = sanitizeHtml(stripped)
-
-  // Attempt URL-decode once to catch percent-encoded payloads (e.g. %6aavascript:)
-  try {
-    const decoded = decodeURIComponent(sanitized)
-    if (decoded !== sanitized) {
-      sanitized = sanitizeHtml(
-        decoded.replace(/^(?:javascript|vbscript|data):/gi, '')
-      )
-    }
-  } catch {
-    // malformed URI sequence — current value is fine
-  }
-
-  const result = sanitized.trim().substring(0, 1000)
-
-  if (result !== input.trim().substring(0, 1000)) {
-    logger.securityEvent('Input was sanitized', {
-      original: input.substring(0, 100),
-      sanitized: result.substring(0, 100),
-    })
-  }
-
-  return result
-}
-
-/**
- * Rate limiting store
- */
 interface RateLimitEntry {
   count: number
   resetTime: number
@@ -216,12 +14,9 @@ interface RateLimitEntry {
 
 class RateLimiter {
   private store = new Map<string, RateLimitEntry>()
-  private defaultLimit = 100 // requests per window
-  private defaultWindow = 15 * 60 * 1000 // 15 minutes
+  private defaultLimit = 100
+  private defaultWindow = 15 * 60 * 1000
 
-  /**
-   * Check if request should be rate limited
-   */
   isRateLimited(
     identifier: string,
     limit: number = this.defaultLimit,
@@ -230,74 +25,53 @@ class RateLimiter {
     const now = Date.now()
     const entry = this.store.get(identifier)
 
-    // Clean up expired entries periodically
-    if (Math.random() < 0.01) {
-      this.cleanup()
-    }
+    if (Math.random() < 0.01) this.cleanup()
 
     if (!entry || now > entry.resetTime) {
-      // First request or window expired
-      this.store.set(identifier, {
-        count: 1,
-        resetTime: now + windowMs,
-      })
+      this.store.set(identifier, { count: 1, resetTime: now + windowMs })
       return false
     }
 
     if (entry.count >= limit) {
-      logger.securityEvent('Rate limit exceeded', {
+      console.warn('[rate-limit] exceeded', {
         identifier,
         count: entry.count,
         limit,
-        resetTime: entry.resetTime,
       })
       return true
     }
 
-    // Increment counter
     entry.count += 1
     return false
   }
 
-  /**
-   * Get remaining requests for identifier
-   */
   getRemaining(identifier: string, limit: number = this.defaultLimit): number {
     const entry = this.store.get(identifier)
-    if (!entry || Date.now() > entry.resetTime) {
-      return limit
-    }
+    if (!entry || Date.now() > entry.resetTime) return limit
     return Math.max(0, limit - entry.count)
   }
 
-  /**
-   * Clean up expired entries
-   */
   private cleanup(): void {
     const now = Date.now()
     for (const [key, entry] of this.store.entries()) {
-      if (now > entry.resetTime) {
-        this.store.delete(key)
-      }
+      if (now > entry.resetTime) this.store.delete(key)
     }
   }
 }
 
 export const rateLimiter = new RateLimiter()
 
-/**
- * Generate secure random string
- * Uses the global crypto API which works in browser, Node.js, and Edge Runtime
- */
+// ── Token generation ──────────────────────────────────────────────────────────
+
+/** Generates a cryptographically random hex string. Works in browser, Node, and Edge Runtime. */
 export function generateSecureToken(length: number = 32): string {
   const array = new Uint8Array(length)
   crypto.getRandomValues(array)
   return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
 }
 
-/**
- * Validate URL to prevent open redirect attacks
- */
+// ── URL validation ────────────────────────────────────────────────────────────
+
 export function validateRedirectUrl(
   url: string,
   allowedDomains: string[] = []
@@ -305,9 +79,8 @@ export function validateRedirectUrl(
   try {
     const parsed = new URL(url)
 
-    // Only allow relative URLs or URLs from allowed domains
     if (parsed.protocol === 'javascript:' || parsed.protocol === 'data:') {
-      logger.securityEvent('Dangerous redirect URL blocked', { url })
+      console.warn('[security] dangerous redirect URL blocked', { url })
       return false
     }
 
@@ -315,22 +88,15 @@ export function validateRedirectUrl(
       allowedDomains.length > 0 &&
       !allowedDomains.includes(parsed.hostname)
     ) {
-      logger.securityEvent('Redirect to unauthorized domain blocked', {
+      console.warn('[security] redirect to unauthorized domain blocked', {
         url,
         hostname: parsed.hostname,
-        allowedDomains,
       })
       return false
     }
 
     return true
   } catch {
-    // Invalid URL
     return url.startsWith('/') && !url.startsWith('//')
   }
 }
-
-/**
- * Note: CSP and security headers are now configured in middleware.ts
- * This centralizes security configuration in one place
- */

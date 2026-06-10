@@ -3,6 +3,8 @@
  * Extracted from magic numbers throughout the codebase
  */
 
+import { env } from '@/config/env'
+
 // ============================================================================
 // TOKEN CONFIGURATION
 // ============================================================================
@@ -11,11 +13,17 @@ export const TOKEN_CONFIG = {
   /** Threshold to refresh access token (5 minutes before expiry) */
   REFRESH_THRESHOLD: 5 * 60 * 1000, // milliseconds
 
-  /** Default access token lifetime (1 hour) */
-  ACCESS_TOKEN_LIFETIME: 60 * 60 * 1000,
+  /** Access token lifetime — 15 minutes in milliseconds */
+  ACCESS_TOKEN_LIFETIME: 15 * 60 * 1000,
 
-  /** Default refresh token lifetime (7 days) */
+  /** Access token cookie maxAge — 15 minutes in seconds (for Set-Cookie: Max-Age) */
+  ACCESS_TOKEN_MAX_AGE_S: 15 * 60,
+
+  /** Refresh token lifetime — 7 days in milliseconds */
   REFRESH_TOKEN_LIFETIME: 7 * 24 * 60 * 60 * 1000,
+
+  /** Refresh token cookie maxAge — 7 days in seconds (for Set-Cookie: Max-Age) */
+  REFRESH_TOKEN_MAX_AGE_S: 7 * 24 * 60 * 60,
 
   /** Maximum retry attempts for token refresh */
   MAX_REFRESH_RETRIES: 3,
@@ -92,6 +100,12 @@ export const SECURITY_CONFIG = {
 
   /** HSTS max age (1 year) */
   HSTS_MAX_AGE: 31536000,
+
+  /** Whether HSTS should apply to subdomains */
+  HSTS_INCLUDE_SUBDOMAINS: true,
+
+  /** Whether HSTS should be preloaded */
+  HSTS_PRELOAD: true,
 } as const
 
 // ============================================================================
@@ -154,13 +168,16 @@ export const VALIDATION = {
 
 export const ROUTES = {
   /** Protected routes requiring authentication */
-  PROTECTED: ['/showcase', '/profile', '/dashboard', '/admin'] as const,
+  PROTECTED: [
+    '/showcase',
+    '/profile',
+    '/dashboard',
+    '/settings',
+    '/admin',
+  ] as const,
 
   /** Authentication routes (redirect if already logged in) */
-  AUTH: ['/login', '/register', '/forgot-password', '/reset-password'] as const,
-
-  /** Legal routes (no i18n prefix) */
-  LEGAL: ['/terms', '/privacy'] as const,
+  AUTH: ['/login', '/register', '/forgot-password'] as const,
 
   /** Public routes (no authentication required) */
   PUBLIC: ['/', '/about', '/contact'] as const,
@@ -194,7 +211,6 @@ export const DEMO_CONFIG = {
 
 export type ProtectedRoute = (typeof ROUTES.PROTECTED)[number]
 export type AuthRoute = (typeof ROUTES.AUTH)[number]
-export type LegalRoute = (typeof ROUTES.LEGAL)[number]
 export type PublicRoute = (typeof ROUTES.PUBLIC)[number]
 
 // ============================================================================
@@ -207,12 +223,11 @@ export type PublicRoute = (typeof ROUTES.PUBLIC)[number]
  * Set USE_REAL_API=true in .env.local (or your deployment platform) when
  * connecting to a real API server.
  */
-export const USE_REAL_API_SERVER = process.env.USE_REAL_API === 'true'
+export const USE_REAL_API_SERVER = env.USE_REAL_API_SERVER
 
 /**
  * Client-side feature flag — exposed via NEXT_PUBLIC_ prefix.
  * Controls whether auth.service.ts calls the real backend from the browser.
  * Set NEXT_PUBLIC_USE_REAL_API=true in .env.local alongside USE_REAL_API=true.
  */
-export const USE_REAL_API_CLIENT =
-  process.env.NEXT_PUBLIC_USE_REAL_API === 'true'
+export const USE_REAL_API_CLIENT = env.USE_REAL_API_CLIENT

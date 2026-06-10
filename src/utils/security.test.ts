@@ -11,12 +11,8 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
-import {
-  sanitizeHtml,
-  sanitizeInput,
-  generateSecureToken,
-  validateRedirectUrl,
-} from '@/utils/security'
+import { sanitizeHtml, sanitizeInput } from '@/utils/sanitize'
+import { generateSecureToken, validateRedirectUrl } from '@/utils/security'
 
 describe('sanitizeHtml', () => {
   it('removes script tags from input', () => {

@@ -13,6 +13,7 @@
  */
 
 import { logger } from '@/lib/logger'
+import { TOKEN_CONFIG } from '@/constants'
 import type {
   LoginRequest,
   User,
@@ -25,7 +26,7 @@ let currentUser: User | null = null
 let csrfToken: string | null = null
 let refreshInFlight: Promise<boolean> | null = null
 let sessionStartTime: number | null = null
-const ACCESS_TOKEN_LIFETIME_MS = 15 * 60 * 1000 // 15 minutes
+const ACCESS_TOKEN_LIFETIME_MS = TOKEN_CONFIG.ACCESS_TOKEN_LIFETIME
 
 function readCsrfCookie(): string | null {
   if (typeof document === 'undefined') return null
@@ -223,8 +224,8 @@ export class SecureTokenManager {
     return {
       accessToken: '__httponly__',
       refreshToken: '__httponly__',
-      accessTokenExpiry: now + 15 * 60 * 1000,
-      refreshTokenExpiry: now + 7 * 24 * 60 * 60 * 1000,
+      accessTokenExpiry: now + TOKEN_CONFIG.ACCESS_TOKEN_LIFETIME,
+      refreshTokenExpiry: now + TOKEN_CONFIG.REFRESH_TOKEN_LIFETIME,
       tokenType: 'Bearer',
     }
   }

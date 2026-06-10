@@ -189,6 +189,22 @@
       "resetSuccessMessage": "E-mel set semula kata laluan berjaya dihantar!",
       "resetErrorMessage": "Gagal menghantar e-mel set semula. Sila cuba lagi."
     },
+    "resetPassword": {
+      "title": "Tetapkan Kata Laluan Baru",
+      "description": "Masukkan dan sahkan kata laluan baru anda",
+      "newPassword": "Kata Laluan Baru",
+      "confirmPassword": "Sahkan Kata Laluan",
+      "resetButton": "Set Semula Kata Laluan",
+      "resetting": "Menetapkan semula...",
+      "backToLogin": "← Kembali ke log masuk",
+      "successTitle": "Kata laluan telah ditetapkan semula!",
+      "successDesc": "Kata laluan anda telah ditukar. Anda boleh log masuk dengan kata laluan baru.",
+      "successMessage": "Kata laluan berjaya ditetapkan semula!",
+      "errorMessage": "Gagal menetapkan semula kata laluan. Sila cuba lagi.",
+      "invalidToken": "Pautan set semula tidak sah",
+      "invalidTokenDesc": "Pautan set semula kata laluan ini tidak sah atau telah tamat tempoh.",
+      "requestNewLink": "Minta pautan set semula baharu"
+    },
     "logout": {
       "confirm": "Adakah anda pasti mahu log keluar?",
       "yes": "Ya, log keluar",
@@ -208,7 +224,10 @@
       "passwordTooShort": "Kata laluan mestilah sekurang-kurangnya 8 aksara",
       "passwordMismatch": "Kata laluan tidak sepadan",
       "nameRequired": "Nama penuh diperlukan",
-      "termsRequired": "Anda mesti bersetuju dengan terma"
+      "nameMinLength": "Nama mestilah sekurang-kurangnya 2 aksara",
+      "termsRequired": "Anda mesti bersetuju dengan terma",
+      "redirectingToLogin": "Mengalihkan ke halaman log masuk...",
+      "redirecting": "Mengalihkan..."
     }
   },
   "pages": {
@@ -298,6 +317,66 @@
       "title": "Halaman Tidak Dijumpai",
       "description": "Halaman yang anda cari tidak wujud atau telah dipindahkan.",
       "backHome": "Kembali ke Laman Utama"
+    },
+    "dashboard": {
+      "title": "Papan Pemuka",
+      "description": "Gambaran keseluruhan akaun dan aktiviti anda",
+      "stats": {
+        "totalUsers": "Jumlah Pengguna",
+        "activeToday": "Aktif Hari Ini",
+        "revenue": "Hasil",
+        "openTickets": "Tiket Terbuka"
+      },
+      "recentActivity": "Aktiviti Terkini",
+      "noActivity": "Tiada aktiviti terkini untuk dipaparkan."
+    },
+    "settings": {
+      "title": "Tetapan",
+      "description": "Urus keutamaan akaun anda",
+      "profileSection": "Profil",
+      "profileSectionDesc": "Kemas kini nama dan alamat e-mel anda",
+      "name": "Nama Penuh",
+      "email": "Alamat E-mel",
+      "saveProfile": "Simpan Perubahan",
+      "saving": "Menyimpan...",
+      "profileSaved": "Profil berjaya dikemas kini",
+      "profileSaveError": "Gagal mengemas kini profil",
+      "passwordSection": "Tukar Kata Laluan",
+      "passwordSectionDesc": "Pilih kata laluan yang kukuh yang tidak anda gunakan di tempat lain",
+      "currentPassword": "Kata Laluan Semasa",
+      "newPassword": "Kata Laluan Baru",
+      "confirmPassword": "Sahkan Kata Laluan Baru",
+      "changePassword": "Tukar Kata Laluan",
+      "changing": "Menukar...",
+      "passwordChanged": "Kata laluan berjaya ditukar",
+      "passwordChangeError": "Gagal menukar kata laluan"
+    },
+    "legal": {
+      "termsTitle": "Terma Perkhidmatan",
+      "privacyTitle": "Dasar Privasi",
+      "termsDescription": "Terma dan syarat untuk menggunakan platform kami",
+      "privacyDescription": "Cara kami mengumpul, menggunakan dan melindungi data anda",
+      "lastUpdated": "Kemaskini terakhir",
+      "languageNoticeLabel": "Notis Bahasa",
+      "languageNotice": "Dokumen undang-undang ini disediakan dalam Bahasa Inggeris sahaja. Versi Bahasa Inggeris adalah mengikat secara undang-undang.",
+      "acceptance": "Penerimaan Terma",
+      "acceptanceText": "Dengan mengakses atau menggunakan perkhidmatan kami, anda bersetuju untuk terikat dengan Terma Perkhidmatan ini.",
+      "useOfService": "Penggunaan Perkhidmatan",
+      "useOfServiceText": "Anda hanya boleh menggunakan perkhidmatan kami untuk tujuan yang sah dan mengikut terma ini.",
+      "intellectualProperty": "Harta Intelek",
+      "intellectualPropertyText": "Perkhidmatan dan kandungan asalnya adalah hak milik eksklusif syarikat dan pemegang lesen.",
+      "limitation": "Had Liabiliti",
+      "limitationText": "Syarikat tidak bertanggungjawab atas sebarang kerosakan tidak langsung akibat penggunaan perkhidmatan anda.",
+      "dataCollection": "Data Yang Kami Kumpul",
+      "dataCollectionText": "Kami mengumpul maklumat yang anda berikan secara langsung kepada kami, seperti ketika membuat akaun atau menghubungi sokongan.",
+      "dataUse": "Cara Kami Menggunakan Data Anda",
+      "dataUseText": "Kami menggunakan maklumat yang dikumpul untuk menyediakan, menyelenggara dan meningkatkan perkhidmatan kami.",
+      "cookies": "Kuki",
+      "cookiesText": "Kami menggunakan kuki dan teknologi penjejakan serupa untuk menyimpan maklumat tertentu bagi meningkatkan pengalaman anda.",
+      "dataRights": "Hak Data Anda",
+      "dataRightsText": "Anda berhak mengakses, membetulkan atau memadam data peribadi anda. Hubungi kami untuk menggunakan hak ini.",
+      "contact": "Hubungi Kami",
+      "contactText": "Jika anda mempunyai sebarang soalan tentang terma ini, sila hubungi kami di support@example.com."
     }
   },
   "validation": {

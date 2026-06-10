@@ -1,10 +1,18 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import { getLocale } from 'next-intl/server'
 import { Toaster } from '@/components/ui/sonner'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { AuthInitializer } from '@/components/providers/auth-initializer'
 import { env } from '@/config/env'
 import './globals.css'
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
 
 // Simplified metadata for backoffice/internal tools
 export const metadata: Metadata = {
@@ -37,13 +45,14 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const locale = await getLocale()
   return (
-    <html suppressHydrationWarning>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <head>
         {/* Viewport for mobile-first experience */}
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />

@@ -5,20 +5,21 @@
  * The response body never contains the raw tokens — only user data.
  *
  * CSRF validation:
- *   If a csrf_token cookie is already present the request MUST supply a
- *   matching x-csrf-token header (double-submit cookie pattern).
- *   First-time requests (no existing csrf_token) skip the check so the
- *   login page itself can always reach this endpoint.
+ *   The x-csrf-token header is always required and must match the csrf_token
+ *   cookie (double-submit cookie pattern). The client fetches a fresh CSRF
+ *   token via GET /api/auth/csrf before submitting this request.
  */
 
 import { NextResponse } from 'next/server'
 import { MockAuthService } from '@/services/mock-auth.service'
 import {
   setAuthCookies,
+  setAuthPersistCookie,
   setCsrfCookie,
   generateCsrfToken,
   parseCookieValue,
 } from '@/lib/auth-cookies'
+import { signAccessToken } from '@/lib/jwt'
 import type { ServiceResponse, User, TokenPair } from '@/types/api'
 import { USE_REAL_API_SERVER } from '@/constants/config'
 import { loginSchema } from '@/lib/validations/auth'
@@ -94,6 +95,16 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const { user, tokens } = result.data
 
+  // ── Sign real JWT access token ────────────────────────────────────────────
+  const accessToken = await signAccessToken({
+    sub: String(user.id),
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    lang: user.lang,
+    isEmailVerified: user.isEmailVerified,
+  })
+
   // ── Build response — no tokens in body ───────────────────────────────────
   const csrfToken = generateCsrfToken()
 
@@ -108,10 +119,11 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   setAuthCookies(
     response,
-    tokens.accessToken,
+    accessToken,
     tokens.refreshToken,
     credentials.remember
   )
+  setAuthPersistCookie(response, credentials.remember)
   setCsrfCookie(response, csrfToken)
 
   return response

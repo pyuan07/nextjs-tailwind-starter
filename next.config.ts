@@ -17,28 +17,8 @@ const withPWA = withPWAInit({
   cacheOnFrontEndNav: true,
   workboxOptions: {
     runtimeCaching: [
-      {
-        urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'google-fonts',
-          expiration: {
-            maxEntries: 4,
-            maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
-          },
-        },
-      },
-      {
-        urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'google-fonts-static',
-          expiration: {
-            maxEntries: 4,
-            maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
-          },
-        },
-      },
+      // Google Fonts runtime caching removed: fonts are now self-hosted via next/font
+      // and served from same-origin /_next/static, so no cross-origin font requests occur.
       {
         urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,
         handler: 'StaleWhileRevalidate',

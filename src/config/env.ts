@@ -1,47 +1,71 @@
-// Validated environment configuration with proper error handling
+import { z } from 'zod'
 
-// Environment variable validation schema
-interface EnvSchema {
-  // Required environment variables
-  NODE_ENV: 'development' | 'production' | 'test'
+// Environment validation schema for client-accessible variables
+const clientEnvSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']),
+  NEXT_PUBLIC_API_BASE_URL: z.string().url().default('http://localhost:3001'),
+  NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
+  NEXT_PUBLIC_APP_NAME: z.string().default('React Tailwind Starter'),
+  NEXT_PUBLIC_USE_REAL_API: z.preprocess(
+    val => val === 'true' || val === true,
+    z.boolean().default(false)
+  ),
+  NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional().or(z.literal('')),
+  NEXT_PUBLIC_BUILD_ID: z.string().optional(),
+  NEXT_PUBLIC_APP_VERSION: z.string().optional(),
+})
 
-  // Optional environment variables with defaults
-  NEXT_PUBLIC_API_BASE_URL?: string
-  NEXT_PUBLIC_APP_NAME?: string
-}
+// Environment validation schema for server-only variables
+const serverEnvSchema = clientEnvSchema
+  .extend({
+    USE_REAL_API: z.preprocess(
+      val => val === 'true' || val === true,
+      z.boolean().default(false)
+    ),
+    JWT_SECRET: z.string().optional(),
+  })
+  .refine(
+    data => {
+      if (data.NODE_ENV === 'production' && !data.JWT_SECRET) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'JWT_SECRET is required in production environments',
+      path: ['JWT_SECRET'],
+    }
+  )
 
-// Validate environment variables
-function validateEnv(): EnvSchema {
-  const nodeEnv = process.env.NODE_ENV
+function validateEnv() {
+  const isServer = typeof window === 'undefined'
 
-  // Validate required NODE_ENV
-  if (!nodeEnv || !['development', 'production', 'test'].includes(nodeEnv)) {
-    const error = new Error(
-      `Invalid NODE_ENV: "${nodeEnv}". Must be one of: development, production, test`
-    )
-    console.error('Environment validation failed:', error)
-    throw error
-  }
-
-  // Log environment validation in development (console.warn is allowed; info/log are blocked by lint rules)
-  if (nodeEnv === 'development') {
-    console.warn('[env] Environment variables validated successfully', {
-      NODE_ENV: nodeEnv,
-      API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'default',
-      APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'default',
-    })
-  }
-
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
-  const appName = process.env.NEXT_PUBLIC_APP_NAME
-
-  return {
-    NODE_ENV: nodeEnv as EnvSchema['NODE_ENV'],
-    ...(apiBaseUrl !== undefined
-      ? { NEXT_PUBLIC_API_BASE_URL: apiBaseUrl }
+  const envObj = {
+    NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+    NEXT_PUBLIC_USE_REAL_API: process.env.NEXT_PUBLIC_USE_REAL_API,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    NEXT_PUBLIC_BUILD_ID: process.env.NEXT_PUBLIC_BUILD_ID,
+    NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,
+    ...(isServer
+      ? {
+          USE_REAL_API: process.env.USE_REAL_API,
+          JWT_SECRET: process.env.JWT_SECRET,
+        }
       : {}),
-    ...(appName !== undefined ? { NEXT_PUBLIC_APP_NAME: appName } : {}),
   }
+
+  const schema = isServer ? serverEnvSchema : clientEnvSchema
+  const result = schema.safeParse(envObj)
+
+  if (!result.success) {
+    console.error('Environment validation failed:', result.error.format())
+    throw new Error('Environment validation failed')
+  }
+
+  return result.data
 }
 
 // Validate environment on module load
@@ -50,21 +74,37 @@ const validatedEnv = validateEnv()
 // Export validated and typed environment configuration
 export const env = {
   // API Configuration - TypeScript API Server
-  API_BASE_URL:
-    validatedEnv.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001',
+  API_BASE_URL: validatedEnv.NEXT_PUBLIC_API_BASE_URL,
 
   // App URL (for CORS and redirects)
-  NEXT_PUBLIC_APP_URL:
-    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  NEXT_PUBLIC_APP_URL: validatedEnv.NEXT_PUBLIC_APP_URL,
 
   // App Configuration
-  APP_NAME: validatedEnv.NEXT_PUBLIC_APP_NAME || 'React Tailwind Starter',
+  APP_NAME: validatedEnv.NEXT_PUBLIC_APP_NAME,
 
   // Environment Info
   NODE_ENV: validatedEnv.NODE_ENV,
   isDevelopment: validatedEnv.NODE_ENV === 'development',
   isProduction: validatedEnv.NODE_ENV === 'production',
   isTest: validatedEnv.NODE_ENV === 'test',
+
+  // Feature flags
+  USE_REAL_API_CLIENT: validatedEnv.NEXT_PUBLIC_USE_REAL_API,
+
+  // Server-only values (safely typed on client, but defaults to fallback values)
+  USE_REAL_API_SERVER:
+    'USE_REAL_API' in validatedEnv
+      ? (validatedEnv as { USE_REAL_API: boolean }).USE_REAL_API
+      : false,
+  JWT_SECRET:
+    'JWT_SECRET' in validatedEnv
+      ? (validatedEnv as { JWT_SECRET?: string }).JWT_SECRET
+      : undefined,
+
+  // Sentry / monitoring
+  SENTRY_DSN: validatedEnv.NEXT_PUBLIC_SENTRY_DSN,
+  BUILD_ID: validatedEnv.NEXT_PUBLIC_BUILD_ID,
+  APP_VERSION: validatedEnv.NEXT_PUBLIC_APP_VERSION,
 } as const
 
 export type Env = typeof env

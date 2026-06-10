@@ -2,8 +2,20 @@
 import { apiConfig, buildApiUrl } from '@/config/api'
 import { logger } from '@/lib/logger'
 import { tokenManager } from '@/utils/auth/tokenManager'
-import { defaultLocale } from '@/i18n/config'
 import type { RequestConfig } from '@/types/api'
+
+export class SessionExpiredError extends Error {
+  constructor() {
+    super('Session expired')
+    this.name = 'SessionExpiredError'
+  }
+}
+
+function dispatchSessionExpired() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('auth:session-expired'))
+  }
+}
 
 // Custom error class for API errors
 export class ApiError extends Error {
@@ -52,11 +64,14 @@ class ApiClient {
     return `${url}?${searchParams.toString()}`
   }
 
-  // Create AbortController with timeout
-  private createTimeoutController(timeout: number): AbortController {
+  // Create AbortController with timeout; returns the controller and a cancel fn to clear the timer.
+  private createTimeoutController(timeout: number): {
+    controller: AbortController
+    cancel: () => void
+  } {
     const controller = new AbortController()
-    setTimeout(() => controller.abort(), timeout)
-    return controller
+    const timer = setTimeout(() => controller.abort(), timeout)
+    return { controller, cancel: () => clearTimeout(timer) }
   }
 
   // Delay function for retries
@@ -85,14 +100,23 @@ class ApiClient {
     // Get auth token
     const token = await tokenManager.getValidAccessToken()
 
-    // Prepare fetch configuration
+    // Prepare fetch configuration headers explicitly using the Headers constructor
+    const headers = new Headers(apiConfig.headers)
+
+    if (fetchConfig.headers) {
+      const incomingHeaders = new Headers(fetchConfig.headers)
+      incomingHeaders.forEach((value, key) => {
+        headers.set(key, value)
+      })
+    }
+
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`)
+    }
+
     const fetchOptions: RequestInit = {
       method: 'GET',
-      headers: {
-        ...apiConfig.headers,
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...fetchConfig.headers,
-      },
+      headers,
       ...fetchConfig,
     }
 
@@ -107,8 +131,7 @@ class ApiClient {
     while (attempt <= retries) {
       try {
         const startTime = Date.now()
-        const controller = this.createTimeoutController(timeout)
-        fetchOptions.signal = controller.signal
+        const { controller, cancel } = this.createTimeoutController(timeout)
 
         logger.info('API Request', {
           method: fetchOptions.method,
@@ -116,7 +139,15 @@ class ApiClient {
           attempt: attempt + 1,
         })
 
-        const response = await fetch(urlWithParams, fetchOptions)
+        let response: Response
+        try {
+          response = await fetch(urlWithParams, {
+            ...fetchOptions,
+            signal: controller.signal,
+          })
+        } finally {
+          cancel() // Always clear the timeout timer
+        }
         const duration = Date.now() - startTime
 
         logger.info('API Response', {
@@ -132,16 +163,10 @@ class ApiClient {
         // attempt === 0: first request returned 401 — attempt token refresh.
         // attempt > 0:   post-refresh retry returned 401 — session unrecoverable.
         if (response.status === 401 && attempt > 0) {
-          // Refresh succeeded but the retried request is still unauthorised.
-          // The session is dead — redirect to login and abort immediately.
-          logger.warn(
-            '401 on post-refresh retry — session expired, redirecting to login'
-          )
+          logger.warn('401 on post-refresh retry — session expired')
           tokenManager.clearTokens()
-          if (typeof window !== 'undefined') {
-            window.location.href = `/${defaultLocale}/login`
-          }
-          throw new ApiError('Session expired', 401, response)
+          dispatchSessionExpired()
+          throw new SessionExpiredError()
         }
 
         if (response.status === 401 && attempt === 0) {
@@ -155,17 +180,12 @@ class ApiClient {
               )
             }
             attempt++
-            continue // Retry the original request with the refreshed session cookies
+            continue
           } catch (refreshError) {
             logger.error('Token refresh failed', refreshError as Error)
             tokenManager.clearTokens()
-
-            if (typeof window !== 'undefined') {
-              window.location.href = `/${defaultLocale}/login`
-            }
-            // Throw immediately — do NOT fall through to the success/error handlers
-            // which would misinterpret the 401 response as something retryable.
-            throw new ApiError('Session expired', 401, response)
+            dispatchSessionExpired()
+            throw new SessionExpiredError()
           }
         }
 

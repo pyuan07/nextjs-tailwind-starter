@@ -189,6 +189,22 @@
       "resetSuccessMessage": "密码重置邮件发送成功！",
       "resetErrorMessage": "发送重置邮件失败。请重试。"
     },
+    "resetPassword": {
+      "title": "设置新密码",
+      "description": "输入并确认您的新密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码",
+      "resetButton": "重置密码",
+      "resetting": "重置中...",
+      "backToLogin": "← 返回登录",
+      "successTitle": "密码已重置！",
+      "successDesc": "您的密码已更改。您现在可以使用新密码登录。",
+      "successMessage": "密码重置成功！",
+      "errorMessage": "密码重置失败。请重试。",
+      "invalidToken": "重置链接无效",
+      "invalidTokenDesc": "此密码重置链接无效或已过期。",
+      "requestNewLink": "请求新的重置链接"
+    },
     "logout": {
       "confirm": "您确定要退出登录吗？",
       "yes": "是，退出登录",
@@ -208,7 +224,10 @@
       "passwordTooShort": "密码至少需要8个字符",
       "passwordMismatch": "密码不匹配",
       "nameRequired": "请输入全名",
-      "termsRequired": "您必须同意条款"
+      "nameMinLength": "名称至少需要2个字符",
+      "termsRequired": "您必须同意条款",
+      "redirectingToLogin": "正在重定向到登录页面...",
+      "redirecting": "正在重定向..."
     }
   },
   "pages": {
@@ -298,6 +317,66 @@
       "title": "页面未找到",
       "description": "您查找的页面不存在或已被移动。",
       "backHome": "返回首页"
+    },
+    "dashboard": {
+      "title": "控制台",
+      "description": "您的账户和活动概览",
+      "stats": {
+        "totalUsers": "总用户",
+        "activeToday": "今日活跃",
+        "revenue": "收入",
+        "openTickets": "待处理工单"
+      },
+      "recentActivity": "最近活动",
+      "noActivity": "暂无最近活动。"
+    },
+    "settings": {
+      "title": "设置",
+      "description": "管理您的账户偏好",
+      "profileSection": "个人资料",
+      "profileSectionDesc": "更新您的姓名和邮箱地址",
+      "name": "全名",
+      "email": "邮箱地址",
+      "saveProfile": "保存更改",
+      "saving": "保存中...",
+      "profileSaved": "个人资料更新成功",
+      "profileSaveError": "更新个人资料失败",
+      "passwordSection": "修改密码",
+      "passwordSectionDesc": "选择一个您在其他地方不使用的强密码",
+      "currentPassword": "当前密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认新密码",
+      "changePassword": "修改密码",
+      "changing": "修改中...",
+      "passwordChanged": "密码修改成功",
+      "passwordChangeError": "密码修改失败"
+    },
+    "legal": {
+      "termsTitle": "服务条款",
+      "privacyTitle": "隐私政策",
+      "termsDescription": "使用我们平台的条款和条件",
+      "privacyDescription": "我们如何收集、使用和保护您的数据",
+      "lastUpdated": "最后更新",
+      "languageNoticeLabel": "语言说明",
+      "languageNotice": "本法律文件仅提供英文版本，英文版本具有法律效力。",
+      "acceptance": "接受条款",
+      "acceptanceText": "通过访问或使用我们的服务，您同意受这些服务条款的约束。如果您不同意，请不要使用我们的服务。",
+      "useOfService": "服务使用",
+      "useOfServiceText": "您只能将我们的服务用于合法目的，并遵守这些条款。",
+      "intellectualProperty": "知识产权",
+      "intellectualPropertyText": "服务及其原始内容、功能是公司及其许可方的专有财产。",
+      "limitation": "责任限制",
+      "limitationText": "公司对因您使用服务而产生的任何间接、附带或后果性损害不承担责任。",
+      "dataCollection": "我们收集的数据",
+      "dataCollectionText": "我们收集您直接提供给我们的信息，例如当您创建账户、更新个人资料或联系支持时。",
+      "dataUse": "我们如何使用您的数据",
+      "dataUseText": "我们使用收集的信息来提供、维护和改进我们的服务，处理交易并与您沟通。",
+      "cookies": "Cookies",
+      "cookiesText": "我们使用Cookie和类似的跟踪技术来保存某些信息以改善您的体验。",
+      "dataRights": "您的数据权利",
+      "dataRightsText": "您有权访问、更正或删除您的个人数据。请联系我们行使这些权利。",
+      "contact": "联系我们",
+      "contactText": "如果您对这些条款有任何疑问，请通过 support@example.com 联系我们。"
     }
   },
   "validation": {

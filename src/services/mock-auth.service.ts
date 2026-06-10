@@ -45,7 +45,7 @@ class MockUserDatabase {
   create(data: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): User {
     const newUser: User = {
       ...data,
-      id: Date.now(), // Simple ID generation
+      id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }

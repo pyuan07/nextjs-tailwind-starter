@@ -189,6 +189,22 @@
       "resetSuccessMessage": "Password reset email sent successfully!",
       "resetErrorMessage": "Failed to send reset email. Please try again."
     },
+    "resetPassword": {
+      "title": "Set New Password",
+      "description": "Enter and confirm your new password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "resetButton": "Reset Password",
+      "resetting": "Resetting...",
+      "backToLogin": "← Back to login",
+      "successTitle": "Password reset!",
+      "successDesc": "Your password has been changed. You can now sign in with your new password.",
+      "successMessage": "Password reset successfully!",
+      "errorMessage": "Failed to reset password. Please try again.",
+      "invalidToken": "Invalid reset link",
+      "invalidTokenDesc": "This password reset link is invalid or has expired.",
+      "requestNewLink": "Request a new reset link"
+    },
     "logout": {
       "confirm": "Are you sure you want to logout?",
       "yes": "Yes, logout",
@@ -208,7 +224,10 @@
       "passwordTooShort": "Password must be at least 8 characters",
       "passwordMismatch": "Passwords do not match",
       "nameRequired": "Full name is required",
-      "termsRequired": "You must agree to the terms"
+      "nameMinLength": "Name must be at least 2 characters",
+      "termsRequired": "You must agree to the terms",
+      "redirectingToLogin": "Redirecting to login...",
+      "redirecting": "Redirecting..."
     }
   },
   "pages": {
@@ -298,6 +317,66 @@
       "title": "Page Not Found",
       "description": "The page you're looking for doesn't exist or has been moved.",
       "backHome": "Back to Home"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Overview of your account and activity",
+      "stats": {
+        "totalUsers": "Total Users",
+        "activeToday": "Active Today",
+        "revenue": "Revenue",
+        "openTickets": "Open Tickets"
+      },
+      "recentActivity": "Recent Activity",
+      "noActivity": "No recent activity to display."
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Manage your account preferences",
+      "profileSection": "Profile",
+      "profileSectionDesc": "Update your name and email address",
+      "name": "Full Name",
+      "email": "Email Address",
+      "saveProfile": "Save Changes",
+      "saving": "Saving...",
+      "profileSaved": "Profile updated successfully",
+      "profileSaveError": "Failed to update profile",
+      "passwordSection": "Change Password",
+      "passwordSectionDesc": "Choose a strong password you don't use elsewhere",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "changePassword": "Change Password",
+      "changing": "Changing...",
+      "passwordChanged": "Password changed successfully",
+      "passwordChangeError": "Failed to change password"
+    },
+    "legal": {
+      "termsTitle": "Terms of Service",
+      "privacyTitle": "Privacy Policy",
+      "termsDescription": "Terms and conditions for using our platform",
+      "privacyDescription": "How we collect, use, and protect your data",
+      "lastUpdated": "Last updated",
+      "languageNoticeLabel": "Language Notice",
+      "languageNotice": "This legal document is provided in English only. The English version is legally binding.",
+      "acceptance": "Acceptance of Terms",
+      "acceptanceText": "By accessing or using our service, you agree to be bound by these Terms of Service. If you do not agree, please do not use our service.",
+      "useOfService": "Use of Service",
+      "useOfServiceText": "You may use our service only for lawful purposes and in accordance with these terms.",
+      "intellectualProperty": "Intellectual Property",
+      "intellectualPropertyText": "The service and its original content, features, and functionality are the exclusive property of the company and its licensors.",
+      "limitation": "Limitation of Liability",
+      "limitationText": "The company shall not be liable for any indirect, incidental, or consequential damages resulting from your use of the service.",
+      "dataCollection": "Data We Collect",
+      "dataCollectionText": "We collect information you provide directly to us, such as when you create an account, update your profile, or contact us for support.",
+      "dataUse": "How We Use Your Data",
+      "dataUseText": "We use the information we collect to provide, maintain, and improve our services, process transactions, and communicate with you.",
+      "cookies": "Cookies",
+      "cookiesText": "We use cookies and similar tracking technologies to hold certain information to improve your experience.",
+      "dataRights": "Your Data Rights",
+      "dataRightsText": "You have the right to access, correct, or delete your personal data. Contact us to exercise these rights.",
+      "contact": "Contact Us",
+      "contactText": "If you have any questions about these terms, please contact us at support@example.com."
     }
   },
   "validation": {

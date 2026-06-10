@@ -11,11 +11,9 @@
 
 import { NextResponse } from 'next/server'
 import { clearAuthCookies, parseCookieValue } from '@/lib/auth-cookies'
-import { DEMO_CONFIG } from '@/constants'
+import { verifyAccessToken } from '@/lib/jwt'
 import type { ServiceResponse, User } from '@/types/api'
 import { USE_REAL_API_SERVER } from '@/constants/config'
-
-const ACCESS_TOKEN_LIFETIME_MS = 15 * 60 * 1000 // 15 minutes — must match login route
 
 function unauthorizedResponse(message: string): NextResponse {
   const resp = NextResponse.json(
@@ -44,7 +42,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     if (USE_REAL_API_SERVER) {
       user = await validateViaRealApi(authToken)
     } else {
-      user = validateMockToken(authToken)
+      user = await validateViaJWT(authToken)
     }
   } catch (err) {
     console.error('[auth] session validation failed:', err)
@@ -63,37 +61,21 @@ export async function GET(request: Request): Promise<NextResponse> {
 
 // ── Validation implementations ────────────────────────────────────────────────
 
-function validateMockToken(token: string): User {
-  if (!token || token.length === 0) {
-    throw new Error('Empty token')
-  }
+async function validateViaJWT(token: string): Promise<User> {
+  const claims = await verifyAccessToken(token)
+  if (!claims) throw new Error('Invalid or expired access token')
 
-  // Mock token format: mock_access_<issuedAtMs>_<randomId>
-  // or the older demo_access_<issuedAtMs>_<randomId> fallback
-  const parts = token.split('_')
-  if (parts.length >= 3) {
-    const timestampStr = parts[2] ?? ''
-    const issuedAt = parseInt(timestampStr, 10)
-    if (!isNaN(issuedAt) && Date.now() > issuedAt + ACCESS_TOKEN_LIFETIME_MS) {
-      throw new Error('Access token expired')
-    }
-  }
-
-  // For the mock service the token represents the demo user
-  const { DEMO_USER } = DEMO_CONFIG
-  const user: User = {
-    id: DEMO_USER.id,
-    email: DEMO_USER.email,
-    name: DEMO_USER.name,
-    role: DEMO_USER.role,
-    lang: DEMO_USER.lang,
-    isEmailVerified: DEMO_USER.isEmailVerified,
+  return {
+    id: claims.sub,
+    email: claims.email,
+    name: claims.name,
+    role: claims.role,
+    lang: claims.lang,
+    isEmailVerified: claims.isEmailVerified,
     avatar: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
-
-  return user
 }
 
 async function validateViaRealApi(token: string): Promise<User> {

@@ -200,14 +200,5 @@ export const useAuthStore = create<AuthStore>()(set => ({
   },
 }))
 
-// Cross-tab logout: 'storage' event propagates to other tabs; CustomEvent does not.
-if (typeof window !== 'undefined') {
-  window.addEventListener('storage', (event: StorageEvent) => {
-    if (event.key === 'auth:logout') {
-      void useAuthStore
-        .getState()
-        .refreshAuth()
-        .catch(() => {})
-    }
-  })
-}
+// Cross-tab logout listener is registered in AuthInitializer (src/components/providers/auth-initializer.tsx)
+// via useEffect with cleanup, so it does not leak between test suites or SSR renders.

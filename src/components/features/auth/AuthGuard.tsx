@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import { useAuthStatus } from '@/hooks'
 import { ROUTES } from '@/constants'
+import { matchesRoute } from '@/lib/route-matching'
 import { Skeleton } from '@/components/ui'
 
 interface AuthGuardProps {
@@ -20,27 +22,19 @@ export function AuthGuard({
   const { isAuthenticated, isLoading } = useAuthStatus()
   const router = useRouter()
   const pathname = usePathname()
+  const t = useTranslations('auth.errors')
 
-  // Route configuration sourced from constants — update src/constants/config.ts to add routes
-  const protectedRoutes = ROUTES.PROTECTED
-  const authRoutes = ROUTES.AUTH
-
-  const isProtectedRoute = protectedRoutes.some(route =>
-    pathname.startsWith(route)
-  )
-  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
+  const isProtectedRoute = matchesRoute(pathname, ROUTES.PROTECTED)
+  const isAuthRoute = matchesRoute(pathname, ROUTES.AUTH)
 
   useEffect(() => {
-    if (isLoading) return // Wait for auth state to be determined
+    if (isLoading) return
 
-    // Redirect unauthenticated users from protected routes to login
     if (isProtectedRoute && !isAuthenticated) {
-      const redirectUrl = `${redirectTo}?redirect=${encodeURIComponent(pathname)}`
-      router.push(redirectUrl)
+      router.push(`${redirectTo}?redirect=${encodeURIComponent(pathname)}`)
       return
     }
 
-    // Redirect authenticated users from auth routes to showcase
     if (isAuthRoute && isAuthenticated) {
       router.push(ROUTES.DEFAULT_AUTHENTICATED)
       return
@@ -55,7 +49,6 @@ export function AuthGuard({
     redirectTo,
   ])
 
-  // Show loading state while determining auth
   if (isLoading) {
     return (
       fallback || (
@@ -70,32 +63,29 @@ export function AuthGuard({
     )
   }
 
-  // Show redirecting state for protected routes when not authenticated
   if (isProtectedRoute && !isAuthenticated) {
     return (
       fallback || (
         <div className='min-h-screen flex items-center justify-center'>
           <div className='text-center'>
-            <p className='text-muted-foreground'>Redirecting to login...</p>
+            <p className='text-muted-foreground'>{t('redirectingToLogin')}</p>
           </div>
         </div>
       )
     )
   }
 
-  // Show redirecting state for auth routes when authenticated
   if (isAuthRoute && isAuthenticated) {
     return (
       fallback || (
         <div className='min-h-screen flex items-center justify-center'>
           <div className='text-center'>
-            <p className='text-muted-foreground'>Redirecting...</p>
+            <p className='text-muted-foreground'>{t('redirecting')}</p>
           </div>
         </div>
       )
     )
   }
 
-  // Render children for all other cases
   return <>{children}</>
 }

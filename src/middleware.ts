@@ -1,64 +1,52 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { env } from '@/config/env'
-import { generateSecureToken, rateLimiter } from '@/utils/security'
+import { rateLimiter } from '@/utils/security'
 import { ROUTES, RATE_LIMITS, SECURITY_CONFIG } from '@/constants'
 import createMiddleware from 'next-intl/middleware'
 import { routing } from '@/i18n/routing'
 import { locales, defaultLocale, type Locale } from '@/i18n/config'
+import { matchesRoute } from '@/lib/route-matching'
+import { verifyAccessToken } from '@/lib/jwt'
 
-/**
- * Optimized middleware following industry best practices
- * - Separated concerns (security, i18n, auth)
- * - Early returns for performance
- * - Proper composition pattern
- * - No code duplication
- * - Constants extracted for maintainability
- */
-
-// Route configurations (from constants)
 const PROTECTED_ROUTES = ROUTES.PROTECTED
 const AUTH_ROUTES = ROUTES.AUTH
-const LEGAL_ROUTES = ROUTES.LEGAL
 
-// Create next-intl middleware
 const intlMiddleware = createMiddleware(routing)
 
-// Security utilities
+// Static file extensions that middleware should never process
+const STATIC_FILE_RE =
+  /\.(svg|png|jpe?g|gif|webp|ico|css|js|map|txt|xml|json|woff2?)$/i
+
 function getClientIP(request: NextRequest): string {
-  // request.ip is set by Vercel's trusted proxy; fall back to X-Forwarded-For
   const forwarded = request.headers.get('x-forwarded-for')
-  const clientIp =
+  return (
     (request as unknown as { ip?: string }).ip ??
     forwarded?.split(',')[0]?.trim() ??
     'unknown'
-  return clientIp
+  )
 }
 
-function isAuthenticated(request: NextRequest): boolean {
+async function isAuthenticated(request: NextRequest): Promise<boolean> {
   const authToken = request.cookies.get('auth_token')?.value
-  return !!authToken && authToken.length > 0
+  if (!authToken) return false
+  const claims = await verifyAccessToken(authToken)
+  return claims !== null
 }
 
 function shouldSkipMiddleware(pathname: string): boolean {
   return (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/static/') ||
-    pathname.includes('.') ||
+    STATIC_FILE_RE.test(pathname) ||
     pathname === '/favicon.ico'
   )
 }
 
-function isLegalDocument(pathname: string): boolean {
-  return (LEGAL_ROUTES as readonly string[]).includes(pathname)
-}
-
 function applyRateLimit(request: NextRequest): boolean {
   const clientIP = getClientIP(request)
-  const userAgent = request.headers.get('user-agent') || 'unknown'
   const { pathname } = request.nextUrl
 
-  // Auth API routes have strictest limits to prevent brute force
   if (pathname.startsWith('/api/auth/')) {
     return rateLimiter.isRateLimited(
       `auth:${clientIP}`,
@@ -67,7 +55,6 @@ function applyRateLimit(request: NextRequest): boolean {
     )
   }
 
-  // Other API routes have stricter limits
   if (pathname.startsWith('/api/')) {
     return rateLimiter.isRateLimited(
       `api:${clientIP}`,
@@ -76,7 +63,6 @@ function applyRateLimit(request: NextRequest): boolean {
     )
   }
 
-  // Auth routes have strictest limits to prevent brute force
   if (
     pathname.includes('/login') ||
     pathname.includes('/register') ||
@@ -89,22 +75,19 @@ function applyRateLimit(request: NextRequest): boolean {
     )
   }
 
-  // General routes
   return rateLimiter.isRateLimited(
-    `general:${clientIP}:${userAgent}`,
+    `general:${clientIP}`,
     RATE_LIMITS.GENERAL.requests,
     RATE_LIMITS.GENERAL.windowMs
   )
 }
 
 function addSecurityHeaders(response: NextResponse): NextResponse {
-  const nonce = generateSecureToken(16)
-
   // Core security headers
-  const securityHeaders = {
+  const headers: Record<string, string> = {
     'X-Frame-Options': 'DENY',
     'X-Content-Type-Options': 'nosniff',
-    'X-XSS-Protection': '1; mode=block',
+    // X-XSS-Protection is deprecated (can introduce bugs in old IE); omit it.
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'X-DNS-Prefetch-Control': 'off',
     'X-Download-Options': 'noopen',
@@ -121,26 +104,31 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
       'accelerometer=()',
       'ambient-light-sensor=()',
     ].join(', '),
-    'X-Nonce': nonce,
   }
 
-  Object.entries(securityHeaders).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(headers)) {
     response.headers.set(key, value)
-  })
-
-  // HSTS for production
-  if (env.isProduction) {
-    response.headers.set(
-      'Strict-Transport-Security',
-      `max-age=${SECURITY_CONFIG.HSTS_MAX_AGE}; includeSubDomains; preload`
-    )
   }
 
-  // Content Security Policy
+  if (env.isProduction) {
+    const hstsDirectives = [
+      `max-age=${SECURITY_CONFIG.HSTS_MAX_AGE}`,
+      SECURITY_CONFIG.HSTS_INCLUDE_SUBDOMAINS ? 'includeSubDomains' : '',
+      SECURITY_CONFIG.HSTS_PRELOAD ? 'preload' : '',
+    ]
+      .filter(Boolean)
+      .join('; ')
+
+    response.headers.set('Strict-Transport-Security', hstsDirectives)
+  }
+
+  // CSP: use 'self' for script-src — compatible with Next.js static pre-rendering.
+  // Note: nonce-based CSP requires force-dynamic rendering on every page.
+  // 'block-all-mixed-content' is deprecated (superseded by upgrade-insecure-requests).
   const cspDirectives = env.isProduction
     ? [
         "default-src 'self'",
-        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+        "script-src 'self'",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https: blob:",
         "font-src 'self'",
@@ -153,7 +141,6 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
         "base-uri 'self'",
         "form-action 'self'",
         'upgrade-insecure-requests',
-        'block-all-mixed-content',
       ]
     : [
         "default-src 'self'",
@@ -178,35 +165,16 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 function createRateLimitResponse(): NextResponse {
   return new NextResponse('Too Many Requests', {
     status: 429,
-    headers: { 'Retry-After': '900' },
+    headers: {
+      'Retry-After': String(Math.ceil(RATE_LIMITS.AUTH.windowMs / 1000)),
+    },
   })
 }
 
-function handleLegalRoutes(
+async function handleAuthentication(
   request: NextRequest,
   pathname: string
-): NextResponse | null {
-  // Handle direct legal document access
-  if (isLegalDocument(pathname)) {
-    return addSecurityHeaders(NextResponse.next())
-  }
-
-  // Redirect old locale-based legal documents
-  const legalRedirectMatch = pathname.match(/^\/(en|zh|ms)\/(terms|privacy)$/)
-  if (legalRedirectMatch) {
-    const [, , document] = legalRedirectMatch
-    const redirectUrl = new URL(`/${document}`, request.url)
-    return NextResponse.redirect(redirectUrl, 301)
-  }
-
-  return null
-}
-
-function handleAuthentication(
-  request: NextRequest,
-  pathname: string
-): NextResponse | null {
-  // Extract locale from pathname using next-intl pattern
+): Promise<NextResponse | null> {
   const segments = pathname.split('/').filter(Boolean)
   const potentialLocale = segments[0]
   const isValidLocale = locales.includes(potentialLocale as Locale)
@@ -216,30 +184,19 @@ function handleAuthentication(
     ? `/${segments.slice(1).join('/')}`
     : pathname
 
-  const isUserAuth = isAuthenticated(request)
+  const isUserAuth = await isAuthenticated(request)
+  const isProtected = matchesRoute(pathWithoutLocale, PROTECTED_ROUTES)
+  const isAuth = matchesRoute(pathWithoutLocale, AUTH_ROUTES)
 
-  // Check if current path is protected or auth route
-  const isProtected = PROTECTED_ROUTES.some(
-    route =>
-      pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`)
-  )
-  const isAuth = AUTH_ROUTES.some(
-    route =>
-      pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`)
-  )
-
-  // Redirect unauthenticated users from protected routes
   if (isProtected && !isUserAuth) {
     const loginUrl = new URL(
       `/${locale}${ROUTES.DEFAULT_UNAUTHENTICATED}`,
       request.url
     )
-    // Store only path, not query string, to prevent open redirect
     loginUrl.searchParams.set('redirect', pathname)
     return addSecurityHeaders(NextResponse.redirect(loginUrl))
   }
 
-  // Redirect authenticated users from auth routes
   if (isAuth && isUserAuth) {
     const showcaseUrl = new URL(
       `/${locale}${ROUTES.DEFAULT_AUTHENTICATED}`,
@@ -251,20 +208,11 @@ function handleAuthentication(
   return null
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Early returns for performance
-  if (shouldSkipMiddleware(pathname)) {
-    return NextResponse.next()
-  }
+  if (shouldSkipMiddleware(pathname)) return NextResponse.next()
 
-  // Handle legal documents first (these don't need i18n)
-  const legalResponse = handleLegalRoutes(request, pathname)
-  if (legalResponse) return legalResponse
-
-  // API routes: rate limiting only
-  // Note: logger not used here — it references window.navigator which is unavailable in Edge Runtime
   if (pathname.startsWith('/api/')) {
     if (applyRateLimit(request)) {
       console.warn(
@@ -275,10 +223,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // For root path, let next-intl handle the redirect immediately
   if (pathname === '/') {
-    const intlResponse = intlMiddleware(request)
-    return addSecurityHeaders(intlResponse)
+    return addSecurityHeaders(intlMiddleware(request))
   }
 
   if (applyRateLimit(request)) {
@@ -286,10 +232,8 @@ export function middleware(request: NextRequest) {
     return createRateLimitResponse()
   }
 
-  // Apply i18n middleware
   const intlResponse = intlMiddleware(request)
 
-  // Handle i18n redirects
   if (
     intlResponse &&
     (intlResponse.status === 307 ||
@@ -299,18 +243,18 @@ export function middleware(request: NextRequest) {
     return addSecurityHeaders(intlResponse)
   }
 
-  // Handle authentication after i18n processing
-  const authResponse = handleAuthentication(request, pathname)
+  const authResponse = await handleAuthentication(request, pathname)
   if (authResponse) return authResponse
 
-  // Default response with security headers
-  const response = intlResponse || NextResponse.next()
-  return addSecurityHeaders(response)
+  return addSecurityHeaders(intlResponse || NextResponse.next())
 }
 
+// Nonce generation hint:
+// If you add force-dynamic server pages and want nonce-based CSP, you can generate
+// a nonce here and thread it via request headers (x-nonce) + NextResponse.next({ request: { headers } }).
+// Static pages built with generateStaticParams cannot use per-request nonces.
 export const config = {
   matcher: [
-    // Match all paths except Next.js internals and static files
     '/((?!_next/static|_next/image|favicon.ico|sw.js|workbox-.*|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
