@@ -30,7 +30,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   const existingCsrf = parseCookieValue(cookieHeader, 'csrf_token')
   const headerCsrf = request.headers.get('x-csrf-token')
 
-  if (!headerCsrf || (existingCsrf && existingCsrf !== headerCsrf)) {
+  // Require BOTH a header and a matching cookie (same strictness as login/refresh).
+  // Logout is state-mutating, so a missing csrf cookie must NOT pass the check.
+  if (!headerCsrf || !existingCsrf || existingCsrf !== headerCsrf) {
     return errorResponse('CSRF token required', 403)
   }
 

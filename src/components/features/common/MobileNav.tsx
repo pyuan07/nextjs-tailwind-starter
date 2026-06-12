@@ -73,9 +73,13 @@ export function MobileNav({ brandName }: MobileNavProps) {
   return (
     <>
       {/* Mobile Header */}
-      <div className='flex md:hidden items-center justify-between h-16 px-4 border-b bg-background/95 backdrop-blur'>
+      <div className='flex md:hidden items-center justify-between h-16 px-4 border-b border-border/60 bg-background/90 backdrop-blur-md'>
         {/* Brand */}
-        <Link href='/' className='text-lg font-bold' onClick={closeNav}>
+        <Link
+          href='/'
+          className='text-lg font-display font-bold text-gradient-brand'
+          onClick={closeNav}
+        >
           {brandName}
         </Link>
 
@@ -146,7 +150,7 @@ export function MobileNav({ brandName }: MobileNavProps) {
                       'flex items-center gap-3 p-3 rounded-lg text-base transition-colors',
                       'min-h-11', // Minimum touch target
                       isActive
-                        ? 'bg-primary text-primary-foreground'
+                        ? 'bg-brand-subtle text-brand font-medium'
                         : 'hover:bg-accent hover:text-accent-foreground'
                     )}
                   >

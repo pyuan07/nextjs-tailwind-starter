@@ -196,15 +196,6 @@ export class SecureTokenManager {
   // These methods are called by auth.service.ts and mock-auth.service.ts.
   // They are kept as no-ops or thin delegates for backwards compatibility.
 
-  /**
-   * No-op shim: tokens are stored in HttpOnly cookies by the login route handler.
-   */
-  storeTokens(_tokens: TokenPair): void {
-    logger.info(
-      'storeTokens called - tokens are managed server-side via HttpOnly cookies'
-    )
-  }
-
   /** Clears in-memory auth state. HttpOnly cookies are cleared by /api/auth/logout. */
   clearTokens(): void {
     currentUser = null
@@ -264,11 +255,6 @@ export class SecureTokenManager {
 
   /** Shim: access tokens are opaque to the client. */
   async getValidAccessToken(): Promise<string | null> {
-    return null
-  }
-
-  /** Shim: returns null - use getUser() for the current user. */
-  getCurrentAccessToken(): string | null {
     return null
   }
 

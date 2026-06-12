@@ -24,7 +24,9 @@
       "search": "搜索",
       "filter": "筛选",
       "clear": "清除",
-      "close": "关闭"
+      "close": "关闭",
+      "showPassword": "显示密码",
+      "hidePassword": "隐藏密码"
     },
     "status": {
       "success": "成功",
@@ -216,6 +218,12 @@
       "settings": "设置",
       "signOut": "退出登录"
     },
+    "layout": {
+      "tagline": "构建生产就绪应用的最快方式。",
+      "statsLanguages": "语言",
+      "statsComponents": "组件",
+      "statsSecurity": "安全性"
+    },
     "errors": {
       "invalidCredentials": "邮箱或密码无效",
       "emailRequired": "请输入邮箱",
@@ -233,7 +241,24 @@
   "pages": {
     "home": {
       "title": "首页",
-      "description": "欢迎来到首页"
+      "description": "欢迎来到首页",
+      "hero": {
+        "badge": "生产就绪",
+        "tagline1": "构建。",
+        "tagline2": "发布。",
+        "tagline3": "扩展。",
+        "poweredBy": "由现代技术驱动",
+        "trustTypescript": "严格 TypeScript",
+        "trustPwa": "PWA 就绪",
+        "trustI18n": "3 种语言"
+      },
+      "cta": {
+        "title": "准备好构建",
+        "highlight": "非凡",
+        "titleSuffix": "的产品了吗？",
+        "subtitle": "登录以探索完整的组件展示和仪表板。",
+        "button": "立即开始"
+      }
     },
     "profile": {
       "title": "个人资料",

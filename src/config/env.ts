@@ -36,6 +36,26 @@ const serverEnvSchema = clientEnvSchema
       path: ['JWT_SECRET'],
     }
   )
+  .refine(
+    data => {
+      // Fail fast rather than silently defaulting to http://localhost:3001:
+      // when the real API is enabled in production, the base URL MUST be set
+      // explicitly via NEXT_PUBLIC_API_BASE_URL.
+      if (
+        data.NODE_ENV === 'production' &&
+        data.USE_REAL_API &&
+        !process.env.NEXT_PUBLIC_API_BASE_URL
+      ) {
+        return false
+      }
+      return true
+    },
+    {
+      message:
+        'NEXT_PUBLIC_API_BASE_URL must be set explicitly when USE_REAL_API is enabled in production',
+      path: ['NEXT_PUBLIC_API_BASE_URL'],
+    }
+  )
 
 function validateEnv() {
   const isServer = typeof window === 'undefined'

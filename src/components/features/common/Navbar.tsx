@@ -47,10 +47,13 @@ export function Navbar() {
       <MobileNav brandName={brandName} />
 
       {/* Desktop Navigation */}
-      <header className='hidden md:block border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+      <header className='hidden md:block border-b border-border/60 bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/70'>
         <div className='container mx-auto flex h-16 items-center justify-between px-4'>
           <div className='flex items-center gap-6'>
-            <Link href='/' className='text-xl font-bold'>
+            <Link
+              href='/'
+              className='text-xl font-display font-bold text-gradient-brand hover:opacity-90 transition-opacity'
+            >
               {brandName}
             </Link>
 
@@ -63,8 +66,10 @@ export function Navbar() {
                       href='/'
                       className={cn(
                         navigationMenuTriggerStyle(),
-                        'min-h-11', // Touch-friendly height
-                        pathname === '/' && 'bg-accent text-accent-foreground'
+                        'min-h-11',
+                        pathname === '/'
+                          ? 'bg-brand-subtle text-brand font-medium'
+                          : 'hover:bg-accent hover:text-accent-foreground'
                       )}
                     >
                       {t('home')}

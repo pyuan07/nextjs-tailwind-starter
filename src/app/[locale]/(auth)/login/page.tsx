@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <div className='space-y-6'>
       {/* Welcome Header */}
       <div className='text-center space-y-2'>
-        <h1 className='text-3xl font-bold'>{tAuth('welcome')}</h1>
+        <h1 className='text-3xl font-display font-bold'>{tAuth('welcome')}</h1>
         <p className='text-muted-foreground'>
           {redirect ? t('signInToAccess') : t('signInToContinue')}
         </p>
@@ -24,8 +24,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       {/* Redirect Notice */}
       {redirect && (
-        <div className='p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg'>
-          <p className='text-sm text-amber-700 dark:text-amber-300'>
+        <div className='p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl'>
+          <p className='text-sm text-amber-700 dark:text-amber-400'>
             {t('needSignInAccess')}{' '}
             <span className='font-medium'>{redirect}</span>
           </p>

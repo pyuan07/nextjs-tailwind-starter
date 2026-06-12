@@ -11,6 +11,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Checkbox,
 } from '@/components/ui'
 import {
   Form,
@@ -63,16 +64,28 @@ function ProfileContent() {
   }
 
   return (
-    <div className='min-h-screen bg-background'>
-      <main className='container mx-auto px-4 py-8 max-w-4xl'>
+    <div className='relative min-h-screen bg-background'>
+      {/* Ambient background */}
+      <div
+        className='fixed inset-0 bg-mesh pointer-events-none'
+        aria-hidden='true'
+      />
+      <div
+        className='fixed inset-0 grid-dots pointer-events-none opacity-30'
+        aria-hidden='true'
+      />
+
+      <main className='relative container mx-auto px-4 py-10 max-w-4xl'>
         <div className='space-y-8'>
           <div>
-            <h1 className='text-3xl font-bold'>{t('pageTitle')}</h1>
-            <p className='text-muted-foreground'>{t('pageDescription')}</p>
+            <h1 className='font-display text-3xl font-bold tracking-tight'>
+              {t('pageTitle')}
+            </h1>
+            <p className='text-muted-foreground mt-1'>{t('pageDescription')}</p>
           </div>
 
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-            <Card>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+            <Card className='rounded-2xl'>
               <CardHeader>
                 <CardTitle className='flex items-center gap-2'>
                   <Icon name='user' size='md' />
@@ -81,8 +94,8 @@ function ProfileContent() {
               </CardHeader>
               <CardContent className='space-y-4'>
                 <div className='text-center'>
-                  <div className='w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl'>
-                    {user.name.charAt(0)}
+                  <div className='w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-display font-bold text-brand-foreground bg-gradient-to-br from-brand to-brand-light shadow-lg shadow-brand/20'>
+                    {user.name.charAt(0).toUpperCase()}
                   </div>
                   <h3 className='font-semibold'>{user.name}</h3>
                   <p className='text-sm text-muted-foreground'>{user.email}</p>
@@ -134,23 +147,25 @@ function ProfileContent() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className='rounded-2xl'>
               <CardHeader>
                 <CardTitle className='flex items-center gap-2'>
                   <Icon name='security' size='md' />
                   {t('security')}
                 </CardTitle>
               </CardHeader>
-              <CardContent className='space-y-4'>
-                <div className='flex justify-between items-center p-3 border rounded'>
-                  <span>{t('password')}</span>
+              <CardContent className='space-y-3'>
+                <div className='flex justify-between items-center p-3 rounded-xl border border-border/60 bg-muted/30'>
+                  <span className='text-sm font-medium'>{t('password')}</span>
                   <Button variant='outline' size='sm'>
                     {t('changePassword')}
                   </Button>
                 </div>
 
-                <div className='flex justify-between items-center p-3 border rounded'>
-                  <span>{t('twoFactorAuth')}</span>
+                <div className='flex justify-between items-center p-3 rounded-xl border border-border/60 bg-muted/30'>
+                  <span className='text-sm font-medium'>
+                    {t('twoFactorAuth')}
+                  </span>
                   <Button variant='outline' size='sm'>
                     {t('enableTwoFactor')}
                   </Button>
@@ -158,28 +173,28 @@ function ProfileContent() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className='rounded-2xl'>
               <CardHeader>
                 <CardTitle className='flex items-center gap-2'>
                   <Icon name='settings' size='md' />
                   {t('preferences')}
                 </CardTitle>
               </CardHeader>
-              <CardContent className='space-y-4'>
-                <div className='flex justify-between items-center'>
-                  <span>{t('emailNotifications')}</span>
-                  <input type='checkbox' defaultChecked />
-                </div>
-                <div className='flex justify-between items-center'>
-                  <span>{t('marketingEmails')}</span>
-                  <input type='checkbox' />
-                </div>
+              <CardContent className='space-y-1'>
+                <label className='flex justify-between items-center gap-3 p-2 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer'>
+                  <span className='text-sm'>{t('emailNotifications')}</span>
+                  <Checkbox defaultChecked />
+                </label>
+                <label className='flex justify-between items-center gap-3 p-2 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer'>
+                  <span className='text-sm'>{t('marketingEmails')}</span>
+                  <Checkbox />
+                </label>
               </CardContent>
             </Card>
 
-            <Card className='border-red-200'>
+            <Card className='rounded-2xl border-destructive/30 bg-destructive/[0.03]'>
               <CardHeader>
-                <CardTitle className='text-red-600 flex items-center gap-2'>
+                <CardTitle className='text-destructive flex items-center gap-2'>
                   <Icon name='warning' size='md' />
                   {t('dangerZone')}
                 </CardTitle>

@@ -6,6 +6,12 @@
  */
 
 // ── Rate limiter ──────────────────────────────────────────────────────────────
+//
+// NOTE: This limiter stores counters in a process-local Map. On serverless /
+// multi-instance deployments each instance keeps its own counters, so the
+// effective limit becomes (limit × instance-count) and counters reset on cold
+// start. For production-grade distributed rate limiting, back this with a
+// shared store such as Upstash Redis (@upstash/ratelimit).
 
 interface RateLimitEntry {
   count: number

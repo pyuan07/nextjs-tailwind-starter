@@ -63,11 +63,10 @@ export const authService = {
         credentials
       )
 
-      // Convert API tokens to internal format
+      // Convert API tokens to internal format.
+      // Tokens are persisted server-side as HttpOnly cookies by the
+      // /api/auth/* route handlers — nothing to store on the client.
       const tokens = convertTokens(response.tokens)
-
-      // Store tokens securely
-      tokenManager.storeTokens(tokens)
 
       logger.info('Login successful', { userId: String(response.user.id) })
 
@@ -110,11 +109,9 @@ export const authService = {
         userData
       )
 
-      // Convert API tokens to internal format
+      // Convert API tokens to internal format (persisted server-side as
+      // HttpOnly cookies — nothing to store on the client).
       const tokens = convertTokens(response.tokens)
-
-      // Store tokens securely
-      tokenManager.storeTokens(tokens)
 
       logger.info('Registration successful', {
         userId: String(response.user.id),

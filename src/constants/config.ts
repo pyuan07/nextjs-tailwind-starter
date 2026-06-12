@@ -9,21 +9,27 @@ import { env } from '@/config/env'
 // TOKEN CONFIGURATION
 // ============================================================================
 
+// Canonical token lifetimes in milliseconds — the single source of truth.
+// The cookie Max-Age (seconds) values are DERIVED from these so the two
+// representations can never drift apart.
+const ACCESS_TOKEN_LIFETIME_MS = 15 * 60 * 1000 // 15 minutes
+const REFRESH_TOKEN_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
+
 export const TOKEN_CONFIG = {
   /** Threshold to refresh access token (5 minutes before expiry) */
   REFRESH_THRESHOLD: 5 * 60 * 1000, // milliseconds
 
   /** Access token lifetime — 15 minutes in milliseconds */
-  ACCESS_TOKEN_LIFETIME: 15 * 60 * 1000,
+  ACCESS_TOKEN_LIFETIME: ACCESS_TOKEN_LIFETIME_MS,
 
-  /** Access token cookie maxAge — 15 minutes in seconds (for Set-Cookie: Max-Age) */
-  ACCESS_TOKEN_MAX_AGE_S: 15 * 60,
+  /** Access token cookie maxAge in seconds (for Set-Cookie: Max-Age) */
+  ACCESS_TOKEN_MAX_AGE_S: ACCESS_TOKEN_LIFETIME_MS / 1000,
 
   /** Refresh token lifetime — 7 days in milliseconds */
-  REFRESH_TOKEN_LIFETIME: 7 * 24 * 60 * 60 * 1000,
+  REFRESH_TOKEN_LIFETIME: REFRESH_TOKEN_LIFETIME_MS,
 
-  /** Refresh token cookie maxAge — 7 days in seconds (for Set-Cookie: Max-Age) */
-  REFRESH_TOKEN_MAX_AGE_S: 7 * 24 * 60 * 60,
+  /** Refresh token cookie maxAge in seconds (for Set-Cookie: Max-Age) */
+  REFRESH_TOKEN_MAX_AGE_S: REFRESH_TOKEN_LIFETIME_MS / 1000,
 
   /** Maximum retry attempts for token refresh */
   MAX_REFRESH_RETRIES: 3,

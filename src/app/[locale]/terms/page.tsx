@@ -28,58 +28,61 @@ export default async function TermsPage({ params }: TermsProps) {
     namespace: 'pages.legal',
   })
 
+  const sections = [
+    { title: t('acceptance'), body: t('acceptanceText') },
+    { title: t('useOfService'), body: t('useOfServiceText') },
+    { title: t('intellectualProperty'), body: t('intellectualPropertyText') },
+    { title: t('limitation'), body: t('limitationText') },
+    { title: t('contact'), body: t('contactText') },
+  ]
+
   return (
-    <main id='main-content' className='container mx-auto px-4 py-8 max-w-4xl'>
-      <div className='space-y-8 text-foreground'>
-        <div className='space-y-2'>
-          <h1 className='text-4xl font-bold'>{t('termsTitle')}</h1>
-          <p className='text-muted-foreground'>
-            {t('lastUpdated')}: {new Date().toLocaleDateString(locale)}
-          </p>
-          <div className='p-4 bg-muted rounded-lg border'>
+    <div className='relative min-h-screen'>
+      {/* Ambient background */}
+      <div
+        className='fixed inset-0 bg-mesh pointer-events-none'
+        aria-hidden='true'
+      />
+
+      <main
+        id='main-content'
+        className='relative container mx-auto px-4 py-12 max-w-3xl'
+      >
+        <div className='space-y-10 text-foreground'>
+          <div className='space-y-3'>
+            <h1 className='font-display text-4xl font-bold tracking-tight'>
+              {t('termsTitle')}
+            </h1>
             <p className='text-sm text-muted-foreground'>
-              <strong>{t('languageNoticeLabel')}:</strong> {t('languageNotice')}
+              {t('lastUpdated')}: {new Date().toLocaleDateString(locale)}
             </p>
+            <div className='p-4 rounded-xl border border-brand/20 bg-brand-subtle/40'>
+              <p className='text-sm text-muted-foreground'>
+                <strong className='text-foreground'>
+                  {t('languageNoticeLabel')}:
+                </strong>{' '}
+                {t('languageNotice')}
+              </p>
+            </div>
+          </div>
+
+          <div className='space-y-8'>
+            {sections.map((section, i) => (
+              <section key={section.title} className='space-y-3'>
+                <h2 className='flex items-center gap-3 text-xl font-semibold'>
+                  <span className='flex-shrink-0 w-8 h-8 rounded-lg bg-brand-subtle text-brand text-sm font-display font-bold flex items-center justify-center'>
+                    {i + 1}
+                  </span>
+                  {section.title}
+                </h2>
+                <p className='text-muted-foreground leading-relaxed pl-11'>
+                  {section.body}
+                </p>
+              </section>
+            ))}
           </div>
         </div>
-
-        <div className='space-y-6'>
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>
-              1. {t('acceptance')}
-            </h2>
-            <p className='text-muted-foreground'>{t('acceptanceText')}</p>
-          </section>
-
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>
-              2. {t('useOfService')}
-            </h2>
-            <p className='text-muted-foreground'>{t('useOfServiceText')}</p>
-          </section>
-
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>
-              3. {t('intellectualProperty')}
-            </h2>
-            <p className='text-muted-foreground'>
-              {t('intellectualPropertyText')}
-            </p>
-          </section>
-
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>
-              4. {t('limitation')}
-            </h2>
-            <p className='text-muted-foreground'>{t('limitationText')}</p>
-          </section>
-
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>5. {t('contact')}</h2>
-            <p className='text-muted-foreground'>{t('contactText')}</p>
-          </section>
-        </div>
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }

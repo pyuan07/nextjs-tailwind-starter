@@ -21,13 +21,9 @@ import {
   generateCsrfToken,
   parseCookieValue,
 } from '@/lib/auth-cookies'
-import { signAccessToken, decodeAccessToken } from '@/lib/jwt'
+import { rotateTokens } from '@/lib/auth-rotation'
 import type { ServiceResponse, TokenPair } from '@/types/api'
-import {
-  USE_REAL_API_SERVER,
-  DEMO_CONFIG,
-  TOKEN_CONFIG,
-} from '@/constants/config'
+import { USE_REAL_API_SERVER } from '@/constants/config'
 
 function errorResponse(message: string, status: number): NextResponse {
   const resp = NextResponse.json(
@@ -68,11 +64,11 @@ export async function POST(request: Request): Promise<NextResponse> {
   let newTokens: TokenPair
 
   try {
-    if (USE_REAL_API_SERVER) {
-      newTokens = await refreshViaRealApi(refreshToken)
-    } else {
-      newTokens = await refreshViaMock(refreshToken, oldAccessToken)
-    }
+    newTokens = await rotateTokens(
+      refreshToken,
+      oldAccessToken,
+      USE_REAL_API_SERVER
+    )
   } catch (err) {
     console.error('[auth] refresh failed:', err)
     return errorResponse('Token refresh failed', 401)
@@ -100,72 +96,4 @@ export async function POST(request: Request): Promise<NextResponse> {
   setCsrfCookie(response, csrfToken)
 
   return response
-}
-
-// ── Token refresh implementations ────────────────────────────────────────────
-
-async function refreshViaMock(
-  currentRefreshToken: string,
-  oldAccessToken: string | null
-): Promise<TokenPair> {
-  if (!currentRefreshToken) throw new Error('Invalid refresh token')
-
-  // Validate refresh token expiry — format: mock_refresh_<issuedAtMs>_<id>
-  const parts = currentRefreshToken.split('_')
-  if (parts.length >= 3) {
-    const issuedAt = parseInt(parts[2] ?? '', 10)
-    if (
-      !isNaN(issuedAt) &&
-      Date.now() > issuedAt + TOKEN_CONFIG.REFRESH_TOKEN_LIFETIME
-    ) {
-      throw new Error('Refresh token expired')
-    }
-  }
-
-  // Extract user claims from the old (possibly expired) access token.
-  // decodeAccessToken does NOT verify the signature — it only decodes.
-  // This is intentional: the refresh token already proved the session is valid.
-  const { DEMO_USER } = DEMO_CONFIG
-  const fallbackClaims = {
-    sub: String(DEMO_USER.id),
-    email: DEMO_USER.email,
-    name: DEMO_USER.name,
-    role: DEMO_USER.role,
-    lang: DEMO_USER.lang,
-    isEmailVerified: DEMO_USER.isEmailVerified,
-  }
-
-  const claims =
-    (oldAccessToken ? decodeAccessToken(oldAccessToken) : null) ??
-    fallbackClaims
-
-  const accessToken = await signAccessToken(claims)
-  const now = Date.now()
-  const randomId = crypto.randomUUID().replace(/-/g, '').substring(0, 13)
-
-  return {
-    accessToken,
-    refreshToken: `mock_refresh_${now}_${randomId}`,
-    accessTokenExpiry: now + TOKEN_CONFIG.ACCESS_TOKEN_LIFETIME,
-    refreshTokenExpiry: now + TOKEN_CONFIG.REFRESH_TOKEN_LIFETIME,
-    tokenType: 'Bearer',
-  }
-}
-
-async function refreshViaRealApi(refreshToken: string): Promise<TokenPair> {
-  const { api } = await import('@/lib/api')
-  const { API_ENDPOINTS } = await import('@/types/api')
-
-  const response = await api.post<{
-    access: { token: string; expires: string }
-    refresh: { token: string; expires: string }
-  }>(API_ENDPOINTS.auth.refresh, { refreshToken })
-
-  return {
-    accessToken: response.access.token,
-    refreshToken: response.refresh.token,
-    accessTokenExpiry: new Date(response.access.expires).getTime(),
-    refreshTokenExpiry: new Date(response.refresh.expires).getTime(),
-    tokenType: 'Bearer',
-  }
 }

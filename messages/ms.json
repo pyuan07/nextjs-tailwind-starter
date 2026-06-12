@@ -24,7 +24,9 @@
       "search": "Cari",
       "filter": "Tapis",
       "clear": "Kosongkan",
-      "close": "Tutup"
+      "close": "Tutup",
+      "showPassword": "Tunjuk kata laluan",
+      "hidePassword": "Sembunyi kata laluan"
     },
     "status": {
       "success": "Berjaya",
@@ -216,6 +218,12 @@
       "settings": "Tetapan",
       "signOut": "Log Keluar"
     },
+    "layout": {
+      "tagline": "Cara terpantas untuk membina aplikasi sedia pengeluaran.",
+      "statsLanguages": "Bahasa",
+      "statsComponents": "Komponen",
+      "statsSecurity": "Keselamatan"
+    },
     "errors": {
       "invalidCredentials": "E-mel atau kata laluan tidak sah",
       "emailRequired": "E-mel diperlukan",
@@ -233,7 +241,24 @@
   "pages": {
     "home": {
       "title": "Laman Utama",
-      "description": "Selamat datang ke laman utama"
+      "description": "Selamat datang ke laman utama",
+      "hero": {
+        "badge": "Sedia Pengeluaran",
+        "tagline1": "Bina.",
+        "tagline2": "Hantar.",
+        "tagline3": "Skala.",
+        "poweredBy": "Dikuasakan oleh teknologi moden",
+        "trustTypescript": "TypeScript ketat",
+        "trustPwa": "Sedia PWA",
+        "trustI18n": "3 bahasa"
+      },
+      "cta": {
+        "title": "Bersedia untuk membina sesuatu yang",
+        "highlight": "luar biasa",
+        "titleSuffix": "?",
+        "subtitle": "Log masuk untuk meneroka pameran komponen dan papan pemuka penuh.",
+        "button": "Mulakan"
+      }
     },
     "profile": {
       "title": "Profil",

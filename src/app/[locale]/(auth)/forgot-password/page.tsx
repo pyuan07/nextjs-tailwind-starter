@@ -3,16 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-} from '@/components/ui'
+import { Button, Input, Label } from '@/components/ui'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
 
@@ -53,25 +44,25 @@ export default function ForgotPasswordPage() {
     return (
       <div className='space-y-6'>
         <div className='text-center space-y-2'>
-          <h1 className='text-3xl font-bold'>{t('checkEmailTitle')}</h1>
+          <h1 className='text-3xl font-display font-bold'>
+            {t('checkEmailTitle')}
+          </h1>
           <p className='text-muted-foreground'>
             {t('checkEmailDescription')} <strong>{email}</strong>
           </p>
         </div>
 
-        <Card>
-          <CardContent className='pt-6 text-center space-y-4'>
-            <div className='w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto'>
-              ✓
-            </div>
-            <div>
-              <h3 className='font-medium'>{t('emailSentTitle')}</h3>
-              <p className='text-sm text-muted-foreground mt-2'>
-                {t('emailSentDescription')}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className='rounded-2xl border border-border/60 bg-card p-6 text-center space-y-4'>
+          <div className='w-14 h-14 rounded-full bg-chart-3/15 text-chart-3 text-2xl flex items-center justify-center mx-auto'>
+            ✓
+          </div>
+          <div>
+            <h3 className='font-medium'>{t('emailSentTitle')}</h3>
+            <p className='text-sm text-muted-foreground mt-2'>
+              {t('emailSentDescription')}
+            </p>
+          </div>
+        </div>
 
         <div className='text-center text-sm space-y-4'>
           <div>
@@ -98,42 +89,37 @@ export default function ForgotPasswordPage() {
   return (
     <div className='space-y-6'>
       <div className='text-center space-y-2'>
-        <h1 className='text-3xl font-bold'>{t('pageTitle')}</h1>
+        <h1 className='text-3xl font-display font-bold'>{t('pageTitle')}</h1>
         <p className='text-muted-foreground'>{t('pageDescription')}</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('resetTitle')}</CardTitle>
-          <CardDescription>{t('resetDescription')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className='space-y-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='email'>{t('emailAddress')}</Label>
-              <Input
-                id='email'
-                type='email'
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                disabled={isLoading}
-                placeholder={t('emailPlaceholder')}
-              />
-            </div>
+      <form onSubmit={handleSubmit} className='space-y-4'>
+        <div className='space-y-2'>
+          <Label htmlFor='email'>{t('emailAddress')}</Label>
+          <Input
+            id='email'
+            type='email'
+            inputMode='email'
+            autoComplete='email'
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            disabled={isLoading}
+            placeholder={t('emailPlaceholder')}
+            className='min-h-11 text-base'
+          />
+        </div>
 
-            <Button type='submit' disabled={isLoading} className='w-full'>
-              {isLoading ? (
-                <>
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  {t('sendingReset')}
-                </>
-              ) : (
-                t('sendReset')
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+        <Button type='submit' disabled={isLoading} className='w-full min-h-11'>
+          {isLoading ? (
+            <>
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              {t('sendingReset')}
+            </>
+          ) : (
+            t('sendReset')
+          )}
+        </Button>
+      </form>
 
       <div className='text-center text-sm'>
         <Link

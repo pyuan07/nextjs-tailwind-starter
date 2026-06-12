@@ -24,7 +24,9 @@
       "search": "Search",
       "filter": "Filter",
       "clear": "Clear",
-      "close": "Close"
+      "close": "Close",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
     },
     "status": {
       "success": "Success",
@@ -216,6 +218,12 @@
       "settings": "Settings",
       "signOut": "Sign Out"
     },
+    "layout": {
+      "tagline": "The fastest way to build production-ready apps.",
+      "statsLanguages": "Languages",
+      "statsComponents": "Components",
+      "statsSecurity": "Security"
+    },
     "errors": {
       "invalidCredentials": "Invalid email or password",
       "emailRequired": "Email is required",
@@ -233,7 +241,24 @@
   "pages": {
     "home": {
       "title": "Home",
-      "description": "Welcome to the homepage"
+      "description": "Welcome to the homepage",
+      "hero": {
+        "badge": "Production Ready",
+        "tagline1": "Build.",
+        "tagline2": "Ship.",
+        "tagline3": "Scale.",
+        "poweredBy": "Powered by modern technology",
+        "trustTypescript": "TypeScript strict",
+        "trustPwa": "PWA ready",
+        "trustI18n": "3 languages"
+      },
+      "cta": {
+        "title": "Ready to build something",
+        "highlight": "extraordinary",
+        "titleSuffix": "?",
+        "subtitle": "Sign in to explore the full component showcase and dashboard.",
+        "button": "Get Started"
+      }
     },
     "profile": {
       "title": "Profile",

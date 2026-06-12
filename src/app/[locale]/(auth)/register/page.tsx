@@ -10,7 +10,7 @@ export default async function RegisterPage() {
     <div className='space-y-6'>
       {/* Welcome Header */}
       <div className='text-center space-y-2'>
-        <h1 className='text-3xl font-bold'>{t('pageTitle')}</h1>
+        <h1 className='text-3xl font-display font-bold'>{t('pageTitle')}</h1>
         <p className='text-muted-foreground'>{t('pageDescription')}</p>
       </div>
 

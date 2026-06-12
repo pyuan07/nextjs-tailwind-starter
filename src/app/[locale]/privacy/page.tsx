@@ -28,52 +28,61 @@ export default async function PrivacyPage({ params }: PrivacyProps) {
     namespace: 'pages.legal',
   })
 
+  const sections = [
+    { title: t('dataCollection'), body: t('dataCollectionText') },
+    { title: t('dataUse'), body: t('dataUseText') },
+    { title: t('cookies'), body: t('cookiesText') },
+    { title: t('dataRights'), body: t('dataRightsText') },
+    { title: t('contact'), body: t('contactText') },
+  ]
+
   return (
-    <main id='main-content' className='container mx-auto px-4 py-8 max-w-4xl'>
-      <div className='space-y-8 text-foreground'>
-        <div className='space-y-2'>
-          <h1 className='text-4xl font-bold'>{t('privacyTitle')}</h1>
-          <p className='text-muted-foreground'>
-            {t('lastUpdated')}: {new Date().toLocaleDateString(locale)}
-          </p>
-          <div className='p-4 bg-muted rounded-lg border'>
+    <div className='relative min-h-screen'>
+      {/* Ambient background */}
+      <div
+        className='fixed inset-0 bg-mesh pointer-events-none'
+        aria-hidden='true'
+      />
+
+      <main
+        id='main-content'
+        className='relative container mx-auto px-4 py-12 max-w-3xl'
+      >
+        <div className='space-y-10 text-foreground'>
+          <div className='space-y-3'>
+            <h1 className='font-display text-4xl font-bold tracking-tight'>
+              {t('privacyTitle')}
+            </h1>
             <p className='text-sm text-muted-foreground'>
-              <strong>{t('languageNoticeLabel')}:</strong> {t('languageNotice')}
+              {t('lastUpdated')}: {new Date().toLocaleDateString(locale)}
             </p>
+            <div className='p-4 rounded-xl border border-brand/20 bg-brand-subtle/40'>
+              <p className='text-sm text-muted-foreground'>
+                <strong className='text-foreground'>
+                  {t('languageNoticeLabel')}:
+                </strong>{' '}
+                {t('languageNotice')}
+              </p>
+            </div>
+          </div>
+
+          <div className='space-y-8'>
+            {sections.map((section, i) => (
+              <section key={section.title} className='space-y-3'>
+                <h2 className='flex items-center gap-3 text-xl font-semibold'>
+                  <span className='flex-shrink-0 w-8 h-8 rounded-lg bg-brand-subtle text-brand text-sm font-display font-bold flex items-center justify-center'>
+                    {i + 1}
+                  </span>
+                  {section.title}
+                </h2>
+                <p className='text-muted-foreground leading-relaxed pl-11'>
+                  {section.body}
+                </p>
+              </section>
+            ))}
           </div>
         </div>
-
-        <div className='space-y-6'>
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>
-              1. {t('dataCollection')}
-            </h2>
-            <p className='text-muted-foreground'>{t('dataCollectionText')}</p>
-          </section>
-
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>2. {t('dataUse')}</h2>
-            <p className='text-muted-foreground'>{t('dataUseText')}</p>
-          </section>
-
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>3. {t('cookies')}</h2>
-            <p className='text-muted-foreground'>{t('cookiesText')}</p>
-          </section>
-
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>
-              4. {t('dataRights')}
-            </h2>
-            <p className='text-muted-foreground'>{t('dataRightsText')}</p>
-          </section>
-
-          <section>
-            <h2 className='text-2xl font-semibold mb-3'>5. {t('contact')}</h2>
-            <p className='text-muted-foreground'>{t('contactText')}</p>
-          </section>
-        </div>
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }

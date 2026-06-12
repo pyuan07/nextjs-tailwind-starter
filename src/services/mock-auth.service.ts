@@ -18,7 +18,12 @@ import type {
 } from '@/types/api'
 
 /**
- * Mock user database (in-memory)
+ * Mock user database (in-memory).
+ *
+ * NOTE: This Map is process-local and is recreated on every cold start. Users
+ * registered through the mock path therefore do NOT persist across server
+ * restarts, and are not shared between serverless instances. This is fine for
+ * local development and demos — swap in a real database before relying on it.
  */
 class MockUserDatabase {
   private users: Map<string, User> = new Map()
@@ -144,11 +149,8 @@ export const MockAuthService = {
         throw new Error('Invalid password. Try: password')
       }
 
-      // Generate tokens
+      // Generate tokens (the login route handler sets the real HttpOnly cookies)
       const tokens = generateMockTokens()
-
-      // Store tokens
-      tokenManager.storeTokens(tokens)
 
       logger.info('Mock login successful', { userId: String(user.id) })
 
@@ -201,11 +203,8 @@ export const MockAuthService = {
         avatar: null,
       })
 
-      // Generate tokens
+      // Generate tokens (the login route handler sets the real HttpOnly cookies)
       const tokens = generateMockTokens()
-
-      // Store tokens
-      tokenManager.storeTokens(tokens)
 
       logger.info('Mock registration successful', {
         userId: String(newUser.id),

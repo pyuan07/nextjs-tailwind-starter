@@ -56,16 +56,28 @@ function ShowcaseContent() {
   }
 
   return (
-    <div className='min-h-screen bg-background text-foreground'>
-      <main className='container mx-auto px-4 py-8'>
+    <div className='relative min-h-screen bg-background text-foreground'>
+      {/* Ambient background */}
+      <div
+        className='fixed inset-0 bg-mesh pointer-events-none'
+        aria-hidden='true'
+      />
+      <div
+        className='fixed inset-0 grid-dots pointer-events-none opacity-30'
+        aria-hidden='true'
+      />
+
+      <main className='relative container mx-auto px-4 py-10 max-w-5xl'>
         <div className='space-y-8'>
           {/* Welcome Section */}
-          <div className='space-y-2'>
-            <h1 className='text-3xl font-bold flex items-center gap-3'>
-              <Icon name='component' size='xl' />
+          <div className='space-y-3'>
+            <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-subtle border border-brand/20 text-brand text-xs font-semibold'>
+              <Icon name='component' size='sm' />
+              {tShowcase('subtitle')}
+            </div>
+            <h1 className='font-display text-4xl font-bold tracking-tight'>
               {tShowcase('title')}
             </h1>
-            <p className='text-muted-foreground'>{tShowcase('subtitle')}</p>
           </div>
 
           {/* Button Components */}

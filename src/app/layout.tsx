@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Syne } from 'next/font/google'
 import { getLocale } from 'next-intl/server'
 import { Toaster } from '@/components/ui/sonner'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
@@ -12,6 +12,13 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
+})
+
+const syne = Syne({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+  weight: ['700', '800'],
 })
 
 // Simplified metadata for backoffice/internal tools
@@ -32,16 +39,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
-    siteName: 'Next.js Tailwind Starter',
-    title: 'Next.js Tailwind Starter',
-    description:
-      'Production-ready Next.js 15 starter with TypeScript, Tailwind CSS v4, and i18n',
+    siteName: env.APP_NAME,
+    title: `${env.APP_NAME} - Backoffice`,
+    description: 'Internal management dashboard and backoffice tools',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Next.js Tailwind Starter',
-    description:
-      'Production-ready Next.js 15 starter with TypeScript, Tailwind CSS v4, and i18n',
+    title: `${env.APP_NAME} - Backoffice`,
+    description: 'Internal management dashboard and backoffice tools',
   },
 }
 
@@ -52,7 +57,11 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale()
   return (
-    <html lang={locale} className={inter.variable} suppressHydrationWarning>
+    <html
+      lang={locale}
+      className={`${inter.variable} ${syne.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         {/* Viewport for mobile-first experience */}
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
