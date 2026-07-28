@@ -10,7 +10,11 @@
  */
 
 import { NextResponse } from 'next/server'
-import { clearAuthCookies, parseCookieValue } from '@/lib/auth-cookies'
+import {
+  clearAuthCookies,
+  parseCookieValue,
+  csrfTokensMatch,
+} from '@/lib/auth-cookies'
 import type { VoidServiceResponse } from '@/types/api'
 
 function errorResponse(message: string, status: number): NextResponse {
@@ -32,7 +36,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   // Require BOTH a header and a matching cookie (same strictness as login/refresh).
   // Logout is state-mutating, so a missing csrf cookie must NOT pass the check.
-  if (!headerCsrf || !existingCsrf || existingCsrf !== headerCsrf) {
+  if (!csrfTokensMatch(existingCsrf, headerCsrf)) {
     return errorResponse('CSRF token required', 403)
   }
 

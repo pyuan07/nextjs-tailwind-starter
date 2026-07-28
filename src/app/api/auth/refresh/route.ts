@@ -20,6 +20,7 @@ import {
   clearAuthCookies,
   generateCsrfToken,
   parseCookieValue,
+  csrfTokensMatch,
 } from '@/lib/auth-cookies'
 import { rotateTokens } from '@/lib/auth-rotation'
 import type { ServiceResponse, TokenPair } from '@/types/api'
@@ -45,7 +46,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const existingCsrf = parseCookieValue(cookieHeader, 'csrf_token')
   const headerCsrf = request.headers.get('x-csrf-token')
 
-  if (!headerCsrf || !existingCsrf || existingCsrf !== headerCsrf) {
+  if (!csrfTokensMatch(existingCsrf, headerCsrf)) {
     return errorResponse('CSRF token required', 403)
   }
 

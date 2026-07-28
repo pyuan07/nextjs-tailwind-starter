@@ -189,6 +189,11 @@ const nextConfig: NextConfig = {
   },
 
   // Turbopack configuration
+  //
+  // Imports an SVG as a React component (`import Logo from './logo.svg'`).
+  // Requires @svgr/webpack, which is a devDependency — the rule silently
+  // failed to resolve before it was installed. Both `dev` and `build` use
+  // Turbopack here; the webpack fallback scripts do not apply this rule.
   turbopack: {
     rules: {
       '*.svg': {

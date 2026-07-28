@@ -19,7 +19,6 @@ import type {
   RegisterRequest,
   UpdateUserRequest,
   RegisterResponse,
-  ProfileResponse,
   AuthTokens,
   TokenPair,
   User,
@@ -188,26 +187,25 @@ export const authService = {
       return MockAuthService.getProfile()
     }
 
-    // Real API implementation
+    // Real API implementation.
+    //
+    // Routed through the same-origin /api/user/profile handler rather than
+    // calling the external API directly: the access token is HttpOnly, so the
+    // browser cannot attach a bearer itself. The route reads the cookie and
+    // forwards the bearer server-side.
     try {
-      if (!tokenManager.isAuthenticated()) {
-        throw new Error('Not authenticated')
-      }
-
       logger.info('Fetching user profile')
 
-      const response = await api.get<ProfileResponse>(
-        API_ENDPOINTS.users.profile
-      )
+      const user = await tokenManager.getProfile()
 
       logger.info('Profile retrieved successfully', {
-        userId: String(response.user.id),
+        userId: String(user.id),
       })
 
       return {
         success: true,
         message: 'Profile retrieved',
-        data: response.user,
+        data: user,
       }
     } catch (error) {
       logger.error('Failed to get profile', error as Error)
@@ -228,27 +226,20 @@ export const authService = {
       return MockAuthService.updateProfile(updates)
     }
 
-    // Real API implementation
+    // Real API implementation — via the same-origin proxy route, see getProfile.
     try {
-      if (!tokenManager.isAuthenticated()) {
-        throw new Error('Not authenticated')
-      }
-
       logger.info('Updating user profile', { updates: Object.keys(updates) })
 
-      const response = await api.patch<ProfileResponse>(
-        API_ENDPOINTS.users.updateProfile,
-        updates
-      )
+      const user = await tokenManager.updateProfile(updates)
 
       logger.info('Profile updated successfully', {
-        userId: String(response.user.id),
+        userId: String(user.id),
       })
 
       return {
         success: true,
         message: 'Profile updated',
-        data: response.user,
+        data: user,
       }
     } catch (error) {
       logger.error('Profile update failed', error as Error)

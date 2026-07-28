@@ -16,6 +16,7 @@ import { logger } from '@/lib/logger'
 import { TOKEN_CONFIG } from '@/constants'
 import type {
   LoginRequest,
+  UpdateUserRequest,
   User,
   TokenPair,
   TokenValidation,
@@ -116,6 +117,42 @@ async function callRefresh(): Promise<boolean> {
   // Clear cached CSRF so ensureCsrfToken fetches a fresh one after token rotation
   csrfToken = null
   return response.ok
+}
+
+async function callGetProfile(): Promise<User> {
+  const response = await fetch('/api/user/profile', {
+    method: 'GET',
+    credentials: 'same-origin',
+  })
+  const data = (await response.json()) as {
+    success: boolean
+    message?: string
+    data?: User
+  }
+  if (!response.ok || !data.success || !data.data) {
+    throw new Error(data.message || 'Failed to load profile')
+  }
+  return data.data
+}
+
+async function callUpdateProfile(updates: UpdateUserRequest): Promise<User> {
+  const token = csrfToken ?? (await ensureCsrfToken())
+  const response = await fetch('/api/user/profile', {
+    method: 'PATCH',
+    headers: buildAuthHeaders(token),
+    body: JSON.stringify(updates),
+    credentials: 'same-origin',
+  })
+  const data = (await response.json()) as {
+    success: boolean
+    message?: string
+    data?: User
+    errors?: string[]
+  }
+  if (!response.ok || !data.success || !data.data) {
+    throw new Error(data.errors?.[0] || data.message || 'Update failed')
+  }
+  return data.data
 }
 
 async function callSession(): Promise<User | null> {
@@ -221,7 +258,16 @@ export class SecureTokenManager {
     }
   }
 
-  /** Shim: returns a TokenValidation based on current in-memory state. */
+  /**
+   * Shim: returns a TokenValidation based on current in-memory state.
+   *
+   * The access token is HttpOnly, so its real expiry is not observable from
+   * JavaScript — this is an estimate anchored on when THIS tab established the
+   * session. `sessionStartTime` is only set by login(); after a page reload it
+   * is null and the true age of the token is unknown. In that case we report
+   * needsRefresh rather than optimistically claiming a full lifetime remains,
+   * which is what the previous `elapsed = 0` fallback did.
+   */
   validateAccessToken(): TokenValidation {
     if (currentUser === null) {
       return {
@@ -231,8 +277,15 @@ export class SecureTokenManager {
         needsRefresh: true,
       }
     }
-    const elapsed =
-      sessionStartTime !== null ? Date.now() - sessionStartTime : 0
+    if (sessionStartTime === null) {
+      return {
+        isValid: true,
+        isExpired: false,
+        expiresIn: 0,
+        needsRefresh: true,
+      }
+    }
+    const elapsed = Date.now() - sessionStartTime
     const remainingMs = Math.max(0, ACCESS_TOKEN_LIFETIME_MS - elapsed)
     const expiresIn = Math.floor(remainingMs / 1000)
     const isExpired = remainingMs === 0
@@ -268,6 +321,25 @@ export class SecureTokenManager {
     const { user } = await callLogin(credentials)
     currentUser = user
     csrfToken = null
+    return user
+  }
+
+  /**
+   * Read the signed-in user's profile via the same-origin proxy route.
+   *
+   * Browser-only: the access token is HttpOnly, so the profile must be fetched
+   * through /api/user/profile, which attaches the bearer server-side.
+   */
+  async getProfile(): Promise<User> {
+    const user = await callGetProfile()
+    currentUser = user
+    return user
+  }
+
+  /** Update the signed-in user's profile via the same-origin proxy route. */
+  async updateProfile(updates: UpdateUserRequest): Promise<User> {
+    const user = await callUpdateProfile(updates)
+    currentUser = user
     return user
   }
 

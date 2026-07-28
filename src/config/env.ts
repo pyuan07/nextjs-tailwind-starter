@@ -23,6 +23,13 @@ const serverEnvSchema = clientEnvSchema
       z.boolean().default(false)
     ),
     JWT_SECRET: z.string().optional(),
+    /**
+     * Number of trusted reverse proxies between the public internet and this
+     * app (CDN, load balancer, ingress). Used to pick the real client IP out
+     * of X-Forwarded-For for rate limiting. See getClientIP in middleware.ts.
+     * 0 = the app is exposed directly and X-Forwarded-For is not trustworthy.
+     */
+    TRUSTED_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(1),
   })
   .refine(
     data => {
@@ -73,6 +80,7 @@ function validateEnv() {
       ? {
           USE_REAL_API: process.env.USE_REAL_API,
           JWT_SECRET: process.env.JWT_SECRET,
+          TRUSTED_PROXY_HOPS: process.env.TRUSTED_PROXY_HOPS,
         }
       : {}),
   }
@@ -120,6 +128,10 @@ export const env = {
     'JWT_SECRET' in validatedEnv
       ? (validatedEnv as { JWT_SECRET?: string }).JWT_SECRET
       : undefined,
+  TRUSTED_PROXY_HOPS:
+    'TRUSTED_PROXY_HOPS' in validatedEnv
+      ? (validatedEnv as { TRUSTED_PROXY_HOPS: number }).TRUSTED_PROXY_HOPS
+      : 1,
 
   // Sentry / monitoring
   SENTRY_DSN: validatedEnv.NEXT_PUBLIC_SENTRY_DSN,

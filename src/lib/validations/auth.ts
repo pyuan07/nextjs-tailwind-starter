@@ -30,6 +30,23 @@ export const profileUpdateSchema = z.object({
   email: z.string().email('Invalid email address'),
 })
 
+/**
+ * Server-side schema for PATCH /api/user/profile.
+ *
+ * Unlike profileUpdateSchema (which backs a full form and requires both
+ * fields), a PATCH carries only the fields being changed — so every field is
+ * optional. At least one must be present, otherwise the request is a no-op.
+ */
+export const profilePatchSchema = z
+  .object({
+    name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+    email: z.string().email('Invalid email address').optional(),
+    avatar: z.string().url('Invalid avatar URL').optional(),
+  })
+  .refine(data => Object.values(data).some(value => value !== undefined), {
+    message: 'No fields to update',
+  })
+
 export type LoginFormData = z.infer<typeof loginSchema>
 export type RegisterFormData = z.infer<typeof registerSchema>
 export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>
