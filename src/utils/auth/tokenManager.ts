@@ -37,8 +37,19 @@ function readCsrfCookie(): string | null {
   return match ? decodeURIComponent(match.split('=')[1] ?? '') : null
 }
 
+/**
+ * Return a CSRF token that is guaranteed to match the current csrf_token
+ * cookie, fetching a fresh one when it does not.
+ *
+ * The in-memory copy must be revalidated against the cookie rather than
+ * trusted on its own: the cookie expires after ACCESS_TOKEN_MAX_AGE_S while
+ * the variable lives as long as the tab, so a tab left idle past that window
+ * would keep sending a token whose cookie is gone and every state-mutating
+ * request would 403 until a manual reload.
+ */
 async function ensureCsrfToken(): Promise<string> {
-  if (csrfToken) return csrfToken
+  if (csrfToken && readCsrfCookie() === csrfToken) return csrfToken
+  csrfToken = null
   try {
     const response = await fetch('/api/auth/csrf', { method: 'GET' })
     if (!response.ok) {
@@ -90,7 +101,7 @@ async function callLogin(credentials: LoginRequest): Promise<{ user: User }> {
 }
 
 async function callLogout(): Promise<void> {
-  const token = csrfToken ?? (await ensureCsrfToken())
+  const token = await ensureCsrfToken()
   const response = await fetch('/api/auth/logout', {
     method: 'POST',
     headers: buildAuthHeaders(token),
@@ -105,7 +116,7 @@ async function callLogout(): Promise<void> {
 }
 
 async function callRefresh(): Promise<boolean> {
-  const token = csrfToken ?? (await ensureCsrfToken())
+  const token = await ensureCsrfToken()
   const response = await fetch('/api/auth/refresh', {
     method: 'POST',
     headers: {
@@ -136,7 +147,7 @@ async function callGetProfile(): Promise<User> {
 }
 
 async function callUpdateProfile(updates: UpdateUserRequest): Promise<User> {
-  const token = csrfToken ?? (await ensureCsrfToken())
+  const token = await ensureCsrfToken()
   const response = await fetch('/api/user/profile', {
     method: 'PATCH',
     headers: buildAuthHeaders(token),

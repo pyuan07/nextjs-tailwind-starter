@@ -29,17 +29,15 @@ const STATIC_FILE_RE =
  *
  * With N trusted proxies in front of the app, the real client sits at
  * index (length - N). Configure N via TRUSTED_PROXY_HOPS (default 1).
- * Platform headers below are set by the edge itself and cannot be spoofed,
- * so they win when present.
+ *
+ * Deliberately does NOT special-case cf-connecting-ip / x-vercel-forwarded-for.
+ * Those are only unspoofable when the request genuinely arrived through that
+ * platform — on any other host they are ordinary client-supplied headers, and
+ * trusting them would hand back the very bypass this function exists to close.
+ * Vercel and Cloudflare both populate X-Forwarded-For too, so hop counting
+ * covers them without the added attack surface.
  */
 function getClientIP(request: NextRequest): string {
-  const platformIP =
-    request.headers.get('cf-connecting-ip') ??
-    request.headers.get('x-vercel-forwarded-for') ??
-    (request as unknown as { ip?: string }).ip
-
-  if (platformIP) return platformIP.trim()
-
   const hops = env.TRUSTED_PROXY_HOPS
   if (hops === 0) return 'unknown'
 
