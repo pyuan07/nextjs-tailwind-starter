@@ -44,7 +44,14 @@ class MockUserDatabase {
   }
 
   findById(id: string | number): User | undefined {
-    return Array.from(this.users.values()).find(user => user.id === id)
+    // User.id is `string | number`: the seeded demo user carries a numeric id
+    // while registered users get a UUID string, and a claims round-trip through
+    // the JWT `sub` turns 1 into "1". Compare as strings so a strict === does
+    // not silently miss the user depending on which path produced the id.
+    const target = String(id)
+    return Array.from(this.users.values()).find(
+      user => String(user.id) === target
+    )
   }
 
   create(data: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): User {
@@ -278,6 +285,63 @@ export const MockAuthService = {
   /**
    * Mock update user profile
    */
+  /**
+   * Server-side profile read, keyed by the authenticated user's email.
+   *
+   * getProfile()/updateProfile() below are browser-facing: they gate on
+   * tokenManager.isAuthenticated(), which reads a client-only in-memory cache
+   * and is therefore always false inside a route handler. They also hardcode
+   * the demo user rather than acting on whoever is signed in. Route handlers
+   * have already verified the JWT, so they use these *For variants instead and
+   * pass the authenticated identity explicitly.
+   */
+  getProfileFor(email: string): ServiceResponse<User> {
+    const user = mockDB.findByEmail(email)
+    if (!user) {
+      return {
+        success: false,
+        message: 'User not found',
+        errors: ['User not found'],
+      }
+    }
+    return {
+      success: true,
+      message: 'Profile retrieved (MOCK)',
+      data: user,
+    }
+  },
+
+  /** Server-side profile update, keyed by the authenticated user's email. */
+  updateProfileFor(
+    email: string,
+    updates: UpdateUserRequest
+  ): ServiceResponse<User> {
+    const current = mockDB.findByEmail(email)
+    if (!current) {
+      return {
+        success: false,
+        message: 'User not found',
+        errors: ['User not found'],
+      }
+    }
+
+    const updated = mockDB.update(current.id, updates)
+    if (!updated) {
+      return {
+        success: false,
+        message: 'Failed to update profile',
+        errors: ['Failed to update profile'],
+      }
+    }
+
+    logger.info('Mock profile updated', { userId: String(updated.id) })
+    return {
+      success: true,
+      message: 'Profile updated (MOCK)',
+      data: updated,
+    }
+  },
+
   async updateProfile(
     updates: UpdateUserRequest
   ): Promise<ServiceResponse<User>> {

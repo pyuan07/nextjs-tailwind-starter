@@ -189,6 +189,11 @@ const nextConfig: NextConfig = {
   },
 
   // Turbopack configuration
+  //
+  // Imports an SVG as a React component (`import Logo from './logo.svg'`).
+  // Requires @svgr/webpack, which is a devDependency — the rule silently
+  // failed to resolve before it was installed. Both `dev` and `build` use
+  // Turbopack here; the webpack fallback scripts do not apply this rule.
   turbopack: {
     rules: {
       '*.svg': {
@@ -231,12 +236,11 @@ const nextConfig: NextConfig = {
         )
       }
 
-      // Enable tree shaking of unused exports without overriding per-package
-      // sideEffects fields (which would incorrectly drop CSS from node_modules)
-      config.optimization = {
-        ...config.optimization,
-        usedExports: true,
-      }
+      // NOTE: do not set `optimization.usedExports` here. Next.js already
+      // enables tree shaking for production webpack builds, and forcing the
+      // flag on crashes `next dev` with:
+      //   "optimization.usedExports can't be used with cacheUnaffected"
+      // because dev mode enables webpack's cacheUnaffected optimization.
 
       return config
     },

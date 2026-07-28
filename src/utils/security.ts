@@ -18,6 +18,15 @@ interface RateLimitEntry {
   resetTime: number
 }
 
+/**
+ * Upper bound on tracked identifiers. Without a cap the store is a memory
+ * growth vector: every distinct key allocates an entry, and an attacker who
+ * can vary the rate-limit key (e.g. via a spoofable forwarded-for header) can
+ * grow it without limit. On overflow we evict expired entries first and, if
+ * that is not enough, drop the oldest-expiring entries.
+ */
+const MAX_TRACKED_IDENTIFIERS = 10_000
+
 class RateLimiter {
   private store = new Map<string, RateLimitEntry>()
   private defaultLimit = 100
@@ -34,6 +43,7 @@ class RateLimiter {
     if (Math.random() < 0.01) this.cleanup()
 
     if (!entry || now > entry.resetTime) {
+      if (this.store.size >= MAX_TRACKED_IDENTIFIERS) this.evict()
       this.store.set(identifier, { count: 1, resetTime: now + windowMs })
       return false
     }
@@ -61,6 +71,24 @@ class RateLimiter {
     const now = Date.now()
     for (const [key, entry] of this.store.entries()) {
       if (now > entry.resetTime) this.store.delete(key)
+    }
+  }
+
+  /**
+   * Make room when the store hits its cap. Expired entries go first; if the
+   * store is still full they are all live, so drop the ones closest to
+   * expiring — those buckets are about to reset anyway.
+   */
+  private evict(): void {
+    this.cleanup()
+    if (this.store.size < MAX_TRACKED_IDENTIFIERS) return
+
+    const byExpiry = [...this.store.entries()].sort(
+      (a, b) => a[1].resetTime - b[1].resetTime
+    )
+    const dropCount = Math.ceil(MAX_TRACKED_IDENTIFIERS / 10)
+    for (const [key] of byExpiry.slice(0, dropCount)) {
+      this.store.delete(key)
     }
   }
 }

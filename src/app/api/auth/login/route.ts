@@ -18,6 +18,7 @@ import {
   setCsrfCookie,
   generateCsrfToken,
   parseCookieValue,
+  csrfTokensMatch,
 } from '@/lib/auth-cookies'
 import { signAccessToken } from '@/lib/jwt'
 import type { ServiceResponse, User, TokenPair } from '@/types/api'
@@ -41,7 +42,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const csrfCookie = parseCookieValue(cookieHeader, 'csrf_token')
   const csrfHeader = request.headers.get('x-csrf-token')
 
-  if (!csrfHeader || csrfCookie !== csrfHeader) {
+  if (!csrfTokensMatch(csrfCookie, csrfHeader)) {
     return errorResponse('Invalid CSRF token', 403)
   }
 

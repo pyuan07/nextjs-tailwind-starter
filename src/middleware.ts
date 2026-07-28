@@ -18,13 +18,37 @@ const intlMiddleware = createMiddleware(routing)
 const STATIC_FILE_RE =
   /\.(svg|png|jpe?g|gif|webp|ico|css|js|map|txt|xml|json|woff2?)$/i
 
+/**
+ * Resolve the client IP used to key rate limiting.
+ *
+ * X-Forwarded-For is client-controlled: anyone can send
+ * `X-Forwarded-For: <random>` and, if we read the LEFT-most entry, mint a
+ * fresh rate-limit bucket on every request. Each proxy APPENDS the address it
+ * received the request from, so the RIGHT-most entries are the trustworthy
+ * ones — the last is always written by our own nearest proxy.
+ *
+ * With N trusted proxies in front of the app, the real client sits at
+ * index (length - N). Configure N via TRUSTED_PROXY_HOPS (default 1).
+ *
+ * Deliberately does NOT special-case cf-connecting-ip / x-vercel-forwarded-for.
+ * Those are only unspoofable when the request genuinely arrived through that
+ * platform — on any other host they are ordinary client-supplied headers, and
+ * trusting them would hand back the very bypass this function exists to close.
+ * Vercel and Cloudflare both populate X-Forwarded-For too, so hop counting
+ * covers them without the added attack surface.
+ */
 function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for')
-  return (
-    (request as unknown as { ip?: string }).ip ??
-    forwarded?.split(',')[0]?.trim() ??
-    'unknown'
-  )
+  const hops = env.TRUSTED_PROXY_HOPS
+  if (hops === 0) return 'unknown'
+
+  const chain = (request.headers.get('x-forwarded-for') ?? '')
+    .split(',')
+    .map(part => part.trim())
+    .filter(Boolean)
+
+  if (chain.length === 0) return 'unknown'
+
+  return chain[Math.max(0, chain.length - hops)] ?? 'unknown'
 }
 
 async function isAuthenticated(request: NextRequest): Promise<boolean> {
@@ -82,6 +106,24 @@ function applyRateLimit(request: NextRequest): boolean {
   )
 }
 
+/** Origin of the external API server, or '' when it is same-origin/unset. */
+function apiOrigin(): string {
+  try {
+    return new URL(env.API_BASE_URL).origin
+  } catch {
+    return ''
+  }
+}
+
+/** Ingest origin of a Sentry DSN, so error reporting is not blocked by CSP. */
+function sentryOrigin(dsn: string): string {
+  try {
+    return new URL(dsn).origin
+  } catch {
+    return ''
+  }
+}
+
 function addSecurityHeaders(response: NextResponse): NextResponse {
   // Core security headers
   const headers: Record<string, string> = {
@@ -122,6 +164,18 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
     response.headers.set('Strict-Transport-Security', hstsDirectives)
   }
 
+  // Origins the browser is allowed to open connections to. Kept to an explicit
+  // allowlist rather than a blanket `https:` — with `https:` any injected script
+  // can POST stolen data to an attacker-controlled host, which defeats much of
+  // the point of having a CSP.
+  const connectSrc = [
+    "'self'",
+    apiOrigin(),
+    env.SENTRY_DSN ? sentryOrigin(env.SENTRY_DSN) : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   // CSP: use 'self' for script-src — compatible with Next.js static pre-rendering.
   // Note: nonce-based CSP requires force-dynamic rendering on every page.
   // 'block-all-mixed-content' is deprecated (superseded by upgrade-insecure-requests).
@@ -132,7 +186,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https: blob:",
         "font-src 'self'",
-        "connect-src 'self' https:",
+        `connect-src ${connectSrc}`,
         "media-src 'self'",
         "object-src 'none'",
         "child-src 'self'",
@@ -148,7 +202,8 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https: blob:",
         "font-src 'self'",
-        "connect-src 'self' https: ws: wss:",
+        // ws:/wss: are required for the dev-server HMR socket.
+        `connect-src ${connectSrc} ws: wss:`,
         "media-src 'self'",
         "object-src 'none'",
         "child-src 'self'",
@@ -218,9 +273,11 @@ export async function middleware(request: NextRequest) {
       console.warn(
         `API rate limit exceeded: ${getClientIP(request)} - ${pathname}`
       )
-      return createRateLimitResponse()
+      return addSecurityHeaders(createRateLimitResponse())
     }
-    return NextResponse.next()
+    // API responses need the same hardening as pages — notably nosniff, so a
+    // JSON body is never content-sniffed into something executable.
+    return addSecurityHeaders(NextResponse.next())
   }
 
   if (pathname === '/') {
@@ -229,7 +286,7 @@ export async function middleware(request: NextRequest) {
 
   if (applyRateLimit(request)) {
     console.warn(`Rate limit exceeded: ${getClientIP(request)} - ${pathname}`)
-    return createRateLimitResponse()
+    return addSecurityHeaders(createRateLimitResponse())
   }
 
   const intlResponse = intlMiddleware(request)
