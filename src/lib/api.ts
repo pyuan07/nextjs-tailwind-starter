@@ -241,6 +241,21 @@ class ApiClient {
 
         lastError = apiError
       } catch (error) {
+        // Non-retryable errors must propagate immediately. They are thrown from
+        // inside this same try block, so without an explicit rethrow they get
+        // swallowed here and the request is retried anyway — turning a 400 into
+        // N pointless round trips and re-firing `auth:session-expired` each pass.
+        if (error instanceof SessionExpiredError) {
+          throw error
+        }
+        if (
+          error instanceof ApiError &&
+          error.statusCode >= 400 &&
+          error.statusCode < 500
+        ) {
+          throw error
+        }
+
         lastError = error instanceof Error ? error : new Error(String(error))
 
         if (error instanceof Error && error.name === 'AbortError') {

@@ -3,7 +3,7 @@
  *
  * Cookie layout:
  *   auth_token    – short-lived access token  (HttpOnly; 15 min)
- *   refresh_token – long-lived refresh token  (HttpOnly; 7 days; Path=/api/auth/refresh)
+ *   refresh_token – long-lived refresh token  (HttpOnly; 7 days; Path=/api/auth)
  *   csrf_token    – CSRF nonce                (NOT HttpOnly; JS must read it; 15 min)
  *   auth_persist  – remember-me flag          (HttpOnly; 7 days; cleared on logout)
  */
@@ -12,6 +12,20 @@ import { NextResponse } from 'next/server'
 import { TOKEN_CONFIG } from '@/constants'
 
 const isProduction = process.env.NODE_ENV === 'production'
+
+/**
+ * Path scope for the refresh token cookie.
+ *
+ * It must cover BOTH consumers of the refresh token:
+ *   POST /api/auth/refresh  – explicit client-driven rotation
+ *   GET  /api/auth/session  – silent self-heal when the access token expired
+ *
+ * Scoping this to '/api/auth/refresh' (as it previously was) meant the browser
+ * never sent the cookie to /api/auth/session, so the self-heal path there was
+ * unreachable and users were logged out 15 minutes after login even with
+ * "remember me" checked. '/api/auth' is the narrowest scope that covers both.
+ */
+const REFRESH_TOKEN_PATH = '/api/auth'
 
 export function setAuthCookies(
   response: NextResponse,
@@ -31,7 +45,7 @@ export function setAuthCookies(
     httpOnly: true,
     secure: isProduction,
     sameSite: 'strict',
-    path: '/api/auth/refresh',
+    path: REFRESH_TOKEN_PATH,
     ...(remember ? { maxAge: TOKEN_CONFIG.REFRESH_TOKEN_MAX_AGE_S } : {}),
   })
 
@@ -95,7 +109,7 @@ export function clearAuthCookies(response: NextResponse): NextResponse {
   response.cookies.set('auth_token', '', base)
   response.cookies.set('refresh_token', '', {
     ...base,
-    path: '/api/auth/refresh',
+    path: REFRESH_TOKEN_PATH,
   })
   response.cookies.set('csrf_token', '', { ...base, httpOnly: false })
   response.cookies.set('auth_persist', '', base)
