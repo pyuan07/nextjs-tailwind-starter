@@ -376,13 +376,13 @@ AUTH_TOKEN_KEY=auth_token
 ### Running Tests
 
 ```bash
-# Note: Testing infrastructure is planned but not yet implemented
-# Priority: Focus on business logic testing over UI testing
+# Testing runs on Vitest + Testing Library (jsdom).
+# Priority: business logic over UI testing.
 
-# When implemented:
-# npm run test              # Run all tests
-# npm run test:watch        # Watch mode
-# npm run test:coverage     # Coverage report
+npm run test              # Run all tests once
+npm run test:watch        # Watch mode
+npm run test:coverage     # Coverage report
+npm run test:ui           # Vitest UI
 ```
 
 ### Code Quality Workflow

@@ -1392,7 +1392,6 @@ function ResponsiveNav() {
 ```tsx
 // ✅ Lazy load images
 import Image from 'next/image'
-
 ;<Image
   src='/hero-image.jpg'
   alt='Hero'
